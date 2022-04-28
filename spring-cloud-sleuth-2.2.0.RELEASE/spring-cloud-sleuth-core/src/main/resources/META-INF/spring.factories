@@ -1,0 +1,36 @@
+# Auto Configuration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.springframework.cloud.sleuth.annotation.SleuthAnnotationAutoConfiguration,\
+org.springframework.cloud.sleuth.sampler.SamplerAutoConfiguration,\
+org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration,\
+org.springframework.cloud.sleuth.log.SleuthLogAutoConfiguration,\
+org.springframework.cloud.sleuth.propagation.SleuthTagPropagationAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.web.TraceHttpAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.web.TraceWebAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.web.TraceWebServletAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.web.client.TraceWebClientAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.web.client.TraceWebAsyncClientAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.async.AsyncAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.async.AsyncCustomAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.async.AsyncDefaultAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.scheduling.TraceSchedulingAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.web.client.feign.TraceFeignClientAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.hystrix.SleuthHystrixAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.rxjava.RxJavaAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.reactor.TraceReactorAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.web.TraceWebFluxAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.zuul.TraceZuulAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.rpc.TraceRpcAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.grpc.TraceGrpcAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.messaging.SleuthKafkaStreamsConfiguration,\
+org.springframework.cloud.sleuth.instrument.messaging.TraceMessagingAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.messaging.TraceSpringIntegrationAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.messaging.TraceSpringMessagingAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.messaging.websocket.TraceWebSocketAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.opentracing.OpentracingAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.redis.TraceRedisAutoConfiguration,\
+org.springframework.cloud.sleuth.instrument.quartz.TraceQuartzAutoConfiguration
+
+# Environment Post Processor
+org.springframework.boot.env.EnvironmentPostProcessor=\
+org.springframework.cloud.sleuth.autoconfig.TraceEnvironmentPostProcessor

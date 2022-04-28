@@ -1,0 +1,21 @@
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 5000
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 5000
+
+exceptionService.ribbon:
+  MaxAutoRetries: 3
+  OkToRetryOnAllOperations: true
+  ConnectTimeout: 1
+  ReadTimeout: 1
+
+eureka.client.enabled: false
+ribbon.eureka.enabled: false
+
+spring.sleuth.scheduled.skipPattern: "^org.*TestBeanWithScheduledMethodToBeIgnored$"
+
+logging.level.org.springframework.cloud: DEBUG
+logging.level.com.netflix.discovery.InstanceInfoReplicator: ERROR
+logging.level.org.springframework.cloud.sleuth.instrument.web.client.feign: TRACE
+
+spring.autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration, org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration, org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration, org.springframework.cloud.gateway.config.GatewayAutoConfiguration, org.springframework.cloud.gateway.config.GatewayClassPathWarningAutoConfiguration
