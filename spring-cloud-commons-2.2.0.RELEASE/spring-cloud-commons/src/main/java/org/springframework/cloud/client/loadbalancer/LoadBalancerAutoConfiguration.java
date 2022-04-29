@@ -50,7 +50,7 @@ public class LoadBalancerAutoConfiguration {
 
 	@LoadBalanced
 	@Autowired(required = false)
-	private List<RestTemplate> restTemplates = Collections.emptyList();
+	private List<RestTemplate> restTemplates = Collections.emptyList(); // 注入加了@LoadBalanced(@Qualifier标记)的RestTemplate
 
 	@Autowired(required = false)
 	private List<LoadBalancerRequestTransformer> transformers = Collections.emptyList();
@@ -79,7 +79,7 @@ public class LoadBalancerAutoConfiguration {
 	static class LoadBalancerInterceptorConfig {
 
 		@Bean
-		public LoadBalancerInterceptor ribbonInterceptor(
+		public LoadBalancerInterceptor ribbonInterceptor( // 初始化拦截器LoadBalancerInterceptor
 				LoadBalancerClient loadBalancerClient,
 				LoadBalancerRequestFactory requestFactory) {
 			return new LoadBalancerInterceptor(loadBalancerClient, requestFactory);
@@ -91,9 +91,9 @@ public class LoadBalancerAutoConfiguration {
 				final LoadBalancerInterceptor loadBalancerInterceptor) {
 			return restTemplate -> {
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(
-						restTemplate.getInterceptors());
-				list.add(loadBalancerInterceptor);
-				restTemplate.setInterceptors(list);
+						restTemplate.getInterceptors()); // 获取默认的拦截器链
+				list.add(loadBalancerInterceptor); // 添加到拦截器链中
+				restTemplate.setInterceptors(list); // 将拦截器链设置到RestTemplate中
 			};
 		}
 

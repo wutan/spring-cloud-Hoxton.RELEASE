@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Qualifier
-public @interface LoadBalanced {
+@Qualifier // 本质上是@Qualifier注解
+public @interface LoadBalanced { // 该注解被LoadBalancerAutoConfiguration扫描到，通过LoadBalancerInterceptor拦截器将服务名解析成服务列表
 
 }

@@ -25,7 +25,7 @@ import org.springframework.cloud.client.ServiceInstance;
  * Represents a client-side load balancer.
  *
  * @author Spencer Gibb
- */
+ */ // 主要作用: 1.解析配置中的服务列表; 2.基于负载均衡算法实现请求分发（可以通过@LoadBalanced注解进一步封装简化调用）
 public interface LoadBalancerClient extends ServiceInstanceChooser {
 
 	/**
