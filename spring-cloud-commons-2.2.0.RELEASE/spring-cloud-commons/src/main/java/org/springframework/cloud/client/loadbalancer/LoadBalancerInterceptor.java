@@ -31,14 +31,14 @@ import org.springframework.util.Assert;
  * @author Ryan Baxter
  * @author William Tran
  */
-public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor {
+public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor { // LoadBalancer拦截器
 
 	private LoadBalancerClient loadBalancer;
 
 	private LoadBalancerRequestFactory requestFactory;
 
 	public LoadBalancerInterceptor(LoadBalancerClient loadBalancer,
-			LoadBalancerRequestFactory requestFactory) {
+			LoadBalancerRequestFactory requestFactory) { // 构造方法注入
 		this.loadBalancer = loadBalancer;
 		this.requestFactory = requestFactory;
 	}
@@ -49,13 +49,13 @@ public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor {
 	}
 
 	@Override
-	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body,
+	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, // 拦截请求
 			final ClientHttpRequestExecution execution) throws IOException {
 		final URI originalUri = request.getURI();
 		String serviceName = originalUri.getHost();
 		Assert.state(serviceName != null,
 				"Request URI does not contain a valid hostname: " + originalUri);
-		return this.loadBalancer.execute(serviceName,
+		return this.loadBalancer.execute(serviceName, // 通过拦截器委托给RibbonLoadBalancerClient去调用
 				this.requestFactory.createRequest(request, body, execution));
 	}
 

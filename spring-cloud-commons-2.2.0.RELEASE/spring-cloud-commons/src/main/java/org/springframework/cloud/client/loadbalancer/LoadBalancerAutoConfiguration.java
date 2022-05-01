@@ -61,7 +61,7 @@ public class LoadBalancerAutoConfiguration {
 		return () -> restTemplateCustomizers.ifAvailable(customizers -> {
 			for (RestTemplate restTemplate : LoadBalancerAutoConfiguration.this.restTemplates) {
 				for (RestTemplateCustomizer customizer : customizers) {
-					customizer.customize(restTemplate);
+					customizer.customize(restTemplate); // 调用RestTemplateCustomizer的函数式接口
 				}
 			}
 		});
@@ -89,7 +89,7 @@ public class LoadBalancerAutoConfiguration {
 		@ConditionalOnMissingBean
 		public RestTemplateCustomizer restTemplateCustomizer(
 				final LoadBalancerInterceptor loadBalancerInterceptor) {
-			return restTemplate -> {
+			return restTemplate -> { // 函数式接口
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(
 						restTemplate.getInterceptors()); // 获取默认的拦截器链
 				list.add(loadBalancerInterceptor); // 添加到拦截器链中
@@ -124,7 +124,7 @@ public class LoadBalancerAutoConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		public RetryLoadBalancerInterceptor ribbonInterceptor(
+		public RetryLoadBalancerInterceptor ribbonInterceptor( // 初始化拦截器RetryLoadBalancerInterceptor
 				LoadBalancerClient loadBalancerClient,
 				LoadBalancerRetryProperties properties,
 				LoadBalancerRequestFactory requestFactory,
@@ -137,7 +137,7 @@ public class LoadBalancerAutoConfiguration {
 		@ConditionalOnMissingBean
 		public RestTemplateCustomizer restTemplateCustomizer(
 				final RetryLoadBalancerInterceptor loadBalancerInterceptor) {
-			return restTemplate -> {
+			return restTemplate -> { // 函数式接口
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(
 						restTemplate.getInterceptors());
 				list.add(loadBalancerInterceptor);

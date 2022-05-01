@@ -113,7 +113,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	 */
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
 			throws IOException {
-		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
+		ILoadBalancer loadBalancer = getLoadBalancer(serviceId); // 根据服务名获取负载均衡器
 		Server server = getServer(loadBalancer, hint);
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);

@@ -88,7 +88,7 @@ public class RibbonAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
 	public LoadBalancerClient loadBalancerClient() {
-		return new RibbonLoadBalancerClient(springClientFactory());
+		return new RibbonLoadBalancerClient(springClientFactory()); // 创建LoadBalancerClient接口实例，用于委托调用
 	}
 
 	@Bean
