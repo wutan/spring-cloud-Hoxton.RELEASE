@@ -34,6 +34,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Documented
 @Inherited
 @Qualifier // 本质上是@Qualifier注解
-public @interface LoadBalanced { // 该注解被LoadBalancerAutoConfiguration扫描到，通过LoadBalancerInterceptor拦截器将服务名解析成服务列表
+public @interface LoadBalanced { // 该注解被LoadBalancerAutoConfiguration扫描到，会通过LoadBalancerInterceptor拦截器将服务名解析成服务列表
 
 }

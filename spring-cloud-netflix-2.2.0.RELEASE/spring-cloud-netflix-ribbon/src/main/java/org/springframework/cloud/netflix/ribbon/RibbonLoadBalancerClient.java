@@ -114,7 +114,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
 			throws IOException {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId); // 根据服务名获取负载均衡器
-		Server server = getServer(loadBalancer, hint);
+		Server server = getServer(loadBalancer, hint); // 根据负载均衡器选择Server服务
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
 		}
@@ -186,7 +186,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			return null;
 		}
 		// Use 'default' on a null hint, or just pass it on?
-		return loadBalancer.chooseServer(hint != null ? hint : "default");
+		return loadBalancer.chooseServer(hint != null ? hint : "default"); // 默认采用轮询算法来实现负载均衡
 	}
 
 	protected ILoadBalancer getLoadBalancer(String serviceId) {

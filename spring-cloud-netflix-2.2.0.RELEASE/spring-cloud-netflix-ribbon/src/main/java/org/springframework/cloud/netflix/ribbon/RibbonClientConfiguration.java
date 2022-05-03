@@ -97,7 +97,7 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public IClientConfig ribbonClientConfig() {
+	public IClientConfig ribbonClientConfig() { // 创建IClientConfig实现类对象
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 		config.loadProperties(this.name);
 		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT);
@@ -140,8 +140,8 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public ServerListUpdater ribbonServerListUpdater(IClientConfig config) {
-		return new PollingServerListUpdater(config);
+	public ServerListUpdater ribbonServerListUpdater(IClientConfig config) { // 注入IClientConfig
+		return new PollingServerListUpdater(config); // 创建PollingServerListUpdater对象
 	}
 
 	@Bean

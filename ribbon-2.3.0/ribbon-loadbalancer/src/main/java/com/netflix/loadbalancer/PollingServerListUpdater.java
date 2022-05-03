@@ -92,7 +92,7 @@ public class PollingServerListUpdater implements ServerListUpdater {
     }
 
     public PollingServerListUpdater(IClientConfig clientConfig) {
-        this(LISTOFSERVERS_CACHE_UPDATE_DELAY, getRefreshIntervalMs(clientConfig));
+        this(LISTOFSERVERS_CACHE_UPDATE_DELAY, getRefreshIntervalMs(clientConfig)); // 默认启动后延期1秒开始执行、每隔30秒间隔刷新
     }
 
     public PollingServerListUpdater(final long initialDelayMs, final long refreshIntervalMs) {

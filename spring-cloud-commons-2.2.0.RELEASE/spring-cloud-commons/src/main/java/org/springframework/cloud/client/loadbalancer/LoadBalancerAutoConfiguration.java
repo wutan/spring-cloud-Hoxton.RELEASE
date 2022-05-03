@@ -50,18 +50,18 @@ public class LoadBalancerAutoConfiguration {
 
 	@LoadBalanced
 	@Autowired(required = false)
-	private List<RestTemplate> restTemplates = Collections.emptyList(); // 注入加了@LoadBalanced(@Qualifier标记)的RestTemplate
+	private List<RestTemplate> restTemplates = Collections.emptyList(); // 注入修饰了@LoadBalanced(@Qualifier标记)的RestTemplate
 
 	@Autowired(required = false)
 	private List<LoadBalancerRequestTransformer> transformers = Collections.emptyList();
 
 	@Bean
-	public SmartInitializingSingleton loadBalancedRestTemplateInitializerDeprecated(
+	public SmartInitializingSingleton loadBalancedRestTemplateInitializerDeprecated( // 3.初始化SmartInitializingSingleton
 			final ObjectProvider<List<RestTemplateCustomizer>> restTemplateCustomizers) {
 		return () -> restTemplateCustomizers.ifAvailable(customizers -> {
 			for (RestTemplate restTemplate : LoadBalancerAutoConfiguration.this.restTemplates) {
-				for (RestTemplateCustomizer customizer : customizers) {
-					customizer.customize(restTemplate); // 调用RestTemplateCustomizer的函数式接口
+				for (RestTemplateCustomizer customizer : customizers) { // 对修饰了@LoadBalanced注解的RestTemplate实例添加LoadBalancerInterceptor拦截器
+					customizer.customize(restTemplate); // 真正开始调用RestTemplateCustomizer的函数式接口将拦截器设置到RestTemplate中
 				}
 			}
 		});
@@ -79,7 +79,7 @@ public class LoadBalancerAutoConfiguration {
 	static class LoadBalancerInterceptorConfig {
 
 		@Bean
-		public LoadBalancerInterceptor ribbonInterceptor( // 初始化拦截器LoadBalancerInterceptor
+		public LoadBalancerInterceptor ribbonInterceptor( // 1.初始化拦截器LoadBalancerInterceptor
 				LoadBalancerClient loadBalancerClient,
 				LoadBalancerRequestFactory requestFactory) {
 			return new LoadBalancerInterceptor(loadBalancerClient, requestFactory);
@@ -87,7 +87,7 @@ public class LoadBalancerAutoConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		public RestTemplateCustomizer restTemplateCustomizer(
+		public RestTemplateCustomizer restTemplateCustomizer( // 2.初始化RestTemplateCustomizer
 				final LoadBalancerInterceptor loadBalancerInterceptor) {
 			return restTemplate -> { // 函数式接口
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(

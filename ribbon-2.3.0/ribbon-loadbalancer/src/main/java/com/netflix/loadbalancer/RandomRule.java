@@ -83,7 +83,7 @@ public class RandomRule extends AbstractLoadBalancerRule {
 
     }
 
-    protected int chooseRandomInt(int serverCount) {
+    protected int chooseRandomInt(int serverCount) { // 随机算法
         return ThreadLocalRandom.current().nextInt(serverCount);
     }
 

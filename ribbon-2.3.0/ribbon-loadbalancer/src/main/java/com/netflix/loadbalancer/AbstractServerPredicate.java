@@ -145,7 +145,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
      * @param modulo The modulo to bound the value of the counter.
      * @return The next value.
      */
-    private int incrementAndGetModulo(int modulo) {
+    private int incrementAndGetModulo(int modulo) { // 轮询算法
         for (;;) {
             int current = nextIndex.get();
             int next = (current + 1) % modulo;
@@ -200,7 +200,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
         if (eligible.size() == 0) {
             return Optional.absent();
         }
-        return Optional.of(eligible.get(incrementAndGetModulo(eligible.size())));
+        return Optional.of(eligible.get(incrementAndGetModulo(eligible.size()))); // 轮询算法
     }
         
     /**

@@ -62,7 +62,7 @@ import org.springframework.web.client.RestTemplate;
 @AutoConfigureAfter(
 		name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
 @AutoConfigureBefore({ LoadBalancerAutoConfiguration.class,
-		AsyncLoadBalancerAutoConfiguration.class })
+		AsyncLoadBalancerAutoConfiguration.class }) // RibbonAutoConfiguration会在LoadBalancerAutoConfiguration之前加载
 @EnableConfigurationProperties({ RibbonEagerLoadProperties.class,
 		ServerIntrospectorProperties.class })
 public class RibbonAutoConfiguration {
