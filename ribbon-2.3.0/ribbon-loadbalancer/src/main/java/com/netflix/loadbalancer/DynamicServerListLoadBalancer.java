@@ -85,7 +85,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     public DynamicServerListLoadBalancer(IClientConfig clientConfig, IRule rule, IPing ping,
                                          ServerList<T> serverList, ServerListFilter<T> filter,
                                          ServerListUpdater serverListUpdater) {
-        super(clientConfig, rule, ping);
+        super(clientConfig, rule, ping); // 调用父类构造函数
         this.serverListImpl = serverList;
         this.filter = filter;
         this.serverListUpdater = serverListUpdater;
@@ -139,7 +139,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
         boolean primeConnection = this.isEnablePrimingConnections();
         // turn this off to avoid duplicated asynchronous priming done in BaseLoadBalancer.setServerList()
         this.setEnablePrimingConnections(false);
-        enableAndInitLearnNewServersFeature(); // 通过定时任务默认每隔30秒动态更新本地服务列表
+        enableAndInitLearnNewServersFeature(); // 通过定时任务默认每隔30秒动态更新服务列表（调用updateListOfServers方法）
 
         updateListOfServers(); // 更新服务列表
         if (primeConnection && this.getPrimeConnections() != null) {
@@ -153,7 +153,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     
     @Override
     public void setServersList(List lsrv) {
-        super.setServersList(lsrv);
+        super.setServersList(lsrv);  // 设置服务列表
         List<T> serverList = (List<T>) lsrv;
         Map<String, List<Server>> serversInZones = new HashMap<String, List<Server>>();
         for (Server server : serverList) {
@@ -257,17 +257,17 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
      */
     protected void updateAllServerList(List<T> ls) {
         // other threads might be doing this - in which case, we pass
-        if (serverListUpdateInProgress.compareAndSet(false, true)) {
+        if (serverListUpdateInProgress.compareAndSet(false, true)) { // CAS操作，轻量级锁
             try {
                 for (T s : ls) {
                     s.setAlive(true); // set so that clients can start using these
                                       // servers right away instead
                                       // of having to wait out the ping cycle.
                 }
-                setServersList(ls);
+                setServersList(ls); // 设置服务列表
                 super.forceQuickPing();
             } finally {
-                serverListUpdateInProgress.set(false);
+                serverListUpdateInProgress.set(false); // 操作完毕后设置为false
             }
         }
     }

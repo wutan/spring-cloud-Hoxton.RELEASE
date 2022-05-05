@@ -65,6 +65,6 @@ public interface LoadBalancerClient extends ServiceInstanceChooser {
 	 * @param original A URI with the host as a logical service name.
 	 * @return A reconstructed URI.
 	 */
-	URI reconstructURI(ServiceInstance instance, URI original);
+	URI reconstructURI(ServiceInstance instance, URI original); // 重构URI，将服务敏转为真实的IP和端口号的形式
 
 }

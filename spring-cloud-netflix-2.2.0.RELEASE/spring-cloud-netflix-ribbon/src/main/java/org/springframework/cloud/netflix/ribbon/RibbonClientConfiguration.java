@@ -123,7 +123,7 @@ public class RibbonClientConfiguration {
 		if (this.propertiesFactory.isSet(IPing.class, name)) {
 			return this.propertiesFactory.get(IPing.class, config, name);
 		}
-		return new DummyPing();
+		return new DummyPing(); // 默认的ping为空操作
 	}
 
 	@Bean
@@ -153,7 +153,7 @@ public class RibbonClientConfiguration {
 			return this.propertiesFactory.get(ILoadBalancer.class, config, name);
 		}
 		return new ZoneAwareLoadBalancer<>(config, rule, ping, serverList,
-				serverListFilter, serverListUpdater);
+				serverListFilter, serverListUpdater); // 构建负载均衡器实例
 	}
 
 	@Bean

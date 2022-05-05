@@ -91,7 +91,7 @@ public class PollingServerListUpdater implements ServerListUpdater {
         this(LISTOFSERVERS_CACHE_UPDATE_DELAY, LISTOFSERVERS_CACHE_REPEAT_INTERVAL);
     }
 
-    public PollingServerListUpdater(IClientConfig clientConfig) {
+    public PollingServerListUpdater(IClientConfig clientConfig) { // 在RibbonClientConfiguration中进行初始化，并传入客户端配置允许修改间隔执行时间
         this(LISTOFSERVERS_CACHE_UPDATE_DELAY, getRefreshIntervalMs(clientConfig)); // 默认启动后延期1秒开始执行、每隔30秒间隔刷新
     }
 
@@ -123,8 +123,8 @@ public class PollingServerListUpdater implements ServerListUpdater {
 
             scheduledFuture = getRefreshExecutor().scheduleWithFixedDelay(
                     wrapperRunnable,
-                    initialDelayMs,
-                    refreshIntervalMs,
+                    initialDelayMs, // 默认延期1秒开始执行
+                    refreshIntervalMs, // 默认每隔30秒重复执行
                     TimeUnit.MILLISECONDS
             );
         } else {

@@ -57,8 +57,8 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
         Server server = null;
         int count = 0;
         while (server == null && count++ < 10) {
-            List<Server> reachableServers = lb.getReachableServers();
-            List<Server> allServers = lb.getAllServers();
+            List<Server> reachableServers = lb.getReachableServers(); // 获取可用服务
+            List<Server> allServers = lb.getAllServers(); // 获取所有服务
             int upCount = reachableServers.size();
             int serverCount = allServers.size();
 

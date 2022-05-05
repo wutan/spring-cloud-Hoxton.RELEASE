@@ -114,7 +114,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
 			throws IOException {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId); // 根据服务名获取负载均衡器
-		Server server = getServer(loadBalancer, hint); // 根据负载均衡器选择Server服务
+		Server server = getServer(loadBalancer, hint); // 根据负载均衡器选择Server服务（默认采用轮询算法）
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
 		}
@@ -141,7 +141,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonStatsRecorder statsRecorder = new RibbonStatsRecorder(context, server);
 
 		try {
-			T returnVal = request.apply(serviceInstance);
+			T returnVal = request.apply(serviceInstance); // 会调用LoadBalancerRequestFactory中createRequest的函数式接口
 			statsRecorder.recordStats(returnVal);
 			return returnVal;
 		}

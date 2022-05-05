@@ -51,7 +51,7 @@ public class LoadBalancerRequestFactory {
 			final ClientHttpRequestExecution execution) {
 		return instance -> {
 			HttpRequest serviceRequest = new ServiceRequestWrapper(request, instance,
-					this.loadBalancer);
+					this.loadBalancer); // 对请求进行包装
 			if (this.transformers != null) {
 				for (LoadBalancerRequestTransformer transformer : this.transformers) {
 					serviceRequest = transformer.transformRequest(serviceRequest,

@@ -79,7 +79,7 @@ public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLo
     public ZoneAwareLoadBalancer(IClientConfig clientConfig, IRule rule,
                                  IPing ping, ServerList<T> serverList, ServerListFilter<T> filter,
                                  ServerListUpdater serverListUpdater) {
-        super(clientConfig, rule, ping, serverList, filter, serverListUpdater);
+        super(clientConfig, rule, ping, serverList, filter, serverListUpdater); // 调用父类构造函数
     }
 
     public ZoneAwareLoadBalancer(IClientConfig niwsClientConfig) {

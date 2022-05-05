@@ -63,7 +63,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     private static Logger logger = LoggerFactory
             .getLogger(BaseLoadBalancer.class);
     private final static IRule DEFAULT_RULE = new RoundRobinRule();
-    private final static SerialPingStrategy DEFAULT_PING_STRATEGY = new SerialPingStrategy();
+    private final static SerialPingStrategy DEFAULT_PING_STRATEGY = new SerialPingStrategy(); // 默认的ping策略
     private static final String DEFAULT_NAME = "default";
     private static final String PREFIX = "LoadBalancer_";
 
@@ -78,7 +78,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
             .synchronizedList(new ArrayList<Server>()); // 所有服务的列表
     @Monitor(name = PREFIX + "UpServerList", type = DataSourceType.INFORMATIONAL)
     protected volatile List<Server> upServerList = Collections
-            .synchronizedList(new ArrayList<Server>()); // 可用服务的列表
+            .synchronizedList(new ArrayList<Server>()); // 可用服务的列表，在DynamicServerListLoadBalancer构造函数会开启定时任务更新服务列表
 
     protected ReadWriteLock allServerLock = new ReentrantReadWriteLock();
     protected ReadWriteLock upServerLock = new ReentrantReadWriteLock();
@@ -120,7 +120,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         this.name = DEFAULT_NAME;
         this.ping = null;
         setRule(DEFAULT_RULE);
-        setupPingTask();
+        setupPingTask(); // 设置ping任务
         lbStats = new LoadBalancerStats(DEFAULT_NAME);
     }
 
@@ -186,8 +186,8 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         // cross associate with each other
         // i.e. Rule,Ping meet your container LB
         // LB, these are your Ping and Rule guys ...
-        setRule(rule);
-        setPing(ping);
+        setRule(rule); // 设置rule
+        setPing(ping); // 设置ping
 
         setLoadBalancerStats(stats);
         rule.setLoadBalancer(this);
@@ -262,7 +262,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     	return config;
     }
     
-    private boolean canSkipPing() {
+    private boolean canSkipPing() { // 判断是否跳过Ping操作（默认情况下会跳过）
         if (ping == null
                 || ping.getClass().getName().equals(DummyPing.class.getName())) {
             // default ping, no need to set up timer
@@ -281,7 +281,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         }
         lbTimer = new ShutdownEnabledTimer("NFLoadBalancer-PingTimer-" + name,
                 true);
-        lbTimer.schedule(new PingTask(), 0, pingIntervalSeconds * 1000);
+        lbTimer.schedule(new PingTask(), 0, pingIntervalSeconds * 1000); // 构建定时任务，每隔10秒ping一次
         forceQuickPing();
     }
 
@@ -542,7 +542,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
             // This will reset readyToServe flag to true on all servers
             // regardless whether
             // previous priming connections are success or not
-            allServerList = allServers;
+            allServerList = allServers; // 设置所有服务列表
             if (canSkipPing()) {
                 for (Server s : allServerList) {
                     s.setAlive(true);
@@ -643,7 +643,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     class PingTask extends TimerTask {
         public void run() {
             try {
-            	new Pinger(pingStrategy).runPinger();
+            	new Pinger(pingStrategy).runPinger(); // ping操作的具体实现
             } catch (Exception e) {
                 logger.error("LoadBalancer [{}]: Error pinging", name, e);
             }
@@ -684,7 +684,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
                  */
                 allLock = allServerLock.readLock();
                 allLock.lock();
-                allServers = allServerList.toArray(new Server[allServerList.size()]);
+                allServers = allServerList.toArray(new Server[allServerList.size()]); // 所有服务列表
                 allLock.unlock();
 
                 int numCandidates = allServers.length;
@@ -748,11 +748,11 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
             counter = createCounter();
         }
         counter.increment();
-        if (rule == null) {
+        if (rule == null) { // 负载均衡规则不存在时返回null
             return null;
         } else {
             try {
-                return rule.choose(key);
+                return rule.choose(key); // 根据负载均衡规则选择一个服务
             } catch (Exception e) {
                 logger.warn("LoadBalancer [{}]:  Error choosing server for key {}", name, key, e);
                 return null;
@@ -918,7 +918,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
                     // this
                     // serially
                     if (ping != null) {
-                        results[i] = ping.isAlive(servers[i]);
+                        results[i] = ping.isAlive(servers[i]); // 通过ping判断是否存活
                     }
                 } catch (Exception e) {
                     logger.error("Exception while pinging Server: '{}'", servers[i], e);

@@ -31,6 +31,6 @@ public interface ServiceInstanceChooser {
 	 * @param serviceId The service ID to look up the LoadBalancer.
 	 * @return A ServiceInstance that matches the serviceId.
 	 */
-	ServiceInstance choose(String serviceId);
+	ServiceInstance choose(String serviceId); // 通过服务id从负载均衡器中挑选出来一个服务实例，服务实例使用ServiceInstance封装
 
 }
