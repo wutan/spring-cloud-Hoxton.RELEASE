@@ -46,7 +46,7 @@ import org.springframework.web.client.RestTemplate;
 @ConditionalOnClass(RestTemplate.class)
 @ConditionalOnBean(LoadBalancerClient.class)
 @EnableConfigurationProperties(LoadBalancerRetryProperties.class)
-public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在LoadBalancerAutoConfiguration之前加载
+public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在LoadBalancerAutoConfiguration之前加载（实例化LoadBalancerClient等）
 
 	@LoadBalanced
 	@Autowired(required = false)
@@ -69,13 +69,13 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 
 	@Bean
 	@ConditionalOnMissingBean
-	public LoadBalancerRequestFactory loadBalancerRequestFactory(
+	public LoadBalancerRequestFactory loadBalancerRequestFactory( // 0.初始化LoadBalancerRequestFactory
 			LoadBalancerClient loadBalancerClient) {
 		return new LoadBalancerRequestFactory(loadBalancerClient, this.transformers);
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnMissingClass("org.springframework.retry.support.RetryTemplate")
+	@ConditionalOnMissingClass("org.springframework.retry.support.RetryTemplate") // 不存在RetryTemplate类时
 	static class LoadBalancerInterceptorConfig {
 
 		@Bean
@@ -119,7 +119,7 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 	 * Auto configuration for retry intercepting mechanism.
 	 */
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(RetryTemplate.class)
+	@ConditionalOnClass(RetryTemplate.class) // 存在RetryTemplate类时
 	public static class RetryInterceptorAutoConfiguration {
 
 		@Bean

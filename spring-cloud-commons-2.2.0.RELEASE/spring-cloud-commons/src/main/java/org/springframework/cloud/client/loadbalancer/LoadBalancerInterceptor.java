@@ -51,8 +51,8 @@ public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor { /
 	@Override
 	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, // 拦截请求，在InterceptingClientHttpRequest.InterceptingRequestExecution.execute方法中会被调用到
 			final ClientHttpRequestExecution execution) throws IOException {
-		final URI originalUri = request.getURI();
-		String serviceName = originalUri.getHost(); // 获取服务名
+		final URI originalUri = request.getURI(); // 获取访问地址
+		String serviceName = originalUri.getHost(); // 获取访问地址的服务名
 		Assert.state(serviceName != null,
 				"Request URI does not contain a valid hostname: " + originalUri);
 		return this.loadBalancer.execute(serviceName, // 通过拦截器委托给RibbonLoadBalancerClient去调用

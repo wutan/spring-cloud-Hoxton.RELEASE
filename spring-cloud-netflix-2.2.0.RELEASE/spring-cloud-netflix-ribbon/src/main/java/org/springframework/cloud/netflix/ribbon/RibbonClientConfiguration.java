@@ -96,8 +96,8 @@ public class RibbonClientConfiguration {
 	private PropertiesFactory propertiesFactory;
 
 	@Bean
-	@ConditionalOnMissingBean
-	public IClientConfig ribbonClientConfig() { // 创建IClientConfig实现类对象
+	@ConditionalOnMissingBean // Spring容器中不存在该Bean时
+	public IClientConfig ribbonClientConfig() { // 创建客户端负载均衡器配置接口IClientConfig实现类对象
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 		config.loadProperties(this.name);
 		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT);
@@ -108,52 +108,52 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public IRule ribbonRule(IClientConfig config) {
+	public IRule ribbonRule(IClientConfig config) { // 创建负载均衡策略接口IRule实现类对象
 		if (this.propertiesFactory.isSet(IRule.class, name)) {
 			return this.propertiesFactory.get(IRule.class, config, name);
 		}
-		ZoneAvoidanceRule rule = new ZoneAvoidanceRule();
+		ZoneAvoidanceRule rule = new ZoneAvoidanceRule(); // 默认的负载均衡策略（先按照zone筛选，再进行轮询）
 		rule.initWithNiwsConfig(config);
 		return rule;
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public IPing ribbonPing(IClientConfig config) {
+	public IPing ribbonPing(IClientConfig config) { // 创建负载均衡探活策略IPing实现类对象，判断服务实例是否存活
 		if (this.propertiesFactory.isSet(IPing.class, name)) {
 			return this.propertiesFactory.get(IPing.class, config, name);
 		}
-		return new DummyPing(); // 默认的ping为空操作
+		return new DummyPing(); // 默认的ping为空操作，直接返回true（PingUrl会真正的去ping相应的服务）
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	@SuppressWarnings("unchecked")
-	public ServerList<Server> ribbonServerList(IClientConfig config) {
+	public ServerList<Server> ribbonServerList(IClientConfig config) { // 服务列表
 		if (this.propertiesFactory.isSet(ServerList.class, name)) {
 			return this.propertiesFactory.get(ServerList.class, config, name);
 		}
-		ConfigurationBasedServerList serverList = new ConfigurationBasedServerList();
+		ConfigurationBasedServerList serverList = new ConfigurationBasedServerList(); // 默认从配置文件中获取服务地址列表
 		serverList.initWithNiwsConfig(config);
 		return serverList;
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public ServerListUpdater ribbonServerListUpdater(IClientConfig config) { // 注入IClientConfig
-		return new PollingServerListUpdater(config); // 创建PollingServerListUpdater对象
+	public ServerListUpdater ribbonServerListUpdater(IClientConfig config) { // 服务列表更新策略
+		return new PollingServerListUpdater(config); // 默认创建PollingServerListUpdater对象，会启动一个ScheduledThreadPoolExecutor，周期性的执行IPing策略
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
 			ServerList<Server> serverList, ServerListFilter<Server> serverListFilter,
-			IRule rule, IPing ping, ServerListUpdater serverListUpdater) {
+			IRule rule, IPing ping, ServerListUpdater serverListUpdater) { // 默认创建负载均衡器实现类对象ZoneAwareLoadBalancer
 		if (this.propertiesFactory.isSet(ILoadBalancer.class, name)) {
 			return this.propertiesFactory.get(ILoadBalancer.class, config, name);
 		}
 		return new ZoneAwareLoadBalancer<>(config, rule, ping, serverList,
-				serverListFilter, serverListUpdater); // 构建负载均衡器实例
+				serverListFilter, serverListUpdater); // 负载均衡器包含了客户端负载均衡器配置、负载均衡策略、负载均衡探活策略、服务列表、服务列表更新策略
 	}
 
 	@Bean

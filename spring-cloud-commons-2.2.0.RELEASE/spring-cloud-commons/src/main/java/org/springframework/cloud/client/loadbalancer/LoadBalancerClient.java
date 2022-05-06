@@ -39,7 +39,7 @@ public interface LoadBalancerClient extends ServiceInstanceChooser {
 	 * @return The result of the LoadBalancerRequest callback on the selected
 	 * ServiceInstance.
 	 */
-	<T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException;
+	<T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException; // 从负载均衡器中选择一个服务并执行
 
 	/**
 	 * Executes request using a ServiceInstance from the LoadBalancer for the specified
