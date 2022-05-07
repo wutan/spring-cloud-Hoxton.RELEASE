@@ -157,7 +157,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE")
     @Override
-    public Server choose(ILoadBalancer lb, Object key) {
+    public Server choose(ILoadBalancer lb, Object key) { // 权重算法
         if (lb == null) {
             return null;
         }
@@ -184,7 +184,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
             // No server has been hit yet and total weight is not initialized
             // fallback to use round robin
             if (maxTotalWeight < 0.001d || serverCount != currentWeights.size()) {
-                server =  super.choose(getLoadBalancer(), key);
+                server =  super.choose(getLoadBalancer(), key); // 调用父类轮询算法
                 if(server == null) {
                     return server;
                 }
@@ -193,7 +193,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                 double randomWeight = random.nextDouble() * maxTotalWeight;
                 // pick the server index based on the randomIndex
                 int n = 0;
-                for (Double d : currentWeights) {
+                for (Double d : currentWeights) { // 区间计算
                     if (d >= randomWeight) {
                         serverIndex = n;
                         break;

@@ -40,7 +40,7 @@ public class ServiceRequestWrapper extends HttpRequestWrapper {
 
 	@Override
 	public URI getURI() {
-		URI uri = this.loadBalancer.reconstructURI(this.instance, getRequest().getURI());
+		URI uri = this.loadBalancer.reconstructURI(this.instance, getRequest().getURI()); // 重构URI
 		return uri;
 	}
 

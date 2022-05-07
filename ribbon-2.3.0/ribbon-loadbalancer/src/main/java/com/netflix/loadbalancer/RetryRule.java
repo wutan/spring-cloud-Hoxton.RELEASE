@@ -93,7 +93,7 @@ public class RetryRule extends AbstractLoadBalancerRule {
 				answer = subRule.choose(key);
 
 				if (((answer == null) || (!answer.isAlive()))
-						&& (System.currentTimeMillis() < deadline)) {
+						&& (System.currentTimeMillis() < deadline)) { // 重试条件：服务为空或不存活、且最大重试时间未到
 					/* pause and retry hoping it's transient */
 					Thread.yield();
 				} else {

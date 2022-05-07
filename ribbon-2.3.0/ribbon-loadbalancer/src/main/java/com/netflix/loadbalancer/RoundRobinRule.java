@@ -48,7 +48,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
         setLoadBalancer(lb);
     }
 
-    public Server choose(ILoadBalancer lb, Object key) {
+    public Server choose(ILoadBalancer lb, Object key) { // 轮询算法
         if (lb == null) {
             log.warn("no load balancer");
             return null;
@@ -67,7 +67,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
                 return null;
             }
 
-            int nextServerIndex = incrementAndGetModulo(serverCount);
+            int nextServerIndex = incrementAndGetModulo(serverCount); // 传入所有服务的数量进行轮询
             server = allServers.get(nextServerIndex);
 
             if (server == null) {
@@ -99,9 +99,9 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
      */
     private int incrementAndGetModulo(int modulo) {
         for (;;) {
-            int current = nextServerCyclicCounter.get();
-            int next = (current + 1) % modulo;
-            if (nextServerCyclicCounter.compareAndSet(current, next))
+            int current = nextServerCyclicCounter.get(); // 获取当前原子类的数值
+            int next = (current + 1) % modulo; // 当前值+1并求余
+            if (nextServerCyclicCounter.compareAndSet(current, next)) // 更新原子类数值
                 return next;
         }
     }

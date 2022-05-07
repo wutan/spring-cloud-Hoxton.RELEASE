@@ -56,7 +56,7 @@ public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor { /
 		Assert.state(serviceName != null,
 				"Request URI does not contain a valid hostname: " + originalUri);
 		return this.loadBalancer.execute(serviceName, // 通过拦截器委托给RibbonLoadBalancerClient去调用
-				this.requestFactory.createRequest(request, body, execution));
+				this.requestFactory.createRequest(request, body, execution)); // 构建LoadBalancerRequest，在LoadBalancerClient.execute的方法中会调用LoadBalancerRequest.apply方法执行内部逻辑
 	}
 
 }
