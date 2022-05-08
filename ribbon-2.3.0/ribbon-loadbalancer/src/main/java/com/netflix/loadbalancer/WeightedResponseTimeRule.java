@@ -94,7 +94,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
     
     // holds the accumulated weight from index 0 to current index
     // for example, element at index 2 holds the sum of weight of servers from 0 to 2
-    private volatile List<Double> accumulatedWeights = new ArrayList<Double>();
+    private volatile List<Double> accumulatedWeights = new ArrayList<Double>(); // 服务权重列表
     
 
     private final Random random = new Random();
@@ -165,7 +165,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
 
         while (server == null) {
             // get hold of the current reference in case it is changed from the other thread
-            List<Double> currentWeights = accumulatedWeights;
+            List<Double> currentWeights = accumulatedWeights; // 当前服务权重列表
             if (Thread.interrupted()) {
                 return null;
             }
@@ -180,7 +180,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
             int serverIndex = 0;
 
             // last one in the list is the sum of all weights
-            double maxTotalWeight = currentWeights.size() == 0 ? 0 : currentWeights.get(currentWeights.size() - 1); 
+            double maxTotalWeight = currentWeights.size() == 0 ? 0 : currentWeights.get(currentWeights.size() - 1); // 权重最大值
             // No server has been hit yet and total weight is not initialized
             // fallback to use round robin
             if (maxTotalWeight < 0.001d || serverCount != currentWeights.size()) {
@@ -190,7 +190,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                 }
             } else {
                 // generate a random weight between 0 (inclusive) to maxTotalWeight (exclusive)
-                double randomWeight = random.nextDouble() * maxTotalWeight;
+                double randomWeight = random.nextDouble() * maxTotalWeight; // 权重随机数
                 // pick the server index based on the randomIndex
                 int n = 0;
                 for (Double d : currentWeights) { // 区间计算
@@ -221,7 +221,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
         return server;
     }
 
-    class DynamicServerWeightTask extends TimerTask {
+    class DynamicServerWeightTask extends TimerTask { // 定时计算权重
         public void run() {
             ServerWeight serverWeight = new ServerWeight();
             try {
@@ -234,7 +234,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
 
     class ServerWeight {
 
-        public void maintainWeights() {
+        public void maintainWeights() { // 计算权重
             ILoadBalancer lb = getLoadBalancer();
             if (lb == null) {
                 return;
@@ -247,17 +247,17 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
             try {
                 logger.info("Weight adjusting job started");
                 AbstractLoadBalancer nlb = (AbstractLoadBalancer) lb;
-                LoadBalancerStats stats = nlb.getLoadBalancerStats();
+                LoadBalancerStats stats = nlb.getLoadBalancerStats(); // 负载均衡器状态信息
                 if (stats == null) {
                     // no statistics, nothing to do
                     return;
                 }
-                double totalResponseTime = 0;
+                double totalResponseTime = 0; // 总响应时间
                 // find maximal 95% response time
                 for (Server server : nlb.getAllServers()) {
                     // this will automatically load the stats if not in cache
                     ServerStats ss = stats.getSingleServerStat(server);
-                    totalResponseTime += ss.getResponseTimeAvg();
+                    totalResponseTime += ss.getResponseTimeAvg(); // 总响应时间=各服务平均响应时间的总和
                 }
                 // weight for each server is (sum of responseTime of all servers - responseTime)
                 // so that the longer the response time, the less the weight and the less likely to be chosen
@@ -267,7 +267,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                 List<Double> finalWeights = new ArrayList<Double>();
                 for (Server server : nlb.getAllServers()) {
                     ServerStats ss = stats.getSingleServerStat(server);
-                    double weight = totalResponseTime - ss.getResponseTimeAvg();
+                    double weight = totalResponseTime - ss.getResponseTimeAvg(); // 总响应时间-各服务平均响应时间
                     weightSoFar += weight;
                     finalWeights.add(weightSoFar);   
                 }

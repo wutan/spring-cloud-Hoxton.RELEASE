@@ -125,7 +125,7 @@ public class PingUrl implements IPing {
 				try {
 					HttpResponse response = httpClient.execute(getRequest);
 					content = EntityUtils.toString(response.getEntity());
-					isAlive = (response.getStatusLine().getStatusCode() == 200);
+					isAlive = (response.getStatusLine().getStatusCode() == 200); // 当服务地址的响应码为200时表示存活
 					if (getExpectedContent()!=null){
 						LOGGER.debug("content:" + content);
 						if (content == null){

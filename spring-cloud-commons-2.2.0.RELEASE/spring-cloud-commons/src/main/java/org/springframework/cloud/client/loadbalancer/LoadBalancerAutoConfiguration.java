@@ -48,7 +48,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableConfigurationProperties(LoadBalancerRetryProperties.class)
 public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在LoadBalancerAutoConfiguration之前加载（实例化LoadBalancerClient等）
 
-	@LoadBalanced
+	@LoadBalanced // @LoadBalanced注解
 	@Autowired(required = false)
 	private List<RestTemplate> restTemplates = Collections.emptyList(); // 注入修饰了@LoadBalanced(@Qualifier标记)的RestTemplate
 

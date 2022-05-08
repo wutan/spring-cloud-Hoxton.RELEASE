@@ -174,13 +174,13 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         int pingIntervalTime = Integer.parseInt(""
                 + clientConfig.getProperty(
                         CommonClientConfigKey.NFLoadBalancerPingInterval,
-                        Integer.parseInt("30")));
+                        Integer.parseInt("30"))); // 默认pingIntervalTime为30
         int maxTotalPingTime = Integer.parseInt(""
                 + clientConfig.getProperty(
                         CommonClientConfigKey.NFLoadBalancerMaxTotalPingTime,
                         Integer.parseInt("2")));
 
-        setPingInterval(pingIntervalTime);
+        setPingInterval(pingIntervalTime); // 默认每隔30秒ping一次
         setMaxTotalPingTime(maxTotalPingTime);
 
         // cross associate with each other
@@ -189,7 +189,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         setRule(rule); // 设置rule
         setPing(ping); // 设置ping
 
-        setLoadBalancerStats(stats);
+        setLoadBalancerStats(stats); // 设置负载均衡器状态信息
         rule.setLoadBalancer(this);
         if (ping instanceof AbstractLoadBalancerPing) {
             ((AbstractLoadBalancerPing) ping).setLoadBalancer(this);
@@ -281,7 +281,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         }
         lbTimer = new ShutdownEnabledTimer("NFLoadBalancer-PingTimer-" + name,
                 true);
-        lbTimer.schedule(new PingTask(), 0, pingIntervalSeconds * 1000); // 构建定时任务，每隔10秒ping一次
+        lbTimer.schedule(new PingTask(), 0, pingIntervalSeconds * 1000); // 构建定时任务，每隔30秒ping一次
         forceQuickPing();
     }
 
@@ -918,7 +918,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
                     // this
                     // serially
                     if (ping != null) {
-                        results[i] = ping.isAlive(servers[i]); // 通过ping判断是否存活
+                        results[i] = ping.isAlive(servers[i]); // 通过ping判断是否存活，默认是DummyPing直接返回ture
                     }
                 } catch (Exception e) {
                     logger.error("Exception while pinging Server: '{}'", servers[i], e);
