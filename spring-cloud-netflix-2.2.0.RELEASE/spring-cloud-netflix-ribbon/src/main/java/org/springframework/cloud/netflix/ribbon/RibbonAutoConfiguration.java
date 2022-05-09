@@ -71,7 +71,7 @@ public class RibbonAutoConfiguration {
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
 
 	@Autowired
-	private RibbonEagerLoadProperties ribbonEagerLoadProperties;
+	private RibbonEagerLoadProperties ribbonEagerLoadProperties; // Ribbon饥饿加载配置
 
 	@Bean
 	public HasFeatures ribbonFeature() {
@@ -106,10 +106,10 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty("ribbon.eager-load.enabled")
+	@ConditionalOnProperty("ribbon.eager-load.enabled") // 当有ribbon.eager-load.enabled属性是才初始化
 	public RibbonApplicationContextInitializer ribbonApplicationContextInitializer() {
 		return new RibbonApplicationContextInitializer(springClientFactory(),
-				ribbonEagerLoadProperties.getClients());
+				ribbonEagerLoadProperties.getClients()); // 要饥饿加载的客户端列表
 	}
 
 	@Configuration(proxyBeanMethods = false)

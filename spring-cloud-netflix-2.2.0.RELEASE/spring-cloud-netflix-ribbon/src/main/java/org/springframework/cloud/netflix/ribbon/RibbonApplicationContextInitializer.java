@@ -28,7 +28,7 @@ import org.springframework.context.ApplicationListener;
  * @author Biju Kunjummen
  */
 public class RibbonApplicationContextInitializer
-		implements ApplicationListener<ApplicationReadyEvent> {
+		implements ApplicationListener<ApplicationReadyEvent> { // 监听ApplicationReadyEvent事件
 
 	private final SpringClientFactory springClientFactory;
 
@@ -44,14 +44,14 @@ public class RibbonApplicationContextInitializer
 	protected void initialize() {
 		if (clientNames != null) {
 			for (String clientName : clientNames) {
-				this.springClientFactory.getContext(clientName);
+				this.springClientFactory.getContext(clientName); // 立即初始化
 			}
 		}
 	}
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
-		initialize();
+		initialize(); // 消费ApplicationReadyEvent事件
 	}
 
 }
