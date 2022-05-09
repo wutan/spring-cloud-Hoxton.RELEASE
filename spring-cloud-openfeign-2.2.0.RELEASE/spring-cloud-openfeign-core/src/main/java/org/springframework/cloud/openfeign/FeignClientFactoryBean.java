@@ -86,7 +86,7 @@ class FeignClientFactoryBean
 		Logger logger = loggerFactory.create(this.type);
 
 		// @formatter:off
-		Feign.Builder builder = get(context, Feign.Builder.class)
+		Feign.Builder builder = get(context, Feign.Builder.class) // 构建Feign.Builder，构建时会向FeignContext获取配置的Encoder，Decoder等各种信息
 				// required values
 				.logger(logger)
 				.encoder(get(context, Encoder.class))
@@ -235,7 +235,7 @@ class FeignClientFactoryBean
 
 	protected <T> T loadBalance(Feign.Builder builder, FeignContext context,
 			HardCodedTarget<T> target) {
-		Client client = getOptional(context, Client.class);
+		Client client = getOptional(context, Client.class); // 从上下文中获取一个Client，默认是LoadBalancerFeignClient（在FeignRibbonClientAutoConfiguration自动装配类中通过Import实现的注入）
 		if (client != null) {
 			builder.client(client);
 			Targeter targeter = get(context, Targeter.class);
@@ -247,7 +247,7 @@ class FeignClientFactoryBean
 	}
 
 	@Override
-	public Object getObject() throws Exception {
+	public Object getObject() throws Exception { // 生成代理对象
 		return getTarget();
 	}
 
@@ -257,10 +257,10 @@ class FeignClientFactoryBean
 	 * information
 	 */
 	<T> T getTarget() {
-		FeignContext context = this.applicationContext.getBean(FeignContext.class);
-		Feign.Builder builder = feign(context);
+		FeignContext context = this.applicationContext.getBean(FeignContext.class); // 从ApplicationContext中获取Feign的上下文对象FeignContext（FeignContext在FeignAutoConfiguration完成的注入）
+		Feign.Builder builder = feign(context); // 构建Feign的Builder对象
 
-		if (!StringUtils.hasText(this.url)) {
+		if (!StringUtils.hasText(this.url)) { // 如果url为空，则走负载均衡，生成有负载均衡功能的代理类
 			if (!this.name.startsWith("http")) {
 				this.url = "http://" + this.name;
 			}
@@ -269,9 +269,9 @@ class FeignClientFactoryBean
 			}
 			this.url += cleanPath();
 			return (T) loadBalance(builder, context,
-					new HardCodedTarget<>(this.type, this.name, this.url));
+					new HardCodedTarget<>(this.type, this.name, this.url)); // 生成有负载均衡功能的Feign客户端代理类，最终也是调用Target.target()方法生成代理类
 		}
-		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) {
+		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) { // 如果指定了url，则生成默认的代理类
 			this.url = "http://" + this.url;
 		}
 		String url = this.url + cleanPath();
@@ -286,7 +286,7 @@ class FeignClientFactoryBean
 		}
 		Targeter targeter = get(context, Targeter.class);
 		return (T) targeter.target(this, builder, context,
-				new HardCodedTarget<>(this.type, this.name, url));
+				new HardCodedTarget<>(this.type, this.name, url)); // 调用Target.target()方法生成代理类
 	}
 
 	private String cleanPath() {

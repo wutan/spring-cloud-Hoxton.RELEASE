@@ -64,7 +64,7 @@ import org.springframework.context.annotation.Import;
 public class FeignAutoConfiguration {
 
 	@Autowired(required = false)
-	private List<FeignClientSpecification> configurations = new ArrayList<>();
+	private List<FeignClientSpecification> configurations = new ArrayList<>(); // 在FeignClientsRegistrar.registerFeignClients等方法中@FeignClient注解中的configuration属性
 
 	@Bean
 	public HasFeatures feignFeature() {
@@ -72,9 +72,9 @@ public class FeignAutoConfiguration {
 	}
 
 	@Bean
-	public FeignContext feignContext() {
+	public FeignContext feignContext() { // 初始化FeignContext
 		FeignContext context = new FeignContext();
-		context.setConfigurations(this.configurations);
+		context.setConfigurations(this.configurations); // 将FeignClientSpecification集合设置到FeignContext中
 		return context;
 	}
 

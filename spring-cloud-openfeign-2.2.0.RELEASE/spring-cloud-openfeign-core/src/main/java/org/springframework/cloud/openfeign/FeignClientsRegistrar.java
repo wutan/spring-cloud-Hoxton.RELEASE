@@ -59,7 +59,7 @@ import org.springframework.util.StringUtils;
  * @author Gang Li
  */
 class FeignClientsRegistrar
-		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
+		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware { // 实现了ImportBeanDefinitionRegistrar动态注入bean的接口接口，Spring Boot启动时会去调用这个类中的registerBeanDefinitions来实现动态Bean的装载
 
 	// patterned after Spring Integration IntegrationComponentScanRegistrar
 	// and RibbonClientsConfigurationRegistgrar
@@ -139,15 +139,15 @@ class FeignClientsRegistrar
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata,
-			BeanDefinitionRegistry registry) {
-		registerDefaultConfiguration(metadata, registry);
-		registerFeignClients(metadata, registry);
+			BeanDefinitionRegistry registry) { // 动态装载Bean
+		registerDefaultConfiguration(metadata, registry); // 从Spring Boot启动类上检查是否有@EnableFeignClients注解，并将defaultConfiguration属性下的类包装成FeignCLientSpecification注册到Spring容器中
+		registerFeignClients(metadata, registry); // 从classpath中扫描获取所有@FeignClient修饰的类，并解析成BeanDefinition动态注册到Spring容器中
 	}
 
 	private void registerDefaultConfiguration(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) {
 		Map<String, Object> defaultAttrs = metadata
-				.getAnnotationAttributes(EnableFeignClients.class.getName(), true);
+				.getAnnotationAttributes(EnableFeignClients.class.getName(), true); // 从Spring Boot启动类上获取@EnableFeignClients注解的相关属性
 
 		if (defaultAttrs != null && defaultAttrs.containsKey("defaultConfiguration")) {
 			String name;
@@ -155,31 +155,31 @@ class FeignClientsRegistrar
 				name = "default." + metadata.getEnclosingClassName();
 			}
 			else {
-				name = "default." + metadata.getClassName();
+				name = "default." + metadata.getClassName(); // default. + 启动类全路径
 			}
 			registerClientConfiguration(registry, name,
-					defaultAttrs.get("defaultConfiguration"));
+					defaultAttrs.get("defaultConfiguration")); // 将defaultConfiguration属性下的类包装成FeignCLientSpecification注册到Spring容器中
 		}
 	}
 
 	public void registerFeignClients(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) {
-		ClassPathScanningCandidateComponentProvider scanner = getScanner();
+		ClassPathScanningCandidateComponentProvider scanner = getScanner(); // 获取类扫描器
 		scanner.setResourceLoader(this.resourceLoader);
 
 		Set<String> basePackages;
 
 		Map<String, Object> attrs = metadata
-				.getAnnotationAttributes(EnableFeignClients.class.getName());
+				.getAnnotationAttributes(EnableFeignClients.class.getName()); // 从Spring Boot启动类上获取@EnableFeignClients注解的相关属性
 		AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(
 				FeignClient.class);
 		final Class<?>[] clients = attrs == null ? null
-				: (Class<?>[]) attrs.get("clients");
-		if (clients == null || clients.length == 0) {
-			scanner.addIncludeFilter(annotationTypeFilter);
-			basePackages = getBasePackages(metadata);
+				: (Class<?>[]) attrs.get("clients"); // 获取@EnableFeignClients注解中的clients属性值
+		if (clients == null || clients.length == 0) { // clients为空时进行包扫描
+			scanner.addIncludeFilter(annotationTypeFilter); // 添加IncludeFilter注解@FeignClient
+			basePackages = getBasePackages(metadata); // 根据@EnableFeignClients注解获取要扫描的包路径
 		}
-		else {
+		else { // clients不为null时解析clients
 			final Set<String> clientClasses = new HashSet<>();
 			basePackages = new HashSet<>();
 			for (Class<?> clazz : clients) {
@@ -197,7 +197,7 @@ class FeignClientsRegistrar
 					new AllTypeFilter(Arrays.asList(filter, annotationTypeFilter)));
 		}
 
-		for (String basePackage : basePackages) {
+		for (String basePackage : basePackages) { // 循环遍历要扫描的包路径
 			Set<BeanDefinition> candidateComponents = scanner
 					.findCandidateComponents(basePackage);
 			for (BeanDefinition candidateComponent : candidateComponents) {
@@ -210,13 +210,13 @@ class FeignClientsRegistrar
 
 					Map<String, Object> attributes = annotationMetadata
 							.getAnnotationAttributes(
-									FeignClient.class.getCanonicalName());
+									FeignClient.class.getCanonicalName()); // 获取@FeignClient注解的相关信息
 
-					String name = getClientName(attributes);
+					String name = getClientName(attributes); // 获取客户端名称
 					registerClientConfiguration(registry, name,
-							attributes.get("configuration"));
+							attributes.get("configuration")); // 将configuration属性下的类包装成FeignCLientSpecification注册到Spring容器中
 
-					registerFeignClient(registry, annotationMetadata, attributes);
+					registerFeignClient(registry, annotationMetadata, attributes); // 循环去注册
 				}
 			}
 		}
@@ -225,10 +225,10 @@ class FeignClientsRegistrar
 	private void registerFeignClient(BeanDefinitionRegistry registry,
 			AnnotationMetadata annotationMetadata, Map<String, Object> attributes) {
 		String className = annotationMetadata.getClassName();
-		BeanDefinitionBuilder definition = BeanDefinitionBuilder
-				.genericBeanDefinition(FeignClientFactoryBean.class);
+		BeanDefinitionBuilder definition = BeanDefinitionBuilder // 包装成FeignClientFactoryBean，是一个工厂Bean，利用Spring的代理工厂来生成代理Bean（工厂Bean最后返回的实例不是工厂Bean本身， 而是执行工厂Bean的getObject逻辑返回的实例）
+				.genericBeanDefinition(FeignClientFactoryBean.class); // @FeignClient注解修饰的接口会通过FeignClientFactoryBean.getObject()方法获得一个代理对象
 		validate(attributes);
-		definition.addPropertyValue("url", getUrl(attributes));
+		definition.addPropertyValue("url", getUrl(attributes)); // 组装BeanDefinition
 		definition.addPropertyValue("path", getPath(attributes));
 		String name = getName(attributes);
 		definition.addPropertyValue("name", name);
@@ -255,7 +255,7 @@ class FeignClientsRegistrar
 
 		BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, className,
 				new String[] { alias });
-		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
+		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry); // 注册到Spring容器中
 	}
 
 	private void validate(Map<String, Object> attributes) {
@@ -331,7 +331,7 @@ class FeignClientsRegistrar
 				basePackages.add(pkg);
 			}
 		}
-		for (String pkg : (String[]) attributes.get("basePackages")) {
+		for (String pkg : (String[]) attributes.get("basePackages")) { // 获取@EnableFeignClients注解中的basePackages属性值
 			if (StringUtils.hasText(pkg)) {
 				basePackages.add(pkg);
 			}

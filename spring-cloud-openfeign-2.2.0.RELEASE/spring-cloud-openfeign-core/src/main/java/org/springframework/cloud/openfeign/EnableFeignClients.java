@@ -38,7 +38,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(FeignClientsRegistrar.class)
+@Import(FeignClientsRegistrar.class) // 导入FeignClientsRegistrar类
 public @interface EnableFeignClients {
 
 	/**
