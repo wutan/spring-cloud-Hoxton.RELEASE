@@ -141,7 +141,7 @@ class FeignClientsRegistrar
 	public void registerBeanDefinitions(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) { // 动态装载Bean
 		registerDefaultConfiguration(metadata, registry); // 从Spring Boot启动类上检查是否有@EnableFeignClients注解，并将defaultConfiguration属性下的类包装成FeignCLientSpecification注册到Spring容器中
-		registerFeignClients(metadata, registry); // 从classpath中扫描获取所有@FeignClient修饰的类，并解析成BeanDefinition动态注册到Spring容器中
+		registerFeignClients(metadata, registry); // 从classpath中扫描获取所有@FeignClient修饰的类，并解析成BeanDefinition动态注册成FactoryBean到Spring容器中
 	}
 
 	private void registerDefaultConfiguration(AnnotationMetadata metadata,

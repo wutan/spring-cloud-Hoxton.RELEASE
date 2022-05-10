@@ -63,7 +63,7 @@ public interface Contract {
             Util.isDefault(method)) {
           continue;
         }
-        MethodMetadata metadata = parseAndValidateMetadata(targetType, method);
+        MethodMetadata metadata = parseAndValidateMetadata(targetType, method); // 调用子类SpringMvcContract的parseAndValidateMetadata方法
         checkState(!result.containsKey(metadata.configKey()), "Overrides unsupported: %s",
             metadata.configKey());
         result.put(metadata.configKey(), metadata);

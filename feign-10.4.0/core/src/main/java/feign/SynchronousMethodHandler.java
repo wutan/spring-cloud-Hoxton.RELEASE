@@ -72,12 +72,12 @@ final class SynchronousMethodHandler implements MethodHandler {
 
   @Override
   public Object invoke(Object[] argv) throws Throwable {
-    RequestTemplate template = buildTemplateFromArgs.create(argv);
+    RequestTemplate template = buildTemplateFromArgs.create(argv); // 根据参数生成RequestTemplate对象，该对象是Http请求的模版
     Options options = findOptions(argv);
     Retryer retryer = this.retryer.clone();
     while (true) {
       try {
-        return executeAndDecode(template, options);
+        return executeAndDecode(template, options); // 通过RequestTemplate生成Request请求对象，再利用HttpURLConnection获取response响应信息
       } catch (RetryableException e) {
         try {
           retryer.continueOrPropagate(e);
@@ -98,7 +98,7 @@ final class SynchronousMethodHandler implements MethodHandler {
   }
 
   Object executeAndDecode(RequestTemplate template, Options options) throws Throwable {
-    Request request = targetRequest(template);
+    Request request = targetRequest(template); // 通过RequestTemplate生成Request请求对象，转化为Http请求报文
 
     if (logLevel != Logger.Level.NONE) {
       logger.logRequest(metadata.configKey(), logLevel, request);
@@ -107,7 +107,7 @@ final class SynchronousMethodHandler implements MethodHandler {
     Response response;
     long start = System.nanoTime();
     try {
-      response = client.execute(request, options);
+      response = client.execute(request, options); // 默认采用JDK的HttpURLConnection发起远程调用
     } catch (IOException e) {
       if (logLevel != Logger.Level.NONE) {
         logger.logIOException(metadata.configKey(), logLevel, e, elapsedTime(start));

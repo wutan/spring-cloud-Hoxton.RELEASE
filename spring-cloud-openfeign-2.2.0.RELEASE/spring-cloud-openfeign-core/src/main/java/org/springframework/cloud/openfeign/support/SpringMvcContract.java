@@ -185,7 +185,7 @@ public class SpringMvcContract extends Contract.BaseContract
 	@Override
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
 		this.processedMethods.put(Feign.configKey(targetType, method), method);
-		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
+		MethodMetadata md = super.parseAndValidateMetadata(targetType, method); // 调用父类BaseContract的该方法
 
 		RequestMapping classAnnotation = findMergedAnnotation(targetType,
 				RequestMapping.class);

@@ -247,7 +247,7 @@ public abstract class Feign {
       return target(new HardCodedTarget<T>(apiType, url));
     }
 
-    public <T> T target(Target<T> target) {
+    public <T> T target(Target<T> target) { // 不管@FeignCLient是否配置url，都会到这里统一生成代理对象
       return build().newInstance(target);
     }
 

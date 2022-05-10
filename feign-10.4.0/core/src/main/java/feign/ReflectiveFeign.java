@@ -48,24 +48,24 @@ public class ReflectiveFeign extends Feign {
    */
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T newInstance(Target<T> target) {
-    Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target);
+  public <T> T newInstance(Target<T> target) { // 用来创建一个动态代理
+    Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target); // 根据接口类和Contract协议解析方式，解析接口类上的方法和注解，转换成内部的MethodHandler的处理方式
     Map<Method, MethodHandler> methodToHandler = new LinkedHashMap<Method, MethodHandler>();
     List<DefaultMethodHandler> defaultMethodHandlers = new LinkedList<DefaultMethodHandler>();
 
-    for (Method method : target.type().getMethods()) {
+    for (Method method : target.type().getMethods()) { // 对每个定义的接口方法进行特定的处理实现
       if (method.getDeclaringClass() == Object.class) {
         continue;
       } else if (Util.isDefault(method)) {
-        DefaultMethodHandler handler = new DefaultMethodHandler(method);
+        DefaultMethodHandler handler = new DefaultMethodHandler(method); // 对应方法级别的InvocationHandler
         defaultMethodHandlers.add(handler);
         methodToHandler.put(method, handler);
       } else {
         methodToHandler.put(method, nameToHandler.get(Feign.configKey(target.type(), method)));
       }
     }
-    InvocationHandler handler = factory.create(target, methodToHandler);
-    T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(),
+    InvocationHandler handler = factory.create(target, methodToHandler); // 放入InvocationHandler的实现FeignInvocationHandler中
+    T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(), // 基于Proxy.newProxyInstance 为接口类创建动态实现，将所有的请求转换给InvocationHandler处理
         new Class<?>[] {target.type()}, handler);
 
     for (DefaultMethodHandler defaultMethodHandler : defaultMethodHandlers) {
@@ -74,7 +74,7 @@ public class ReflectiveFeign extends Feign {
     return proxy;
   }
 
-  static class FeignInvocationHandler implements InvocationHandler {
+  static class FeignInvocationHandler implements InvocationHandler { // OpenFeign最终返回的是一个ReflectiveFeign.FeignInvocationHandler的对象，当客户端发起请求时会进入到FeignInvocationHandler.invoke方法中
 
     private final Target target;
     private final Map<Method, MethodHandler> dispatch;
@@ -100,7 +100,7 @@ public class ReflectiveFeign extends Feign {
         return toString();
       }
 
-      return dispatch.get(method).invoke(args);
+      return dispatch.get(method).invoke(args); // 根据method获取对象的一个SynchronousMethodHandler进行拦截处理
     }
 
     @Override
@@ -151,8 +151,8 @@ public class ReflectiveFeign extends Feign {
     }
 
     public Map<String, MethodHandler> apply(Target key) {
-      List<MethodMetadata> metadata = contract.parseAndValidatateMetadata(key.type());
-      Map<String, MethodHandler> result = new LinkedHashMap<String, MethodHandler>();
+      List<MethodMetadata> metadata = contract.parseAndValidatateMetadata(key.type()); // 解析接口方法上的注解
+      Map<String, MethodHandler> result = new LinkedHashMap<String, MethodHandler>(); // 维护一个<String，MethodHandler>的map
       for (MethodMetadata md : metadata) {
         BuildTemplateByResolvingArgs buildTemplate;
         if (!md.formParams().isEmpty() && md.template().bodyTemplate() == null) {
@@ -163,7 +163,7 @@ public class ReflectiveFeign extends Feign {
           buildTemplate = new BuildTemplateByResolvingArgs(md, queryMapEncoder);
         }
         result.put(md.configKey(),
-            factory.create(key, md, buildTemplate, options, decoder, errorDecoder));
+            factory.create(key, md, buildTemplate, options, decoder, errorDecoder)); // 生成一个SynchronousMethodHandler
       }
       return result;
     }
