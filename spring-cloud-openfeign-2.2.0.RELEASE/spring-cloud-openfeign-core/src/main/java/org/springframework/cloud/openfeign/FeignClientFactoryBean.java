@@ -89,8 +89,8 @@ class FeignClientFactoryBean
 		Feign.Builder builder = get(context, Feign.Builder.class) // 构建Feign.Builder，构建时会向FeignContext获取配置的Encoder，Decoder等各种信息
 				// required values
 				.logger(logger)
-				.encoder(get(context, Encoder.class))
-				.decoder(get(context, Decoder.class))
+				.encoder(get(context, Encoder.class)) // 编码器
+				.decoder(get(context, Decoder.class)) // 解码器
 				.contract(get(context, Contract.class));
 		// @formatter:on
 

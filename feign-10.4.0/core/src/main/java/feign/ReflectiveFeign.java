@@ -64,7 +64,7 @@ public class ReflectiveFeign extends Feign {
         methodToHandler.put(method, nameToHandler.get(Feign.configKey(target.type(), method)));
       }
     }
-    InvocationHandler handler = factory.create(target, methodToHandler); // 放入InvocationHandler的实现FeignInvocationHandler中
+    InvocationHandler handler = factory.create(target, methodToHandler); // 创建代理类要执行的InvocationHandler实现类FeignInvocationHandler
     T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(), // 基于Proxy.newProxyInstance 为接口类创建动态实现，将所有的请求转换给InvocationHandler处理
         new Class<?>[] {target.type()}, handler);
 
@@ -85,7 +85,7 @@ public class ReflectiveFeign extends Feign {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable { // Feign的代理执行方法
       if ("equals".equals(method.getName())) {
         try {
           Object otherHandler =
