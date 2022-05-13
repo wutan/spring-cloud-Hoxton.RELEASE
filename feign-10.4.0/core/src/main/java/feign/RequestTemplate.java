@@ -653,7 +653,7 @@ public final class RequestTemplate implements Serializable {
   /**
    * @see RequestTemplate#header(String, Iterable)
    */
-  public RequestTemplate header(String name, String... values) {
+  public RequestTemplate header(String name, String... values) { // 指定header头信息
     return header(name, Arrays.asList(values));
   }
 
@@ -664,7 +664,7 @@ public final class RequestTemplate implements Serializable {
    * @param values for this header.
    * @return a RequestTemplate for chaining.
    */
-  public RequestTemplate header(String name, Iterable<String> values) {
+  public RequestTemplate header(String name, Iterable<String> values) { // 指定header头信息
     if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException("name is required.");
     }
@@ -685,7 +685,7 @@ public final class RequestTemplate implements Serializable {
   private RequestTemplate appendHeader(String name, Iterable<String> values) {
     if (!values.iterator().hasNext()) {
       /* empty value, clear the existing values */
-      this.headers.remove(name);
+      this.headers.remove(name); // 当值为空时，清楚header
       return this;
     }
     this.headers.compute(name, (headerName, headerTemplate) -> {

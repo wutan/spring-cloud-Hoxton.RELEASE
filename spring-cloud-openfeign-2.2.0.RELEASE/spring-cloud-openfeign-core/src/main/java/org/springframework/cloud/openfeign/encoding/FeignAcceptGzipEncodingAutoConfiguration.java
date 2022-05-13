@@ -39,11 +39,11 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(FeignClientEncodingProperties.class)
 @ConditionalOnClass(Feign.class)
 @ConditionalOnBean(Client.class)
-@ConditionalOnProperty(value = "feign.compression.response.enabled",
+@ConditionalOnProperty(value = "feign.compression.response.enabled", // 是否开启压缩传输
 		matchIfMissing = false)
 // The OK HTTP client uses "transparent" compression.
 // If the accept-encoding header is present it disable transparent compression
-@ConditionalOnMissingBean(type = "okhttp3.OkHttpClient")
+@ConditionalOnMissingBean(type = "okhttp3.OkHttpClient") // 压缩传输，只有当Feign的Http Client不是okhttp3时才会生效
 @AutoConfigureAfter(FeignAutoConfiguration.class)
 public class FeignAcceptGzipEncodingAutoConfiguration {
 

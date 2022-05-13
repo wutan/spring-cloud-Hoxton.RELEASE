@@ -73,7 +73,7 @@ public interface Client {
     }
 
     @Override
-    public Response execute(Request request, Options options) throws IOException {
+    public Response execute(Request request, Options options) throws IOException { // Feign发器调用真正的执行逻辑
       HttpURLConnection connection = convertAndSend(request, options);
       return convertResponse(connection, request);
     }

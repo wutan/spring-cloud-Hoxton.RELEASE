@@ -73,7 +73,7 @@ public class LoadBalancerFeignClient implements Client {
 	public Response execute(Request request, Request.Options options) throws IOException {
 		try {
 			URI asUri = URI.create(request.url());
-			String clientName = asUri.getHost();
+			String clientName = asUri.getHost(); // 获取clientName
 			URI uriWithoutHost = cleanUrl(request.url(), clientName);
 			FeignLoadBalancer.RibbonRequest ribbonRequest = new FeignLoadBalancer.RibbonRequest(
 					this.delegate, request, uriWithoutHost);

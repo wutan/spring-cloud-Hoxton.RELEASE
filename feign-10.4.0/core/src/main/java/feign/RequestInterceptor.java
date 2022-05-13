@@ -47,10 +47,10 @@ package feign;
  * This class is similar to {@code RequestInterceptor.intercept()}, except that the implementation
  * can read, remove, or otherwise mutate any part of the request template.
  */
-public interface RequestInterceptor {
+public interface RequestInterceptor { // 自定义Feign拦截器
 
   /**
    * Called for every request. Add data using methods on the supplied {@link RequestTemplate}.
    */
-  void apply(RequestTemplate template);
+  void apply(RequestTemplate template); // 在每次Feign发器Http请求前进行拦截，对RequestTemplate进行设置
 }
