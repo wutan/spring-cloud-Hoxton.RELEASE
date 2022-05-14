@@ -237,7 +237,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     public void updateListOfServers() {
         List<T> servers = new ArrayList<T>();
         if (serverListImpl != null) {
-            servers = serverListImpl.getUpdatedListOfServers(); // 调用实现类方法
+            servers = serverListImpl.getUpdatedListOfServers(); // 调用实现类方法获取Server列表（这里是调用Eureka/Nacos获取服务列表的入口）
             LOGGER.debug("List of Servers for {} obtained from Discovery client: {}",
                     getIdentifier(), servers);
 
