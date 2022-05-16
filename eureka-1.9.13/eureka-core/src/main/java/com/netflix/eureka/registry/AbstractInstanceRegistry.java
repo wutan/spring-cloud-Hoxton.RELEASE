@@ -100,8 +100,8 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     private final AtomicReference<EvictionTask> evictionTaskRef = new AtomicReference<EvictionTask>();
 
     protected String[] allKnownRemoteRegions = EMPTY_STR_ARRAY;
-    protected volatile int numberOfRenewsPerMinThreshold;
-    protected volatile int expectedNumberOfClientsSendingRenews;
+    protected volatile int numberOfRenewsPerMinThreshold; // 每分钟最小续约数量（触发自我保护关键属性），通过updateRenewsPerMinThreshold方法进行更新
+    protected volatile int expectedNumberOfClientsSendingRenews; // 预期每分钟收到的续约数量=服务总数（触发自我保护关键属性），通过服务注册与服务下线来动态计数
 
     protected final EurekaServerConfig serverConfig;
     protected final EurekaClientConfig clientConfig;
@@ -217,7 +217,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                 }
             } else {
                 // The lease does not exist and hence it is a new registration
-                synchronized (lock) {
+                synchronized (lock) { // 服务注册动态增加计数
                     if (this.expectedNumberOfClientsSendingRenews > 0) {
                         // Since the client wants to register it, increase the number of clients sending renews
                         this.expectedNumberOfClientsSendingRenews = this.expectedNumberOfClientsSendingRenews + 1;
@@ -294,7 +294,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      * cancel request is replicated to the peers. This is however not desired for expires which would be counted
      * in the remote peers as valid cancellations, so self preservation mode would not kick-in.
      */
-    protected boolean internalCancel(String appName, String id, boolean isReplication) {
+    protected boolean internalCancel(String appName, String id, boolean isReplication) { // 服务下线
         try {
             read.lock();
             CANCEL.increment(isReplication);
@@ -579,7 +579,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     public void evict(long additionalLeaseMs) {
         logger.debug("Running the evict task");
 
-        if (!isLeaseExpirationEnabled()) {
+        if (!isLeaseExpirationEnabled()) { // 会检查是否需要开启自我保护机制，如果需要则直接RETURE，不需要继续往下执行
             logger.debug("DS: lease expiration is currently disabled.");
             return;
         }
@@ -1188,8 +1188,8 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         // invalidate cache
         responseCache.invalidate(appName, vipAddress, secureVipAddress);
     }
-
-    protected void updateRenewsPerMinThreshold() {
+    // 在register服务注册、cancel服务下线、EurekaServer的初始化(EurekaBootStrap)、timer定时器四个地方会进行调用更新
+    protected void updateRenewsPerMinThreshold() { // 自我保护阀值/每分钟最小续约数量 = 服务总数 * 每分钟续约数(60S/客户端续约间隔默认30秒) * 自我保护续约百分比阀值因子(默认0.85)
         this.numberOfRenewsPerMinThreshold = (int) (this.expectedNumberOfClientsSendingRenews
                 * (60.0 / serverConfig.getExpectedClientRenewalIntervalSeconds())
                 * serverConfig.getRenewalPercentThreshold());
@@ -1219,7 +1219,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             evictionTaskRef.get().cancel();
         }
         evictionTaskRef.set(new EvictionTask());
-        evictionTimer.schedule(evictionTaskRef.get(),
+        evictionTimer.schedule(evictionTaskRef.get(), // 开启剔除定时任务
                 serverConfig.getEvictionIntervalTimerInMs(),
                 serverConfig.getEvictionIntervalTimerInMs());
     }
@@ -1244,7 +1244,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         private final AtomicLong lastExecutionNanosRef = new AtomicLong(0l);
 
         @Override
-        public void run() {
+        public void run() { // 定时剔除任务的处理逻辑
             try {
                 long compensationTimeMs = getCompensationTimeMs();
                 logger.info("Running the evict task with compensationTime {}ms", compensationTimeMs);

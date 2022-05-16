@@ -89,7 +89,7 @@ import javax.inject.Singleton;
  *
  */
 @Singleton
-public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry implements PeerAwareInstanceRegistry {
+public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry implements PeerAwareInstanceRegistry { // 在EurekaBootStrap中进行初始化
     private static final Logger logger = LoggerFactory.getLogger(PeerAwareInstanceRegistryImpl.class);
 
     private static final String US_EAST_1 = "us-east-1";
@@ -146,11 +146,11 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
     }
 
     @Override
-    public void init(PeerEurekaNodes peerEurekaNodes) throws Exception {
+    public void init(PeerEurekaNodes peerEurekaNodes) throws Exception { // DefaultEurekaServerContext的初始化方法中调用
         this.numberOfReplicationsLastMin.start();
         this.peerEurekaNodes = peerEurekaNodes;
         initializedResponseCache();
-        scheduleRenewalThresholdUpdateTask();
+        scheduleRenewalThresholdUpdateTask(); // 定时任务
         initRemoteRegionRegistry();
 
         try {
@@ -191,10 +191,10 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
         timer.schedule(new TimerTask() {
                            @Override
                            public void run() {
-                               updateRenewalThreshold();
+                               updateRenewalThreshold(); // 定时更新客户端数量的逻辑
                            }
-                       }, serverConfig.getRenewalThresholdUpdateIntervalMs(),
-                serverConfig.getRenewalThresholdUpdateIntervalMs());
+                       }, serverConfig.getRenewalThresholdUpdateIntervalMs(), // 延迟15分钟执行
+                serverConfig.getRenewalThresholdUpdateIntervalMs()); // 每15分钟执行一次
     }
 
     /**
@@ -376,7 +376,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
                           final boolean isReplication) {
         if (super.cancel(appName, id, isReplication)) {
             replicateToPeers(Action.Cancel, appName, id, null, null, isReplication);
-            synchronized (lock) {
+            synchronized (lock) { // 服务下线动态增加计数
                 if (this.expectedNumberOfClientsSendingRenews > 0) {
                     // Since the client wants to cancel it, reduce the number of clients to send renews
                     this.expectedNumberOfClientsSendingRenews = this.expectedNumberOfClientsSendingRenews - 1;
@@ -480,7 +480,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
             // The self preservation mode is disabled, hence allowing the instances to expire.
             return true;
         }
-        return numberOfRenewsPerMinThreshold > 0 && getNumOfRenewsInLastMin() > numberOfRenewsPerMinThreshold;
+        return numberOfRenewsPerMinThreshold > 0 && getNumOfRenewsInLastMin() > numberOfRenewsPerMinThreshold; // 判断最后一分钟收到的续约数量是否大于numberOfRenewsPerMinThreshold最小续约数阈值
     }
 
     /**
