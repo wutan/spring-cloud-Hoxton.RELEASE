@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Produces({"application/xml", "application/json"})
-public class ApplicationResource {
+public class ApplicationResource { // 处理请求
     private static final Logger logger = LoggerFactory.getLogger(ApplicationResource.class);
 
     private final String appName;

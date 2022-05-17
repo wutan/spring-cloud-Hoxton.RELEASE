@@ -23,7 +23,7 @@ package org.springframework.cloud.client.serviceregistry;
  * @author Spencer Gibb
  * @since 1.2.0
  */
-public interface ServiceRegistry<R extends Registration> {
+public interface ServiceRegistry<R extends Registration> { // 服务注册接口定义类，实现类由各组件实现，如：EurekaServiceRegistry、NacosServiceRegistry
 
 	/**
 	 * Registers the registration. A registration typically has information about an

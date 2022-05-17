@@ -40,7 +40,7 @@ import org.springframework.core.Ordered;
  * @author Raiyan Raiyan
  */
 public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
-		SmartLifecycle, Ordered, SmartApplicationListener {
+		SmartLifecycle, Ordered, SmartApplicationListener { // 在EurekaClientAutoConfiguration进行初始化，实现Lifecycle接口并基于lifecycle进行处理执行
 
 	private static final Log log = LogFactory.getLog(EurekaAutoServiceRegistration.class);
 
@@ -56,7 +56,7 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 
 	private EurekaRegistration registration;
 
-	public EurekaAutoServiceRegistration(ApplicationContext context,
+	public EurekaAutoServiceRegistration(ApplicationContext context, // 在EurekaClientAutoConfiguration进行初始化
 			EurekaServiceRegistry serviceRegistry, EurekaRegistration registration) {
 		this.context = context;
 		this.serviceRegistry = serviceRegistry;
@@ -64,7 +64,7 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 	}
 
 	@Override
-	public void start() {
+	public void start() { // Lifecycle接口的start方法，Spring容器初始化完成后调用
 		// only set the port if the nonSecurePort or securePort is 0 and this.port != 0
 		if (this.port.get() != 0) {
 			if (this.registration.getNonSecurePort() == 0) {
@@ -80,7 +80,7 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.registration.getNonSecurePort() > 0) {
 
-			this.serviceRegistry.register(this.registration);
+			this.serviceRegistry.register(this.registration); // 发起服务注册机制
 
 			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
 					this.registration.getInstanceConfig()));

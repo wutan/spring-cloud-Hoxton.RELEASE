@@ -53,7 +53,7 @@ import com.netflix.eureka.util.EurekaMonitors;
  */
 @Path("/{version}/apps")
 @Produces({"application/xml", "application/json"})
-public class ApplicationsResource {
+public class ApplicationsResource { // 处理请求
     private static final String HEADER_ACCEPT = "Accept";
     private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
     private static final String HEADER_CONTENT_ENCODING = "Content-Encoding";

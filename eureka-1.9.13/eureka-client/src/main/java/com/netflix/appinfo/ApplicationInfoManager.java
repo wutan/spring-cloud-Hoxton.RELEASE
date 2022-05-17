@@ -170,11 +170,11 @@ public class ApplicationInfoManager {
             return;
         }
 
-        InstanceStatus prev = instanceInfo.setStatus(next);
-        if (prev != null) {
-            for (StatusChangeListener listener : listeners.values()) {
+        InstanceStatus prev = instanceInfo.setStatus(next); // 设置实例状态，当前后状态不同时返回上一次的状态
+        if (prev != null) { // 状态变更
+            for (StatusChangeListener listener : listeners.values()) { // listener的实例是StatusChangeListener
                 try {
-                    listener.notify(new StatusChangeEvent(prev, next));
+                    listener.notify(new StatusChangeEvent(prev, next)); // 调用StatusChangeListener的notify方法触发服务状态变事件
                 } catch (Exception e) {
                     logger.warn("failed to notify listener: {}", listener.getId(), e);
                 }
