@@ -248,7 +248,7 @@ public class EurekaClientAutoConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnMissingRefreshScope
-	protected static class EurekaClientConfiguration {
+	protected static class EurekaClientConfiguration { // eureka客户端的配置，包含EurekaClient、ApplicationInfoMangager、EurekaRegistration
 
 		@Autowired
 		private ApplicationContext context;
@@ -261,7 +261,7 @@ public class EurekaClientAutoConfiguration {
 				search = SearchStrategy.CURRENT)
 		public EurekaClient eurekaClient(ApplicationInfoManager manager,
 				EurekaClientConfig config) {
-			return new CloudEurekaClient(manager, config, this.optionalArgs,
+			return new CloudEurekaClient(manager, config, this.optionalArgs, // 初始化EurekaClient
 					this.context);
 		}
 

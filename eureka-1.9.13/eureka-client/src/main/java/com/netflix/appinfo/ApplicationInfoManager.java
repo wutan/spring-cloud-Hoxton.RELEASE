@@ -164,7 +164,7 @@ public class ApplicationInfoManager {
      *
      * @param status Status of the instance
      */
-    public synchronized void setInstanceStatus(InstanceStatus status) {
+    public synchronized void setInstanceStatus(InstanceStatus status) { // 启动发布事件
         InstanceStatus next = instanceStatusMapper.map(status);
         if (next == null) {
             return;
@@ -172,7 +172,7 @@ public class ApplicationInfoManager {
 
         InstanceStatus prev = instanceInfo.setStatus(next); // 设置实例状态，当前后状态不同时返回上一次的状态
         if (prev != null) { // 状态变更
-            for (StatusChangeListener listener : listeners.values()) { // listener的实例是StatusChangeListener
+            for (StatusChangeListener listener : listeners.values()) { // listener的实例是StatusChangeListener，通过registerStatusChangeListener方法让外部注入
                 try {
                     listener.notify(new StatusChangeEvent(prev, next)); // 调用StatusChangeListener的notify方法触发服务状态变事件
                 } catch (Exception e) {
@@ -182,7 +182,7 @@ public class ApplicationInfoManager {
         }
     }
 
-    public void registerStatusChangeListener(StatusChangeListener listener) {
+    public void registerStatusChangeListener(StatusChangeListener listener) { // 在DiscoveryClient.initScheduledTasks方法中进行注入
         listeners.put(listener.getId(), listener);
     }
 

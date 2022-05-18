@@ -63,8 +63,8 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
 			EurekaClientConfig config, AbstractDiscoveryClientOptionalArgs<?> args,
-			ApplicationEventPublisher publisher) {
-		super(applicationInfoManager, config, args);
+			ApplicationEventPublisher publisher) { // 初始化CloudEurekaClient
+		super(applicationInfoManager, config, args); // 调用父类DiscoveryClient构造方法
 		this.applicationInfoManager = applicationInfoManager;
 		this.publisher = publisher;
 		this.eurekaTransportField = ReflectionUtils.findField(DiscoveryClient.class,

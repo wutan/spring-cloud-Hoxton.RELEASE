@@ -43,11 +43,11 @@ public abstract class AbstractJerseyEurekaHttpClient implements EurekaHttpClient
     }
 
     @Override
-    public EurekaHttpResponse<Void> register(InstanceInfo info) {
-        String urlPath = "apps/" + info.getAppName();
+    public EurekaHttpResponse<Void> register(InstanceInfo info) { // 发起注册
+        String urlPath = "apps/" + info.getAppName(); // 接口名：apps/${APP_NAME}
         ClientResponse response = null;
         try {
-            Builder resourceBuilder = jerseyClient.resource(serviceUrl).path(urlPath).getRequestBuilder();
+            Builder resourceBuilder = jerseyClient.resource(serviceUrl).path(urlPath).getRequestBuilder(); // 发起了一次http请求，访问Eureka-Server的apps/${APP_NAME}接口，将当前服务实例的信息发送到Eureka Server进行保存
             addExtraHeaders(resourceBuilder);
             response = resourceBuilder
                     .header("Accept-Encoding", "gzip")
