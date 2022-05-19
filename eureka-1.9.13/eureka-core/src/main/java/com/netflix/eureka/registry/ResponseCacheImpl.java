@@ -111,26 +111,26 @@ public class ResponseCacheImpl implements ResponseCache {
                     return new CopyOnWriteArrayList<Key>();
                 }
             });
+    // 多级缓存用来实现读写分析，避免大规模服务注册与更新时修改ConcurrentHashMap数据导致锁的竞争影响性能
+    private final ConcurrentMap<Key, Value> readOnlyCacheMap = new ConcurrentHashMap<Key, Value>(); // 三级缓存，周期更新，默认每30秒从二级缓存同步服务注册信息（Eureka Client默认从三级缓存获取服务注册信息，可配为直接从二级缓存获取）
 
-    private final ConcurrentMap<Key, Value> readOnlyCacheMap = new ConcurrentHashMap<Key, Value>();
-
-    private final LoadingCache<Key, Value> readWriteCacheMap;
-    private final boolean shouldUseReadOnlyResponseCache;
+    private final LoadingCache<Key, Value> readWriteCacheMap; // 二级缓存，实时更新，缓存时间180秒
+    private final boolean shouldUseReadOnlyResponseCache; // 是否开启三级缓存
     private final AbstractInstanceRegistry registry;
     private final EurekaServerConfig serverConfig;
     private final ServerCodecs serverCodecs;
 
-    ResponseCacheImpl(EurekaServerConfig serverConfig, ServerCodecs serverCodecs, AbstractInstanceRegistry registry) {
+    ResponseCacheImpl(EurekaServerConfig serverConfig, ServerCodecs serverCodecs, AbstractInstanceRegistry registry) { // 构造方法会启动一个定时任务将二级缓存同步到三级缓存
         this.serverConfig = serverConfig;
         this.serverCodecs = serverCodecs;
-        this.shouldUseReadOnlyResponseCache = serverConfig.shouldUseReadOnlyResponseCache();
+        this.shouldUseReadOnlyResponseCache = serverConfig.shouldUseReadOnlyResponseCache(); // 是否开启三级缓存，默认开启
         this.registry = registry;
 
-        long responseCacheUpdateIntervalMs = serverConfig.getResponseCacheUpdateIntervalMs();
-        this.readWriteCacheMap =
-                CacheBuilder.newBuilder().initialCapacity(serverConfig.getInitialCapacityOfResponseCache())
-                        .expireAfterWrite(serverConfig.getResponseCacheAutoExpirationInSeconds(), TimeUnit.SECONDS)
-                        .removalListener(new RemovalListener<Key, Value>() {
+        long responseCacheUpdateIntervalMs = serverConfig.getResponseCacheUpdateIntervalMs(); // 二级缓存往三级缓存同步的间隔时间，默认30秒
+        this.readWriteCacheMap = // 初始化二级缓存
+                CacheBuilder.newBuilder().initialCapacity(serverConfig.getInitialCapacityOfResponseCache()) // 设置二级缓存初始容量，默认1000
+                        .expireAfterWrite(serverConfig.getResponseCacheAutoExpirationInSeconds(), TimeUnit.SECONDS) // 设置二级缓存过期时间，默认180秒
+                        .removalListener(new RemovalListener<Key, Value>() { // 失效监听
                             @Override
                             public void onRemoval(RemovalNotification<Key, Value> notification) {
                                 Key removedKey = notification.getKey();
@@ -140,23 +140,23 @@ public class ResponseCacheImpl implements ResponseCache {
                                 }
                             }
                         })
-                        .build(new CacheLoader<Key, Value>() {
+                        .build(new CacheLoader<Key, Value>() { // 从一级缓存registry中获取数据，构建key-value缓存
                             @Override
                             public Value load(Key key) throws Exception {
                                 if (key.hasRegions()) {
                                     Key cloneWithNoRegions = key.cloneWithoutRegions();
                                     regionSpecificKeys.put(cloneWithNoRegions, key);
                                 }
-                                Value value = generatePayload(key);
+                                Value value = generatePayload(key); // 从一级缓存registry中获取数据并封装为Value
                                 return value;
                             }
                         });
 
-        if (shouldUseReadOnlyResponseCache) {
+        if (shouldUseReadOnlyResponseCache) { // 当开启三级缓存时创建定时任务，创建定时任务将二级缓存同步到三级缓存中
             timer.schedule(getCacheUpdateTask(),
                     new Date(((System.currentTimeMillis() / responseCacheUpdateIntervalMs) * responseCacheUpdateIntervalMs)
                             + responseCacheUpdateIntervalMs),
-                    responseCacheUpdateIntervalMs);
+                    responseCacheUpdateIntervalMs); // 创建定时任务，每隔30秒将二级缓存的数据同步到三级缓存
         }
 
         try {
@@ -203,13 +203,13 @@ public class ResponseCacheImpl implements ResponseCache {
      * @param key the key for which the cached information needs to be obtained.
      * @return payload which contains information about the applications.
      */
-    public String get(final Key key) {
+    public String get(final Key key) { // 获取缓存
         return get(key, shouldUseReadOnlyResponseCache);
     }
 
     @VisibleForTesting
-    String get(final Key key, boolean useReadOnlyCache) {
-        Value payload = getValue(key, useReadOnlyCache);
+    String get(final Key key, boolean useReadOnlyCache) { // 获取缓存
+        Value payload = getValue(key, useReadOnlyCache); // 获取缓存逻辑
         if (payload == null || payload.getPayload().equals(EMPTY_PAYLOAD)) {
             return null;
         } else {
@@ -243,7 +243,7 @@ public class ResponseCacheImpl implements ResponseCache {
     public void invalidate(String appName, @Nullable String vipAddress, @Nullable String secureVipAddress) {
         for (Key.KeyType type : Key.KeyType.values()) {
             for (Version v : Version.values()) {
-                invalidate(
+                invalidate( // 让缓存失效
                         new Key(Key.EntityType.Application, appName, type, v, EurekaAccept.full),
                         new Key(Key.EntityType.Application, appName, type, v, EurekaAccept.compact),
                         new Key(Key.EntityType.Application, ALL_APPS, type, v, EurekaAccept.full),
@@ -344,7 +344,7 @@ public class ResponseCacheImpl implements ResponseCache {
     Value getValue(final Key key, boolean useReadOnlyCache) {
         Value payload = null;
         try {
-            if (useReadOnlyCache) {
+            if (useReadOnlyCache) { // 开启三级缓存时，先从三级缓存中获取、三级缓存获取不到时从二级缓存中获取并把结果同步到三级缓存（二级缓存获取不到时会触发guava的回调函数从一级缓存registry中获取数据）
                 final Value currentPayload = readOnlyCacheMap.get(key);
                 if (currentPayload != null) {
                     payload = currentPayload;
@@ -352,7 +352,7 @@ public class ResponseCacheImpl implements ResponseCache {
                     payload = readWriteCacheMap.get(key);
                     readOnlyCacheMap.put(key, payload);
                 }
-            } else {
+            } else { // 未开启三级缓存时，直接从二级缓存中获取
                 payload = readWriteCacheMap.get(key);
             }
         } catch (Throwable t) {
@@ -399,7 +399,7 @@ public class ResponseCacheImpl implements ResponseCache {
     /*
      * Generate pay load for the given key.
      */
-    private Value generatePayload(Key key) {
+    private Value generatePayload(Key key) { // 根据key生成value
         Stopwatch tracer = null;
         try {
             String payload;
@@ -495,7 +495,7 @@ public class ResponseCacheImpl implements ResponseCache {
      * The class that stores payload in both compressed and uncompressed form.
      *
      */
-    public class Value {
+    public class Value { // 缓存值
         private final String payload;
         private byte[] gzipped;
 

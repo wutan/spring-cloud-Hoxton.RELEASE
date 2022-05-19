@@ -76,7 +76,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
     private static final String[] EMPTY_STR_ARRAY = new String[0];
     private final ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry
-            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>(); // 服务端存储实例信息的集合
+            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>(); // 服务端存储实例信息的一级缓存，又名注册表，实时更新，UI界面从这里获取服务注册信息
     protected Map<String, RemoteRegionRegistry> regionNameVSRemoteRegistry = new HashMap<String, RemoteRegionRegistry>();
     protected final ConcurrentMap<String, InstanceStatus> overriddenInstanceStatusMap = CacheBuilder
             .newBuilder().initialCapacity(500)
@@ -106,7 +106,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     protected final EurekaServerConfig serverConfig;
     protected final EurekaClientConfig clientConfig;
     protected final ServerCodecs serverCodecs;
-    protected volatile ResponseCache responseCache;
+    protected volatile ResponseCache responseCache; // 缓存类
 
     /**
      * Create a new, empty instance registry.
@@ -126,7 +126,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     }
 
     @Override
-    public synchronized void initializedResponseCache() {
+    public synchronized void initializedResponseCache() { // 初始化缓存类，并初始化二级、三级缓存
         if (responseCache == null) {
             responseCache = new ResponseCacheImpl(serverConfig, serverCodecs, this);
         }
@@ -230,7 +230,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             if (existingLease != null) { // 当原Lease存在时，将原serviceUpTimestamp同步到新Lease中, 保证服务启动的时间一直是
                 lease.setServiceUpTimestamp(existingLease.getServiceUpTimestamp());
             }
-            gMap.put(registrant.getId(), lease); // put覆盖
+            gMap.put(registrant.getId(), lease); // 将实例信息写入registry注册表/一级缓存
             synchronized (recentRegisteredQueue) { // 添加到最近注册的队列中
                 recentRegisteredQueue.add(new Pair<Long, String>(
                         System.currentTimeMillis(),
@@ -262,7 +262,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             registrant.setActionType(ActionType.ADDED); // 设置注册类型为添加
             recentlyChangedQueue.add(new RecentlyChangedItem(lease)); // 租约变更记录队列，记录了实例的每次变化，用于注册信息的增量获取
             registrant.setLastUpdatedTimestamp();
-            invalidateCache(registrant.getAppName(), registrant.getVIPAddress(), registrant.getSecureVipAddress()); // 让缓存失效
+            invalidateCache(registrant.getAppName(), registrant.getVIPAddress(), registrant.getSecureVipAddress()); // 实例信息写入registry注册表/一级缓存后，让读写缓存/二级缓存失效
             logger.info("Registered instance {}/{} with status {} (replication={})",
                     registrant.getAppName(), registrant.getId(), registrant.getStatus(), isReplication);
         } finally {

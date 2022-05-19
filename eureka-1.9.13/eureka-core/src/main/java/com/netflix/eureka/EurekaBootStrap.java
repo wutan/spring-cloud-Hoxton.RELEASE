@@ -182,7 +182,7 @@ public class EurekaBootStrap implements ServletContextListener {
             awsBinder = new AwsBinderDelegate(eurekaServerConfig, eurekaClient.getEurekaClientConfig(), registry, applicationInfoManager);
             awsBinder.start();
         } else {
-            registry = new PeerAwareInstanceRegistryImpl(
+            registry = new PeerAwareInstanceRegistryImpl( // 初始化PeerAwareInstanceRegistryImpl
                     eurekaServerConfig,
                     eurekaClient.getEurekaClientConfig(),
                     serverCodecs,
@@ -198,7 +198,7 @@ public class EurekaBootStrap implements ServletContextListener {
                 applicationInfoManager
         );
 
-        serverContext = new DefaultEurekaServerContext(
+        serverContext = new DefaultEurekaServerContext( // 初始化DefaultEurekaServerContext
                 eurekaServerConfig,
                 serverCodecs,
                 registry,
