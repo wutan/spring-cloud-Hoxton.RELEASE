@@ -84,7 +84,7 @@ class InstanceInfoReplicator implements Runnable {
         }
     }
 
-    public boolean onDemandUpdate() {
+    public boolean onDemandUpdate() { // 异步提交任务，执行run方法
         if (rateLimiter.acquire(burstSize, allowedRatePerMinute)) { // 限流判断
             if (!scheduler.isShutdown()) {
                 scheduler.submit(new Runnable() { // 提交任务来异步处理

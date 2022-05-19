@@ -43,7 +43,7 @@ public abstract class AbstractJerseyEurekaHttpClient implements EurekaHttpClient
     }
 
     @Override
-    public EurekaHttpResponse<Void> register(InstanceInfo info) { // 发起注册
+    public EurekaHttpResponse<Void> register(InstanceInfo info) { // 发起注册，请求ApplicationResource.addInstance接口
         String urlPath = "apps/" + info.getAppName(); // 接口名：apps/${APP_NAME}
         ClientResponse response = null;
         try {

@@ -142,7 +142,7 @@ public class ApplicationResource { // 处理请求
     @POST
     @Consumes({"application/json", "application/xml"})
     public Response addInstance(InstanceInfo info,
-                                @HeaderParam(PeerEurekaNode.HEADER_REPLICATION) String isReplication) {
+                                @HeaderParam(PeerEurekaNode.HEADER_REPLICATION) String isReplication) { // 服务注册请求
         logger.debug("Registering instance {} (replication={})", info.getId(), isReplication);
         // validate that the instanceinfo contains all the necessary required fields
         if (isBlank(info.getId())) {
@@ -182,7 +182,7 @@ public class ApplicationResource { // 处理请求
             }
         }
 
-        registry.register(info, "true".equals(isReplication));
+        registry.register(info, "true".equals(isReplication)); // 注册逻辑
         return Response.status(204).build();  // 204 to be backwards compatible
     }
 

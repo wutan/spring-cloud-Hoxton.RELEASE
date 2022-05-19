@@ -401,12 +401,12 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
      */
     @Override
     public void register(final InstanceInfo info, final boolean isReplication) {
-        int leaseDuration = Lease.DEFAULT_DURATION_IN_SECS;
+        int leaseDuration = Lease.DEFAULT_DURATION_IN_SECS; // 租约过期时间，默认为90秒，及当服务端超过90s没有收到客户端的心跳，则主动剔除该节点
         if (info.getLeaseInfo() != null && info.getLeaseInfo().getDurationInSecs() > 0) {
-            leaseDuration = info.getLeaseInfo().getDurationInSecs();
+            leaseDuration = info.getLeaseInfo().getDurationInSecs(); // 当客户端自己定义了心跳超时时间，则采用客户端的时间
         }
-        super.register(info, leaseDuration, isReplication);
-        replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, null, isReplication);
+        super.register(info, leaseDuration, isReplication); // 发起节点注册
+        replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, null, isReplication); // 将信息复制到Eureka Server集群中的其他节点上
     }
 
     /*
@@ -626,7 +626,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
                 return;
             }
 
-            for (final PeerEurekaNode node : peerEurekaNodes.getPeerEurekaNodes()) {
+            for (final PeerEurekaNode node : peerEurekaNodes.getPeerEurekaNodes()) { // 获得集群中的所有节点，逐个发起注册
                 // If the url represents this host, do not replicate to yourself.
                 if (peerEurekaNodes.isThisMyUrl(node.getServiceUrl())) {
                     continue;

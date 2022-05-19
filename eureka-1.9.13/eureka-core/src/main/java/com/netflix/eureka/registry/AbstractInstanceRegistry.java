@@ -76,7 +76,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
     private static final String[] EMPTY_STR_ARRAY = new String[0];
     private final ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry
-            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>();
+            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>(); // 服务端存储实例信息的集合
     protected Map<String, RemoteRegionRegistry> regionNameVSRemoteRegistry = new HashMap<String, RemoteRegionRegistry>();
     protected final ConcurrentMap<String, InstanceStatus> overriddenInstanceStatusMap = CacheBuilder
             .newBuilder().initialCapacity(500)
@@ -187,22 +187,22 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      * Registers a new instance with a given duration.
      *
      * @see com.netflix.eureka.lease.LeaseManager#register(java.lang.Object, int, boolean)
-     */
-    public void register(InstanceInfo registrant, int leaseDuration, boolean isReplication) {
+     */ // Eureka-Server的服务注册，实际上是将客户端传递过来的实例数据保存到Eureka-Server中的ConcurrentHashMap中，并且客户端与注册中心之间还会建立一个心跳检测机制用于监控客户端的健康状态
+    public void register(InstanceInfo registrant, int leaseDuration, boolean isReplication) { // 服务注册逻辑
         try {
             read.lock();
-            Map<String, Lease<InstanceInfo>> gMap = registry.get(registrant.getAppName());
-            REGISTER.increment(isReplication);
-            if (gMap == null) {
+            Map<String, Lease<InstanceInfo>> gMap = registry.get(registrant.getAppName()); // 根据appName从registry中获得当前实例信息
+            REGISTER.increment(isReplication); // 增加注册次数到监控信息中
+            if (gMap == null) { // 如果当前appName是第一次注册，则初始化一个ConcurrentHashMap
                 final ConcurrentHashMap<String, Lease<InstanceInfo>> gNewMap = new ConcurrentHashMap<String, Lease<InstanceInfo>>();
                 gMap = registry.putIfAbsent(registrant.getAppName(), gNewMap);
                 if (gMap == null) {
                     gMap = gNewMap;
                 }
             }
-            Lease<InstanceInfo> existingLease = gMap.get(registrant.getId());
+            Lease<InstanceInfo> existingLease = gMap.get(registrant.getId()); // 从gMap中根据实例Id查询原Lease信息（Lease是把服务提供者的实例信息进行包装，提供对该服务实例的租约管理）
             // Retain the last dirty timestamp without overwriting it, if there is already a lease
-            if (existingLease != null && (existingLease.getHolder() != null)) {
+            if (existingLease != null && (existingLease.getHolder() != null)) { // 当Lease中的instance存在时，和要注册的instance的信息做比较，时间最新的那个为有效instance信息
                 Long existingLastDirtyTimestamp = existingLease.getHolder().getLastDirtyTimestamp();
                 Long registrationLastDirtyTimestamp = registrant.getLastDirtyTimestamp();
                 logger.debug("Existing lease found (existing={}, provided={}", existingLastDirtyTimestamp, registrationLastDirtyTimestamp);
@@ -215,7 +215,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                     logger.warn("Using the existing instanceInfo instead of the new instanceInfo as the registrant");
                     registrant = existingLease.getHolder();
                 }
-            } else {
+            } else { // 当Lease中的instance不存在时
                 // The lease does not exist and hence it is a new registration
                 synchronized (lock) { // 服务注册动态增加计数
                     if (this.expectedNumberOfClientsSendingRenews > 0) {
@@ -226,18 +226,18 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                 }
                 logger.debug("No previous lease information found; it is new registration");
             }
-            Lease<InstanceInfo> lease = new Lease<InstanceInfo>(registrant, leaseDuration);
-            if (existingLease != null) {
+            Lease<InstanceInfo> lease = new Lease<InstanceInfo>(registrant, leaseDuration); // 构建新的Lease
+            if (existingLease != null) { // 当原Lease存在时，将原serviceUpTimestamp同步到新Lease中, 保证服务启动的时间一直是
                 lease.setServiceUpTimestamp(existingLease.getServiceUpTimestamp());
             }
-            gMap.put(registrant.getId(), lease);
-            synchronized (recentRegisteredQueue) {
+            gMap.put(registrant.getId(), lease); // put覆盖
+            synchronized (recentRegisteredQueue) { // 添加到最近注册的队列中
                 recentRegisteredQueue.add(new Pair<Long, String>(
                         System.currentTimeMillis(),
                         registrant.getAppName() + "(" + registrant.getId() + ")"));
             }
             // This is where the initial state transfer of overridden status happens
-            if (!InstanceStatus.UNKNOWN.equals(registrant.getOverriddenStatus())) {
+            if (!InstanceStatus.UNKNOWN.equals(registrant.getOverriddenStatus())) { // 检查实例状态是否发生变化
                 logger.debug("Found overridden status {} for instance {}. Checking to see if needs to be add to the "
                                 + "overrides", registrant.getOverriddenStatus(), registrant.getId());
                 if (!overriddenInstanceStatusMap.containsKey(registrant.getId())) {
@@ -256,13 +256,13 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             registrant.setStatusWithoutDirty(overriddenInstanceStatus);
 
             // If the lease is registered with UP status, set lease service up timestamp
-            if (InstanceStatus.UP.equals(registrant.getStatus())) {
+            if (InstanceStatus.UP.equals(registrant.getStatus())) { // 判断实例状态是否为UP状态
                 lease.serviceUp();
             }
-            registrant.setActionType(ActionType.ADDED);
-            recentlyChangedQueue.add(new RecentlyChangedItem(lease));
+            registrant.setActionType(ActionType.ADDED); // 设置注册类型为添加
+            recentlyChangedQueue.add(new RecentlyChangedItem(lease)); // 租约变更记录队列，记录了实例的每次变化，用于注册信息的增量获取
             registrant.setLastUpdatedTimestamp();
-            invalidateCache(registrant.getAppName(), registrant.getVIPAddress(), registrant.getSecureVipAddress());
+            invalidateCache(registrant.getAppName(), registrant.getVIPAddress(), registrant.getSecureVipAddress()); // 让缓存失效
             logger.info("Registered instance {}/{} with status {} (replication={})",
                     registrant.getAppName(), registrant.getId(), registrant.getStatus(), isReplication);
         } finally {
@@ -1278,7 +1278,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
     }
 
-    private class CircularQueue<E> extends ConcurrentLinkedQueue<E> {
+    private class CircularQueue<E> extends ConcurrentLinkedQueue<E> { // 基于ConcurrentLinkedQueue实现的环形队列，插入时会检查队列size是否已满，如果满了会先移除对头节点
         private int size = 0;
 
         public CircularQueue(int size) {

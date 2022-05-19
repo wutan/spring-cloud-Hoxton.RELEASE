@@ -436,7 +436,7 @@ public class DiscoveryClient implements EurekaClient {
             this.preRegistrationHandler.beforeRegistration();
         }
 
-        if (clientConfig.shouldRegisterWithEureka() && clientConfig.shouldEnforceRegistrationAtInit()) { // 如果需要注册到Eureka server且开启了初始化的时候强制注册，则调用register()发起服务注册
+        if (clientConfig.shouldRegisterWithEureka() && clientConfig.shouldEnforceRegistrationAtInit()) { // 如果需要注册到Eureka server且开启了初始化的时候强制注册(默认为false)，则调用register()发起服务注册
             try {
                 if (!register() ) { // 发起服务注册
                     throw new IllegalStateException("Registration error at startup. Invalid server response.");
@@ -837,10 +837,10 @@ public class DiscoveryClient implements EurekaClient {
         return null;
     }
 
-    /**
+    /** // Eureka Client有两个地方会执行服务注册任务：1.通过DiscoveryClient构造方法中的instanceInfoReplicator.start方法间接执行定时任务来判断实例信息是否发生变化来发起服务注册；
      * Register with the eureka service by making the appropriate REST call.
-     */
-    boolean register() throws Throwable {
+     */ // 2.通过Spring启动是的refresh方法，基于lifecycle机制调用StatusChangeListener.notify进行服务状态变化的监听来发起服务注册
+    boolean register() throws Throwable { // 发起注册
         logger.info(PREFIX + "{}: registering service...", appPathIdentifier);
         EurekaHttpResponse<Void> httpResponse;
         try {

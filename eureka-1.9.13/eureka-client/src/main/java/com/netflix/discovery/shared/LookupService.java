@@ -26,7 +26,7 @@ import com.netflix.appinfo.InstanceInfo;
  * @param <T> for backward compatibility
 
  */
-public interface LookupService<T> {
+public interface LookupService<T> { // 定义最基本的发现实例的行为
 
     /**
      * Returns the corresponding {@link Application} object which is basically a
