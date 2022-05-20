@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Produces({"application/xml", "application/json"})
-public class InstanceResource {
+public class InstanceResource { // 主要提供服务续约、服务下线请求
     private static final Logger logger = LoggerFactory
             .getLogger(InstanceResource.class);
 
@@ -103,7 +103,7 @@ public class InstanceResource {
      *         failure.
      */
     @PUT
-    public Response renewLease(
+    public Response renewLease( // 服务续约请求
             @HeaderParam(PeerEurekaNode.HEADER_REPLICATION) String isReplication,
             @QueryParam("overriddenstatus") String overriddenStatus,
             @QueryParam("status") String status,
@@ -276,7 +276,7 @@ public class InstanceResource {
      */
     @DELETE
     public Response cancelLease(
-            @HeaderParam(PeerEurekaNode.HEADER_REPLICATION) String isReplication) {
+            @HeaderParam(PeerEurekaNode.HEADER_REPLICATION) String isReplication) { // 服务下线请求
         try {
             boolean isSuccess = registry.cancel(app.getName(), id,
                 "true".equals(isReplication));

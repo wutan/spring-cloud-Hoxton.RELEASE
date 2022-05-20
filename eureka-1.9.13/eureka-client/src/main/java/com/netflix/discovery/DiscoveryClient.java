@@ -858,10 +858,10 @@ public class DiscoveryClient implements EurekaClient {
     /**
      * Renew with the eureka service by making the appropriate REST call
      */
-    boolean renew() {
+    boolean renew() { // 发起续约
         EurekaHttpResponse<InstanceInfo> httpResponse;
         try {
-            httpResponse = eurekaTransport.registrationClient.sendHeartBeat(instanceInfo.getAppName(), instanceInfo.getId(), instanceInfo, null);
+            httpResponse = eurekaTransport.registrationClient.sendHeartBeat(instanceInfo.getAppName(), instanceInfo.getId(), instanceInfo, null); // 最终调用InstanceResource#renewLease(...)方法进行续约
             logger.debug(PREFIX + "{} - Heartbeat status: {}", appPathIdentifier, httpResponse.getStatusCode());
             if (httpResponse.getStatusCode() == Status.NOT_FOUND.getStatusCode()) {
                 REREGISTER_COUNTER.increment();
@@ -1296,7 +1296,7 @@ public class DiscoveryClient implements EurekaClient {
                             renewalIntervalInSecs,
                             TimeUnit.SECONDS,
                             expBackOffBound,
-                            new HeartbeatThread()
+                            new HeartbeatThread() // 心跳续约线程
                     ),
                     renewalIntervalInSecs, TimeUnit.SECONDS); // 默认延迟30秒执行一次心跳续约任务
 
@@ -1420,7 +1420,7 @@ public class DiscoveryClient implements EurekaClient {
     private class HeartbeatThread implements Runnable {
 
         public void run() {
-            if (renew()) {
+            if (renew()) { // 发起续约
                 lastSuccessfulHeartbeatTimestamp = System.currentTimeMillis();
             }
         }

@@ -457,32 +457,32 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                                 boolean isReplication) {
         try {
             read.lock();
-            STATUS_UPDATE.increment(isReplication);
-            Map<String, Lease<InstanceInfo>> gMap = registry.get(appName);
+            STATUS_UPDATE.increment(isReplication); // 更新状态的次数，用于状态统计
+            Map<String, Lease<InstanceInfo>> gMap = registry.get(appName); // 从一级缓存中获取实例信息
             Lease<InstanceInfo> lease = null;
             if (gMap != null) {
                 lease = gMap.get(id);
             }
-            if (lease == null) {
+            if (lease == null) { // 实例不存在是，返回false表示续约失败
                 return false;
             } else {
-                lease.renew();
-                InstanceInfo info = lease.getHolder();
+                lease.renew(); // 调用lease的renew方法进行心跳续约，更新最后更新时间
+                InstanceInfo info = lease.getHolder(); // 获取instance实例信息
                 // Lease is always created with its instance info object.
                 // This log statement is provided as a safeguard, in case this invariant is violated.
                 if (info == null) {
                     logger.error("Found Lease without a holder for instance id {}", id);
                 }
-                if ((info != null) && !(info.getStatus().equals(newStatus))) {
+                if ((info != null) && !(info.getStatus().equals(newStatus))) { // 当instance信息不为空且实例状态发生变化时
                     // Mark service as UP if needed
-                    if (InstanceStatus.UP.equals(newStatus)) {
+                    if (InstanceStatus.UP.equals(newStatus)) { // 如果新状态是UP状态，则调用serviceUp方法进行启动，主要是更新服务的注册时间
                         lease.serviceUp();
                     }
                     // This is NAC overriden status
-                    overriddenInstanceStatusMap.put(id, newStatus);
+                    overriddenInstanceStatusMap.put(id, newStatus); // 将instance Id 和这个状态的映射信息放入覆盖缓存MAP中
                     // Set it for transfer of overridden status to replica on
                     // replica start up
-                    info.setOverriddenStatus(newStatus);
+                    info.setOverriddenStatus(newStatus); // 设置覆盖状态到实例信息中
                     long replicaDirtyTimestamp = 0;
                     info.setStatusWithoutDirty(newStatus);
                     if (lastDirtyTimestamp != null) {
@@ -490,13 +490,13 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                     }
                     // If the replication's dirty timestamp is more than the existing one, just update
                     // it to the replica's.
-                    if (replicaDirtyTimestamp > info.getLastDirtyTimestamp()) {
+                    if (replicaDirtyTimestamp > info.getLastDirtyTimestamp()) { // 如果replicaDirtyTimestamp 的时间大于instance的getLastDirtyTimestamp()，则更新
                         info.setLastDirtyTimestamp(replicaDirtyTimestamp);
                     }
                     info.setActionType(ActionType.MODIFIED);
                     recentlyChangedQueue.add(new RecentlyChangedItem(lease));
                     info.setLastUpdatedTimestamp();
-                    invalidateCache(appName, info.getVIPAddress(), info.getSecureVipAddress());
+                    invalidateCache(appName, info.getVIPAddress(), info.getSecureVipAddress()); // 二级缓存失效
                 }
                 return true;
             }
