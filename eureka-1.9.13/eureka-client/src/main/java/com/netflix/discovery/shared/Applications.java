@@ -80,10 +80,10 @@ public class Applications {
 
     private static final String STATUS_DELIMITER = "_";
 
-    private String appsHashCode;
-    private Long versionDelta;
+    private String appsHashCode; // appsHashCode
+    private Long versionDelta; // versionDelta，初始化时为-1
     @XStreamImplicit
-    private final AbstractQueue<Application> applications;
+    private final AbstractQueue<Application> applications; // Application列表，默认每个实例存放所有服务的列表信息
     private final Map<String, Application> appNameApplicationMap;
     private final Map<String, VipIndexSupport> virtualHostNameAppMap;
     private final Map<String, VipIndexSupport> secureVirtualHostNameAppMap;
@@ -91,7 +91,7 @@ public class Applications {
     /**
      * Create a new, empty Eureka application list.
      */
-    public Applications() {
+    public Applications() { // 构造方法
         this(null, -1L, Collections.emptyList());
     }
 

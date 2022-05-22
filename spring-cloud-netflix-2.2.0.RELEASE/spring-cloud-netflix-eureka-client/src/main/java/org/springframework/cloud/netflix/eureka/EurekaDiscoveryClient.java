@@ -37,7 +37,7 @@ import org.springframework.core.Ordered;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
-public class EurekaDiscoveryClient implements DiscoveryClient {
+public class EurekaDiscoveryClient implements DiscoveryClient { // Spring Cloud Eureka的服务发现类
 
 	/**
 	 * Client description {@link String}.
@@ -77,7 +77,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<String> getServices() {
-		Applications applications = this.eurekaClient.getApplications();
+		Applications applications = this.eurekaClient.getApplications(); // 先从eureka中DiscoveryClient的本地缓存获取到所有服务（Eureka会缓存所有服务，容易触发full gc）
 		if (applications == null) {
 			return Collections.emptyList();
 		}
