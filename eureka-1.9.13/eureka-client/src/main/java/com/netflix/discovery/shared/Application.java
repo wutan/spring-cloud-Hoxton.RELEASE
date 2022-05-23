@@ -53,7 +53,7 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 @Serializer("com.netflix.discovery.converters.EntityBodyConverter")
 @XStreamAlias("application")
 @JsonRootName("application")
-public class Application {
+public class Application { // Eureka的服务/应用对象，维护了服务/应用的实例集合信息
     
     private static Random shuffleRandom = new Random();
 

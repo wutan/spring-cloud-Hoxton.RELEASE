@@ -63,7 +63,7 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 @Serializer("com.netflix.discovery.converters.EntityBodyConverter")
 @XStreamAlias("applications")
 @JsonRootName("applications")
-public class Applications {
+public class Applications { // Eureka的服务/应用列表对象，维护了服务/应用队列信息
     private static class VipIndexSupport {
         final AbstractQueue<InstanceInfo> instances = new ConcurrentLinkedQueue<>();
         final AtomicLong roundRobinIndex = new AtomicLong(0);
@@ -84,7 +84,7 @@ public class Applications {
     private Long versionDelta; // versionDelta，初始化时为-1
     @XStreamImplicit
     private final AbstractQueue<Application> applications; // Application列表，默认每个实例存放所有服务的列表信息
-    private final Map<String, Application> appNameApplicationMap;
+    private final Map<String, Application> appNameApplicationMap; // Application的Map结构，与applications同步更新
     private final Map<String, VipIndexSupport> virtualHostNameAppMap;
     private final Map<String, VipIndexSupport> secureVirtualHostNameAppMap;
 
@@ -103,7 +103,7 @@ public class Applications {
     public Applications(@JsonProperty("appsHashCode") String appsHashCode,
             @JsonProperty("versionDelta") Long versionDelta,
             @JsonProperty("application") List<Application> registeredApplications) {
-        this.applications = new ConcurrentLinkedQueue<Application>();
+        this.applications = new ConcurrentLinkedQueue<Application>(); // 初始化Application列表
         this.appNameApplicationMap = new ConcurrentHashMap<String, Application>();
         this.virtualHostNameAppMap = new ConcurrentHashMap<String, VipIndexSupport>();
         this.secureVirtualHostNameAppMap = new ConcurrentHashMap<String, VipIndexSupport>();
@@ -121,10 +121,10 @@ public class Applications {
      * @param app
      *            the <em>application</em> to be added.
      */
-    public void addApplication(Application app) {
+    public void addApplication(Application app) { // 增加Application列表中的Application
         appNameApplicationMap.put(app.getName().toUpperCase(Locale.ROOT), app);
         addInstancesToVIPMaps(app, this.virtualHostNameAppMap, this.secureVirtualHostNameAppMap);
-        applications.add(app);
+        applications.add(app); // 增加Application列表中的Application
     }
 
     /**
@@ -134,7 +134,7 @@ public class Applications {
      */
     @JsonProperty("application")
     public List<Application> getRegisteredApplications() {
-        return new ArrayList<Application>(this.applications);
+        return new ArrayList<Application>(this.applications); // 获取Application列表
     }
 
     /**
@@ -146,7 +146,7 @@ public class Applications {
      * @return the registered application for the given application
      *         name.
      */
-    public Application getRegisteredApplications(String appName) {
+    public Application getRegisteredApplications(String appName) { // 根据应用名获取应用
         return appNameApplicationMap.get(appName.toUpperCase(Locale.ROOT));
     }
 
@@ -186,7 +186,7 @@ public class Applications {
      *         applications
      */
     public int size() {
-        return applications.stream().mapToInt(Application::size).sum();
+        return applications.stream().mapToInt(Application::size).sum(); // 获取Application列表中的Application数量
     }
 
     @Deprecated
@@ -412,6 +412,6 @@ public class Applications {
      */
     public void removeApplication(Application app) {
         this.appNameApplicationMap.remove(app.getName().toUpperCase(Locale.ROOT));
-        this.applications.remove(app);
+        this.applications.remove(app); // 删除Application列表中的Application
     }
 }
