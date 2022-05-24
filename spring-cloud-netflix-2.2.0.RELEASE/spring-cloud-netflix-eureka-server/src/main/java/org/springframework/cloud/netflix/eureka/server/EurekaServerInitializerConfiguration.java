@@ -37,7 +37,7 @@ import org.springframework.web.context.ServletContextAware;
  */
 @Configuration(proxyBeanMethods = false)
 public class EurekaServerInitializerConfiguration
-		implements ServletContextAware, SmartLifecycle, Ordered {
+		implements ServletContextAware, SmartLifecycle, Ordered { // 由EurekaServerAutoConfiguration导入，实现了SmartLifecycle接口，Spring容器初始化完毕后会回调start方法
 
 	private static final Log log = LogFactory
 			.getLog(EurekaServerInitializerConfiguration.class);
@@ -58,22 +58,22 @@ public class EurekaServerInitializerConfiguration
 	private int order = 1;
 
 	@Override
-	public void setServletContext(ServletContext servletContext) {
+	public void setServletContext(ServletContext servletContext) { // 实现ServletContextAware接口用于注入ServletContext，用于添加Eureka Server上下文属性
 		this.servletContext = servletContext;
 	}
 
 	@Override
 	public void start() {
-		new Thread(() -> {
+		new Thread(() -> { // 异步执行
 			try {
 				// TODO: is this class even needed now?
 				eurekaServerBootstrap.contextInitialized(
-						EurekaServerInitializerConfiguration.this.servletContext);
+						EurekaServerInitializerConfiguration.this.servletContext); // 初始化Eureka Server并启动
 				log.info("Started Eureka Server");
 
-				publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig()));
-				EurekaServerInitializerConfiguration.this.running = true;
-				publish(new EurekaServerStartedEvent(getEurekaServerConfig()));
+				publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig())); // 发布Eureka Server的register注册事件
+				EurekaServerInitializerConfiguration.this.running = true; // 设置启动的状态为true
+				publish(new EurekaServerStartedEvent(getEurekaServerConfig())); // 发送Eureka Server的Start启动事件
 			}
 			catch (Exception ex) {
 				// Help!
@@ -82,11 +82,11 @@ public class EurekaServerInitializerConfiguration
 		}).start();
 	}
 
-	private EurekaServerConfig getEurekaServerConfig() {
+	private EurekaServerConfig getEurekaServerConfig() { // 获取Eureka Server端的配置，用于事件发布
 		return this.eurekaServerConfig;
 	}
 
-	private void publish(ApplicationEvent event) {
+	private void publish(ApplicationEvent event) { // 发布事件
 		this.applicationContext.publishEvent(event);
 	}
 

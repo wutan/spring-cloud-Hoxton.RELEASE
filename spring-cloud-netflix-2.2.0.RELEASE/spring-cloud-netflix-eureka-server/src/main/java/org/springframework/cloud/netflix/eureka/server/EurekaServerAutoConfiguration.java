@@ -75,12 +75,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author Fahim Farook
  */
 @Configuration(proxyBeanMethods = false)
-@Import(EurekaServerInitializerConfiguration.class)
-@ConditionalOnBean(EurekaServerMarkerConfiguration.Marker.class)
+@Import(EurekaServerInitializerConfiguration.class) // 导入EurekaServerInitializerConfiguration类，该类实现了SmartLifecycle，基于lifecycle启动Eureka Server并发布事件
+@ConditionalOnBean(EurekaServerMarkerConfiguration.Marker.class) // 表示只有在Spring容器中含有Market实例时，才会加载当前Bean，而Market是在@EnableEurekaServer注解作用下初始化的
 @EnableConfigurationProperties({ EurekaDashboardProperties.class,
 		InstanceRegistryProperties.class })
-@PropertySource("classpath:/eureka/server.properties")
-public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
+@PropertySource("classpath:/eureka/server.properties") // 加载配置文件
+public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eureka Server端的Spring Boot自动装配类
 
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server.
@@ -117,7 +117,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	@Bean
 	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled",
 			matchIfMissing = true)
-	public EurekaController eurekaController() {
+	public EurekaController eurekaController() { // 初始化EurekaController，提供一些额外的接口用来获取Eureka Server的信息
 		return new EurekaController(this.applicationInfoManager);
 	}
 
@@ -162,7 +162,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	@ConditionalOnMissingBean
 	public PeerEurekaNodes peerEurekaNodes(PeerAwareInstanceRegistry registry,
 			ServerCodecs serverCodecs,
-			ReplicationClientAdditionalFilters replicationClientAdditionalFilters) {
+			ReplicationClientAdditionalFilters replicationClientAdditionalFilters) { // 初始化PeerEurekaNodes服务节点信息，当有节点注册上来时，通知集群中的其它服务节点
 		return new RefreshablePeerEurekaNodes(registry, this.eurekaServerConfig,
 				this.eurekaClientConfig, serverCodecs, this.applicationInfoManager,
 				replicationClientAdditionalFilters);
@@ -170,14 +170,14 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	@Bean
 	public EurekaServerContext eurekaServerContext(ServerCodecs serverCodecs,
-			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) {
+			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) { // 初始化Eureka Server的上下文，其@PostConstruct注解方法中开启集群复制定时任务
 		return new DefaultEurekaServerContext(this.eurekaServerConfig, serverCodecs,
 				registry, peerEurekaNodes, this.applicationInfoManager);
 	}
 
 	@Bean
 	public EurekaServerBootstrap eurekaServerBootstrap(PeerAwareInstanceRegistry registry,
-			EurekaServerContext serverContext) {
+			EurekaServerContext serverContext) { // 初始化EurekaServerBootstrap，等待EurekaServerInitializerConfiguration调用contextInitialized方法启动Eureka Server
 		return new EurekaServerBootstrap(this.applicationInfoManager,
 				this.eurekaClientConfig, this.eurekaServerConfig, registry,
 				serverContext);
@@ -190,12 +190,12 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	 */
 	@Bean
 	public FilterRegistrationBean<?> jerseyFilterRegistration(
-			javax.ws.rs.core.Application eurekaJerseyApp) {
+			javax.ws.rs.core.Application eurekaJerseyApp) { // 初始化Eureka拦截器，ServletContainer中实现了jersey框架，通过它来实现Eureka Server对外的restfull接口
 		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
 		bean.setFilter(new ServletContainer(eurekaJerseyApp));
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
 		bean.setUrlPatterns(
-				Collections.singletonList(EurekaConstants.DEFAULT_PREFIX + "/*"));
+				Collections.singletonList(EurekaConstants.DEFAULT_PREFIX + "/*")); // 设置拦截路径：/eureka/*
 
 		return bean;
 	}
@@ -209,7 +209,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	 */
 	@Bean
 	public javax.ws.rs.core.Application jerseyApplication(Environment environment,
-			ResourceLoader resourceLoader) {
+			ResourceLoader resourceLoader) { // 初始化jersey的Application
 
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
 				false, environment);

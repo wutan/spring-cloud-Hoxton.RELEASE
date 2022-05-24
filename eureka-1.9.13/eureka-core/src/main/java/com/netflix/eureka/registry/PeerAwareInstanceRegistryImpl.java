@@ -150,7 +150,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
         this.numberOfReplicationsLastMin.start();
         this.peerEurekaNodes = peerEurekaNodes;
         initializedResponseCache(); // 初始化ResponseCacheImpl缓存
-        scheduleRenewalThresholdUpdateTask(); // 定时任务
+        scheduleRenewalThresholdUpdateTask(); // 启动定时器，默认每隔15分钟更新每分钟最小续约数量阈值，用来判断是否需要开启自我保护机制
         initRemoteRegionRegistry();
 
         try {
@@ -237,7 +237,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
     public void openForTraffic(ApplicationInfoManager applicationInfoManager, int count) {
         // Renewals happen every 30 seconds and for a minute it should be a factor of 2.
         this.expectedNumberOfClientsSendingRenews = count;
-        updateRenewsPerMinThreshold();
+        updateRenewsPerMinThreshold(); // 更新每分钟最小续约数量
         logger.info("Got {} instances from neighboring DS node", count);
         logger.info("Renew threshold is: {}", numberOfRenewsPerMinThreshold);
         this.startupTime = System.currentTimeMillis();
@@ -251,8 +251,8 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
             primeAwsReplicas(applicationInfoManager);
         }
         logger.info("Changing status to UP");
-        applicationInfoManager.setInstanceStatus(InstanceStatus.UP);
-        super.postInit();
+        applicationInfoManager.setInstanceStatus(InstanceStatus.UP); // 设置实例的状态为UP
+        super.postInit(); // 默认每隔60秒执行剔除定时任务
     }
 
     /**

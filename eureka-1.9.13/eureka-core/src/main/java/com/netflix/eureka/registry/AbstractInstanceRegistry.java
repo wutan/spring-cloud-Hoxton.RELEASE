@@ -1220,8 +1220,8 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         }
         evictionTaskRef.set(new EvictionTask());
         evictionTimer.schedule(evictionTaskRef.get(), // 开启剔除定时任务
-                serverConfig.getEvictionIntervalTimerInMs(),
-                serverConfig.getEvictionIntervalTimerInMs());
+                serverConfig.getEvictionIntervalTimerInMs(), // 默认延迟60秒
+                serverConfig.getEvictionIntervalTimerInMs()); // 默认间隔60秒
     }
 
     /**
