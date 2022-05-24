@@ -349,7 +349,7 @@ public class ResponseCacheImpl implements ResponseCache {
                 if (currentPayload != null) {
                     payload = currentPayload;
                 } else {
-                    payload = readWriteCacheMap.get(key);
+                    payload = readWriteCacheMap.get(key); // 二级缓存获取不到时会触发guava的load回调函数从一级缓存registry中获取数据
                     readOnlyCacheMap.put(key, payload);
                 }
             } else { // 未开启三级缓存时，直接从二级缓存中获取
@@ -399,7 +399,7 @@ public class ResponseCacheImpl implements ResponseCache {
     /*
      * Generate pay load for the given key.
      */
-    private Value generatePayload(Key key) { // 根据key生成value
+    private Value generatePayload(Key key) { // 根据key生成value，主要从一级缓存registry中获取数据并封装为Value
         Stopwatch tracer = null;
         try {
             String payload;
@@ -413,7 +413,7 @@ public class ResponseCacheImpl implements ResponseCache {
                             payload = getPayLoad(key, registry.getApplicationsFromMultipleRegions(key.getRegions()));
                         } else {
                             tracer = serializeAllAppsTimer.start();
-                            payload = getPayLoad(key, registry.getApplications());
+                            payload = getPayLoad(key, registry.getApplications()); // 先从一级缓存中获取全量信息，再从全量信息中根据key获取数据
                         }
                     } else if (ALL_APPS_DELTA.equals(key.getName())) {
                         if (isRemoteRegionRequested) {
@@ -424,9 +424,9 @@ public class ResponseCacheImpl implements ResponseCache {
                                     registry.getApplicationDeltasFromMultipleRegions(key.getRegions()));
                         } else {
                             tracer = serializeDeltaAppsTimer.start();
-                            versionDelta.incrementAndGet();
+                            versionDelta.incrementAndGet(); // 增量版本号递增
                             versionDeltaLegacy.incrementAndGet();
-                            payload = getPayLoad(key, registry.getApplicationDeltas());
+                            payload = getPayLoad(key, registry.getApplicationDeltas()); // 先获取增量信息，再从增量信息中根据key获取数据
                         }
                     } else {
                         tracer = serializeOneApptimer.start();

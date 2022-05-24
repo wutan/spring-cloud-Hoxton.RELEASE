@@ -76,7 +76,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
     private static final String[] EMPTY_STR_ARRAY = new String[0];
     private final ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry
-            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>(); // 服务端存储实例信息的一级缓存，又名注册表，实时更新，UI界面从这里获取服务注册信息
+            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>(); // 服务端存储实例信息的一级缓存，又名注册表，存储所有客户端注册的实例信息，实时更新，UI界面从这里获取服务注册信息
     protected Map<String, RemoteRegionRegistry> regionNameVSRemoteRegistry = new HashMap<String, RemoteRegionRegistry>();
     protected final ConcurrentMap<String, InstanceStatus> overriddenInstanceStatusMap = CacheBuilder
             .newBuilder().initialCapacity(500)
@@ -86,7 +86,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     // CircularQueues here for debugging/statistics purposes only
     private final CircularQueue<Pair<Long, String>> recentRegisteredQueue;
     private final CircularQueue<Pair<Long, String>> recentCanceledQueue;
-    private ConcurrentLinkedQueue<RecentlyChangedItem> recentlyChangedQueue = new ConcurrentLinkedQueue<RecentlyChangedItem>();
+    private ConcurrentLinkedQueue<RecentlyChangedItem> recentlyChangedQueue = new ConcurrentLinkedQueue<RecentlyChangedItem>(); // 租约变更记录队列，记录近期产生过变化（注册、下线、过期等）的应用实例信息
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock read = readWriteLock.readLock();
@@ -120,7 +120,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
         this.renewsLastMin = new MeasuredRate(1000 * 60 * 1);
 
-        this.deltaRetentionTimer.schedule(getDeltaRetentionTask(),
+        this.deltaRetentionTimer.schedule(getDeltaRetentionTask(), // 初始化租约变更记录队列清理定时器，默认每30秒清理一次超过3分钟的增量信息
                 serverConfig.getDeltaRetentionTimerIntervalInMs(),
                 serverConfig.getDeltaRetentionTimerIntervalInMs());
     }
@@ -682,12 +682,12 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      *
      * @see com.netflix.discovery.shared.LookupService#getApplications()
      */
-    public Applications getApplications() {
-        boolean disableTransparentFallback = serverConfig.disableTransparentFallbackToOtherRegion();
+    public Applications getApplications() { // 获取全量信息
+        boolean disableTransparentFallback = serverConfig.disableTransparentFallbackToOtherRegion(); // disableTransparentFallback：如果在远程区域本地没有实例运行，对于应用程序回退的旧行为是否被禁用，默认为false
         if (disableTransparentFallback) {
             return getApplicationsFromLocalRegionOnly();
         } else {
-            return getApplicationsFromAllRemoteRegions();  // Behavior of falling back to remote region can be disabled.
+            return getApplicationsFromAllRemoteRegions();  // Behavior of falling back to remote region can be disabled. // 获取全量信息
         }
     }
 
@@ -696,7 +696,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      * Same as calling {@link #getApplicationsFromMultipleRegions(String[])} with a <code>null</code> argument.
      */
     public Applications getApplicationsFromAllRemoteRegions() {
-        return getApplicationsFromMultipleRegions(allKnownRemoteRegions);
+        return getApplicationsFromMultipleRegions(allKnownRemoteRegions); // 获取全量信息
     }
 
     /**
@@ -725,37 +725,37 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      * @return The applications with instances from the passed remote regions as well as local region. The instances
      * from remote regions can be only for certain whitelisted apps as explained above.
      */
-    public Applications getApplicationsFromMultipleRegions(String[] remoteRegions) {
+    public Applications getApplicationsFromMultipleRegions(String[] remoteRegions) { // 获取全量信息，根据注册表一级缓存信息生成Applications对象
 
-        boolean includeRemoteRegion = null != remoteRegions && remoteRegions.length != 0;
+        boolean includeRemoteRegion = null != remoteRegions && remoteRegions.length != 0; // 默认为false
 
         logger.debug("Fetching applications registry with remote regions: {}, Regions argument {}",
                 includeRemoteRegion, remoteRegions);
 
-        if (includeRemoteRegion) {
+        if (includeRemoteRegion) { // 默认不成立
             GET_ALL_WITH_REMOTE_REGIONS_CACHE_MISS.increment();
         } else {
             GET_ALL_CACHE_MISS.increment();
         }
-        Applications apps = new Applications();
+        Applications apps = new Applications(); // 创建应用列表对象，准备添加所有应用所有实例
         apps.setVersion(1L);
-        for (Entry<String, Map<String, Lease<InstanceInfo>>> entry : registry.entrySet()) {
+        for (Entry<String, Map<String, Lease<InstanceInfo>>> entry : registry.entrySet()) { // 循环一级缓存
             Application app = null;
 
             if (entry.getValue() != null) {
-                for (Entry<String, Lease<InstanceInfo>> stringLeaseEntry : entry.getValue().entrySet()) {
-                    Lease<InstanceInfo> lease = stringLeaseEntry.getValue();
+                for (Entry<String, Lease<InstanceInfo>> stringLeaseEntry : entry.getValue().entrySet()) { // 循环应用实例
+                    Lease<InstanceInfo> lease = stringLeaseEntry.getValue(); // 获取实例
                     if (app == null) {
-                        app = new Application(lease.getHolder().getAppName());
+                        app = new Application(lease.getHolder().getAppName()); // 创建应用
                     }
-                    app.addInstance(decorateInstanceInfo(lease));
+                    app.addInstance(decorateInstanceInfo(lease)); // 给应用添加实例
                 }
             }
             if (app != null) {
-                apps.addApplication(app);
+                apps.addApplication(app); // 对应用列表对象添加应用
             }
         }
-        if (includeRemoteRegion) {
+        if (includeRemoteRegion) { // 默认不成立
             for (String remoteRegion : remoteRegions) {
                 RemoteRegionRegistry remoteRegistry = regionNameVSRemoteRegistry.get(remoteRegion);
                 if (null != remoteRegistry) {
@@ -862,33 +862,33 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      * The new behavior is to explicitly specify if you need a remote region.
      */
     @Deprecated
-    public Applications getApplicationDeltas() {
+    public Applications getApplicationDeltas() { // 获取增量信息
         GET_ALL_CACHE_MISS_DELTA.increment();
-        Applications apps = new Applications();
-        apps.setVersion(responseCache.getVersionDelta().get());
+        Applications apps = new Applications(); // 创建应用列表对象，准备添加近期变化过的应用和实例
+        apps.setVersion(responseCache.getVersionDelta().get()); // 设置增量版本号
         Map<String, Application> applicationInstancesMap = new HashMap<String, Application>();
         try {
-            write.lock();
-            Iterator<RecentlyChangedItem> iter = this.recentlyChangedQueue.iterator();
+            write.lock(); // 写锁
+            Iterator<RecentlyChangedItem> iter = this.recentlyChangedQueue.iterator(); // 获取近期变化过的实例信息
             logger.debug("The number of elements in the delta queue is : {}",
                     this.recentlyChangedQueue.size());
-            while (iter.hasNext()) {
+            while (iter.hasNext()) { // 遍历近期变化过的实例信息
                 Lease<InstanceInfo> lease = iter.next().getLeaseInfo();
-                InstanceInfo instanceInfo = lease.getHolder();
+                InstanceInfo instanceInfo = lease.getHolder(); // 近期变化过的实例信息
                 logger.debug(
                         "The instance id {} is found with status {} and actiontype {}",
                         instanceInfo.getId(), instanceInfo.getStatus().name(), instanceInfo.getActionType().name());
-                Application app = applicationInstancesMap.get(instanceInfo
+                Application app = applicationInstancesMap.get(instanceInfo // 当应用列表对象不存在该应用时时，创建应用并添加到应用列表对象中
                         .getAppName());
                 if (app == null) {
                     app = new Application(instanceInfo.getAppName());
                     applicationInstancesMap.put(instanceInfo.getAppName(), app);
                     apps.addApplication(app);
                 }
-                app.addInstance(new InstanceInfo(decorateInstanceInfo(lease)));
+                app.addInstance(new InstanceInfo(decorateInstanceInfo(lease))); // 将实例添加到应用中
             }
 
-            boolean disableTransparentFallback = serverConfig.disableTransparentFallbackToOtherRegion();
+            boolean disableTransparentFallback = serverConfig.disableTransparentFallbackToOtherRegion(); // 默认为false
 
             if (!disableTransparentFallback) {
                 Applications allAppsInLocalRegion = getApplications(false);
@@ -905,8 +905,8 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                 }
             }
 
-            Applications allApps = getApplications(!disableTransparentFallback);
-            apps.setAppsHashCode(allApps.getReconcileHashCode());
+            Applications allApps = getApplications(!disableTransparentFallback); // 从一级缓存中获取全量信息
+            apps.setAppsHashCode(allApps.getReconcileHashCode()); // 将全量信息的hashcode添加到应用列表对象中
             return apps;
         } finally {
             write.unlock();
@@ -1317,7 +1317,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         return rule.apply(r, existingLease, isReplication).status();
     }
 
-    private TimerTask getDeltaRetentionTask() {
+    private TimerTask getDeltaRetentionTask() { // 租约变更记录队列清理定时任务
         return new TimerTask() {
 
             @Override
@@ -1326,7 +1326,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                 while (it.hasNext()) {
                     if (it.next().getLastUpdateTime() <
                             System.currentTimeMillis() - serverConfig.getRetentionTimeInMSInDeltaQueue()) {
-                        it.remove();
+                        it.remove(); // 租约变更记录队列中的数据默认保存3分钟，超过3分钟时会清理
                     } else {
                         break;
                     }

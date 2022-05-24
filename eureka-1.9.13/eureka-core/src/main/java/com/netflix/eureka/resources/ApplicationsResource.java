@@ -115,7 +115,7 @@ public class ApplicationsResource { // 主要提供服务获取请求
                                   @HeaderParam(HEADER_ACCEPT_ENCODING) String acceptEncoding,
                                   @HeaderParam(EurekaAccept.HTTP_X_EUREKA_ACCEPT) String eurekaAccept,
                                   @Context UriInfo uriInfo,
-                                  @Nullable @QueryParam("regions") String regionsStr) {
+                                  @Nullable @QueryParam("regions") String regionsStr) { // 全量服务获取/发现请求
 
         boolean isRemoteRegionRequested = null != regionsStr && !regionsStr.isEmpty();
         String[] regions = null;
@@ -130,30 +130,30 @@ public class ApplicationsResource { // 主要提供服务获取请求
         // Check if the server allows the access to the registry. The server can
         // restrict access if it is not
         // ready to serve traffic depending on various reasons.
-        if (!registry.shouldAllowAccess(isRemoteRegionRequested)) {
+        if (!registry.shouldAllowAccess(isRemoteRegionRequested)) { // 判断是否可以访问
             return Response.status(Status.FORBIDDEN).build();
         }
-        CurrentRequestVersion.set(Version.toEnum(version));
-        KeyType keyType = Key.KeyType.JSON;
-        String returnMediaType = MediaType.APPLICATION_JSON;
-        if (acceptHeader == null || !acceptHeader.contains(HEADER_JSON_VALUE)) {
+        CurrentRequestVersion.set(Version.toEnum(version)); // 设置API版本，默认为V2
+        KeyType keyType = Key.KeyType.JSON; // 默认key的类型为JSON
+        String returnMediaType = MediaType.APPLICATION_JSON; // 默认返回类型为JSON
+        if (acceptHeader == null || !acceptHeader.contains(HEADER_JSON_VALUE)) { // 如果Accept为空，或者不包含JSON字符串（表示客户端可能不接收JSON类型），则设置返回类型为XML
             keyType = Key.KeyType.XML;
             returnMediaType = MediaType.APPLICATION_XML;
         }
 
-        Key cacheKey = new Key(Key.EntityType.Application,
+        Key cacheKey = new Key(Key.EntityType.Application, // 构建获取全量缓存key
                 ResponseCacheImpl.ALL_APPS,
                 keyType, CurrentRequestVersion.get(), EurekaAccept.fromString(eurekaAccept), regions
         );
 
-        Response response;
-        if (acceptEncoding != null && acceptEncoding.contains(HEADER_GZIP_VALUE)) {
+        Response response; // 根据key获取缓存信息，并响应给Eureka客户端
+        if (acceptEncoding != null && acceptEncoding.contains(HEADER_GZIP_VALUE)) { // 当请求接收类型为gzip时，以gzip的形式返回
             response = Response.ok(responseCache.getGZIP(cacheKey))
                     .header(HEADER_CONTENT_ENCODING, HEADER_GZIP_VALUE)
                     .header(HEADER_CONTENT_TYPE, returnMediaType)
                     .build();
         } else {
-            response = Response.ok(responseCache.get(cacheKey))
+            response = Response.ok(responseCache.get(cacheKey)) // 获取服务注册信息都是调用Eureka缓存操作类来最终得到的（涉及到Eureka三级缓存机制）
                     .build();
         }
         return response;
@@ -194,7 +194,7 @@ public class ApplicationsResource { // 主要提供服务获取请求
             @HeaderParam(HEADER_ACCEPT) String acceptHeader,
             @HeaderParam(HEADER_ACCEPT_ENCODING) String acceptEncoding,
             @HeaderParam(EurekaAccept.HTTP_X_EUREKA_ACCEPT) String eurekaAccept,
-            @Context UriInfo uriInfo, @Nullable @QueryParam("regions") String regionsStr) {
+            @Context UriInfo uriInfo, @Nullable @QueryParam("regions") String regionsStr) { // 增量服务获取/发现请求
 
         boolean isRemoteRegionRequested = null != regionsStr && !regionsStr.isEmpty();
 
@@ -221,7 +221,7 @@ public class ApplicationsResource { // 主要提供服务获取请求
             returnMediaType = MediaType.APPLICATION_XML;
         }
 
-        Key cacheKey = new Key(Key.EntityType.Application,
+        Key cacheKey = new Key(Key.EntityType.Application, // 构建获取增量缓存key
                 ResponseCacheImpl.ALL_APPS_DELTA,
                 keyType, CurrentRequestVersion.get(), EurekaAccept.fromString(eurekaAccept), regions
         );
@@ -233,7 +233,7 @@ public class ApplicationsResource { // 主要提供服务获取请求
                     .header(HEADER_CONTENT_TYPE, returnMediaType)
                     .build();
         } else {
-            return Response.ok(responseCache.get(cacheKey))
+            return Response.ok(responseCache.get(cacheKey))  // 获取服务注册信息都是调用Eureka缓存操作类来最终得到的（涉及到Eureka三级缓存机制）
                     .build();
         }
     }
