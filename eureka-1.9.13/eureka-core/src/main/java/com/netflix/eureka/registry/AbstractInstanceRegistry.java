@@ -1188,7 +1188,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         // invalidate cache
         responseCache.invalidate(appName, vipAddress, secureVipAddress);
     }
-    // 在register服务注册、cancel服务下线、EurekaServer的初始化(EurekaBootStrap)、timer定时器四个地方会进行调用更新
+    // 在register服务注册、cancel服务下线、EurekaServer的初始化(EurekaServerBootStrap)、timer定时器四个地方会进行调用更新
     protected void updateRenewsPerMinThreshold() { // 自我保护阀值/每分钟最小续约数量 = 服务总数 * 每分钟续约数(60S/客户端续约间隔默认30秒) * 自我保护续约百分比阀值因子(默认0.85)
         this.numberOfRenewsPerMinThreshold = (int) (this.expectedNumberOfClientsSendingRenews
                 * (60.0 / serverConfig.getExpectedClientRenewalIntervalSeconds())

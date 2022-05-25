@@ -149,7 +149,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 	}
 
 	@Bean
-	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(
+	public PeerAwareInstanceRegistry peerAwareInstanceRegistry( // 初始化PeerAwareInstanceRegistry
 			ServerCodecs serverCodecs) {
 		this.eurekaClient.getApplications(); // force initialization
 		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig,
@@ -170,14 +170,14 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 
 	@Bean
 	public EurekaServerContext eurekaServerContext(ServerCodecs serverCodecs,
-			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) { // 初始化Eureka Server的上下文，其@PostConstruct注解方法中开启集群复制定时任务
+			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) { // 初始化Eureka Server的上下文，其@PostConstruct注解方法中调用PeerEurekaNodes.start()方法和PeerAwareInstanceRegistry.inist()方法
 		return new DefaultEurekaServerContext(this.eurekaServerConfig, serverCodecs,
 				registry, peerEurekaNodes, this.applicationInfoManager);
 	}
 
 	@Bean
 	public EurekaServerBootstrap eurekaServerBootstrap(PeerAwareInstanceRegistry registry,
-			EurekaServerContext serverContext) { // 初始化EurekaServerBootstrap，等待EurekaServerInitializerConfiguration调用contextInitialized方法启动Eureka Server
+			EurekaServerContext serverContext) { // 初始化EurekaServerBootstrap，等待EurekaServerInitializerConfiguration的start方法调用contextInitialized方法启动Eureka Server
 		return new EurekaServerBootstrap(this.applicationInfoManager,
 				this.eurekaClientConfig, this.eurekaServerConfig, registry,
 				serverContext);

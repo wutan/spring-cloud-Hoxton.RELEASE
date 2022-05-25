@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author Spencer Gibb
  */
-public class EurekaServerBootstrap {
+public class EurekaServerBootstrap { // EurekaServerBootstrap几乎完全复制了原生EurekaBootstrap的代码，因为原生的Eureka是在servlet应用，但是Spring Cloud的应用是运行在内嵌的Tomcat等WEB服务器里面的，这里就是使用EurekaServerBootstrap来做替换，最终是Eureka能够在Spring Boot中使用
 
 	private static final Log log = LogFactory.getLog(EurekaServerBootstrap.class);
 
@@ -154,7 +154,7 @@ public class EurekaServerBootstrap {
 
 		// Copy registry from neighboring eureka node
 		int registryCount = this.registry.syncUp(); // 从相邻的Eureka节点复制注册表
-		this.registry.openForTraffic(this.applicationInfoManager, registryCount); // 默认每30秒发送一次心跳，修改Eureka的状态为up；同时还会开启服务剔除定时任务，用于清理60秒没有心跳的客户端
+		this.registry.openForTraffic(this.applicationInfoManager, registryCount); // 修改Eureka的状态为up，并开启服务剔除定时任务，默认每隔60秒执行剔除定时任务
 
 		// Register all monitoring statistics.
 		EurekaMonitors.registerAllStats();

@@ -84,12 +84,12 @@ public class PeerEurekaNodes {
                 }
         );
         try {
-            updatePeerEurekaNodes(resolvePeerUrls());
-            Runnable peersUpdateTask = new Runnable() {
+            updatePeerEurekaNodes(resolvePeerUrls()); // 首次更新集群节点信息
+            Runnable peersUpdateTask = new Runnable() { // 创建线程任务
                 @Override
                 public void run() {
                     try {
-                        updatePeerEurekaNodes(resolvePeerUrls());
+                        updatePeerEurekaNodes(resolvePeerUrls()); // 执行方法
                     } catch (Throwable e) {
                         logger.error("Cannot update the replica Nodes", e);
                     }
@@ -98,8 +98,8 @@ public class PeerEurekaNodes {
             };
             taskExecutor.scheduleWithFixedDelay(
                     peersUpdateTask,
-                    serverConfig.getPeerEurekaNodesUpdateIntervalMs(),
-                    serverConfig.getPeerEurekaNodesUpdateIntervalMs(),
+                    serverConfig.getPeerEurekaNodesUpdateIntervalMs(), // 默认10分钟
+                    serverConfig.getPeerEurekaNodesUpdateIntervalMs(), // 默认10分钟
                     TimeUnit.MILLISECONDS
             );
         } catch (Exception e) {
@@ -186,7 +186,7 @@ public class PeerEurekaNodes {
         if (!toAdd.isEmpty()) {
             logger.info("Adding new peer nodes {}", toAdd);
             for (String peerUrl : toAdd) {
-                newNodeList.add(createPeerEurekaNode(peerUrl)); // 发起请求
+                newNodeList.add(createPeerEurekaNode(peerUrl)); // 根据url构建PeerEurekaNode信息
             }
         }
 
@@ -194,7 +194,7 @@ public class PeerEurekaNodes {
         this.peerEurekaNodeUrls = new HashSet<>(newPeerUrls);
     }
 
-    protected PeerEurekaNode createPeerEurekaNode(String peerEurekaNodeUrl) {
+    protected PeerEurekaNode createPeerEurekaNode(String peerEurekaNodeUrl) { // 根据url构建PeerEurekaNode信息
         HttpReplicationClient replicationClient = JerseyReplicationClient.createReplicationClient(serverConfig, serverCodecs, peerEurekaNodeUrl);
         String targetHost = hostFromUrl(peerEurekaNodeUrl);
         if (targetHost == null) {
