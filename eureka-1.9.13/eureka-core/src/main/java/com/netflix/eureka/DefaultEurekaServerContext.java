@@ -59,9 +59,9 @@ public class DefaultEurekaServerContext implements EurekaServerContext {
 
     @PostConstruct
     @Override
-    public void initialize() {
+    public void initialize() { // 初始化上下文
         logger.info("Initializing ...");
-        peerEurekaNodes.start(); // 更新集群其它节点信息，并开启集群复制定时任务，每隔10分钟执行一次
+        peerEurekaNodes.start(); // 初始化集群节点列表，并开启更新集群节点列表信息定时任务，每隔10分钟执行一次
         try {
             registry.init(peerEurekaNodes); // 初始化ResponseCacheImpl缓存并启动定时器更新自我保护阈值
         } catch (Exception e) {

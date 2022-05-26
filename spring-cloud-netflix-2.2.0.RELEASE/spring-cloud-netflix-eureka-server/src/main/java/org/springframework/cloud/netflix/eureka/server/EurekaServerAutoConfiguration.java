@@ -149,7 +149,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 	}
 
 	@Bean
-	public PeerAwareInstanceRegistry peerAwareInstanceRegistry( // 初始化PeerAwareInstanceRegistry
+	public PeerAwareInstanceRegistry peerAwareInstanceRegistry( // 初始化PeerAwareInstanceRegistry，但真实的对象实例是InstanceRegistry，只不过指向了PeerAwareInstanceRegistry
 			ServerCodecs serverCodecs) {
 		this.eurekaClient.getApplications(); // force initialization
 		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig,
@@ -293,7 +293,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 				final ApplicationInfoManager applicationInfoManager,
 				final ReplicationClientAdditionalFilters replicationClientAdditionalFilters) {
 			super(registry, serverConfig, clientConfig, serverCodecs,
-					applicationInfoManager);
+					applicationInfoManager); // 调用父类PeerEurekaNodes构造函数
 			this.replicationClientAdditionalFilters = replicationClientAdditionalFilters;
 		}
 

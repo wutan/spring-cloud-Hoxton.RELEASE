@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Karthik Ranganathan, Greg Kim
  *
  */
-public class PeerEurekaNode {
+public class PeerEurekaNode { // 单个集群节点信息
 
     /**
      * A time to wait before continuing work if there is network level error.
@@ -73,12 +73,12 @@ public class PeerEurekaNode {
 
     public static final String HEADER_REPLICATION = "x-netflix-discovery-replication";
 
-    private final String serviceUrl;
-    private final EurekaServerConfig config;
+    private final String serviceUrl; // 该集群节点地址
+    private final EurekaServerConfig config; // Eureka Server配置
     private final long maxProcessingDelayMs;
-    private final PeerAwareInstanceRegistry registry;
+    private final PeerAwareInstanceRegistry registry; // PeerAwareInstanceRegistry
     private final String targetHost;
-    private final HttpReplicationClient replicationClient;
+    private final HttpReplicationClient replicationClient; // 该集群节点通信客户端
 
     private final TaskDispatcher<String, ReplicationTask> batchingDispatcher;
     private final TaskDispatcher<String, ReplicationTask> nonBatchingDispatcher;
@@ -100,8 +100,8 @@ public class PeerEurekaNode {
         this.maxProcessingDelayMs = config.getMaxTimeForReplication();
 
         String batcherName = getBatcherName();
-        ReplicationTaskProcessor taskProcessor = new ReplicationTaskProcessor(targetHost, replicationClient);
-        this.batchingDispatcher = TaskDispatchers.createBatchingTaskDispatcher(
+        ReplicationTaskProcessor taskProcessor = new ReplicationTaskProcessor(targetHost, replicationClient); // 创建同步操作任务处理器
+        this.batchingDispatcher = TaskDispatchers.createBatchingTaskDispatcher( // 创建批量任务分发器
                 batcherName,
                 config.getMaxElementsInPeerReplicationPool(),
                 batchSize,
@@ -111,7 +111,7 @@ public class PeerEurekaNode {
                 retrySleepTimeMs,
                 taskProcessor
         );
-        this.nonBatchingDispatcher = TaskDispatchers.createNonBatchingTaskDispatcher(
+        this.nonBatchingDispatcher = TaskDispatchers.createNonBatchingTaskDispatcher( // 创建单任务分发器，用于Eureka Server向亚马逊AWS的ASG同步状态
                 targetHost,
                 config.getMaxElementsInStatusReplicationPool(),
                 config.getMaxThreadsForStatusReplication(),
@@ -134,13 +134,13 @@ public class PeerEurekaNode {
     public void register(final InstanceInfo info) throws Exception {
         long expiryTime = System.currentTimeMillis() + getLeaseRenewalOf(info);
         batchingDispatcher.process(
-                taskId("register", info),
-                new InstanceReplicationTask(targetHost, Action.Register, info, null, true) {
-                    public EurekaHttpResponse<Void> execute() {
-                        return replicationClient.register(info);
+                taskId("register", info), // 相同应用实例的相同操作使用相同的任务编号，目的是合并相同操作减少操作量、剑少重复积压的任务
+                new InstanceReplicationTask(targetHost, Action.Register, info, null, true) { // 创建同步操作任务
+                    public EurekaHttpResponse<Void> execute() { // 实现类同步应用实例任务的execute抽象方法
+                        return replicationClient.register(info); // 发起服务注册请求
                     }
                 },
-                expiryTime
+                expiryTime // 任务过期时间
         );
     }
 

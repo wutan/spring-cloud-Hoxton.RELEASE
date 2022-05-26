@@ -21,7 +21,7 @@ import static com.netflix.eureka.cluster.protocol.ReplicationInstance.Replicatio
 /**
  * @author Tomasz Bak
  */
-class ReplicationTaskProcessor implements TaskProcessor<ReplicationTask> {
+class ReplicationTaskProcessor implements TaskProcessor<ReplicationTask> { // 同步操作任务处理器
 
     private static final Logger logger = LoggerFactory.getLogger(ReplicationTaskProcessor.class);
 
@@ -39,7 +39,7 @@ class ReplicationTaskProcessor implements TaskProcessor<ReplicationTask> {
     }
 
     @Override
-    public ProcessingResult process(ReplicationTask task) {
+    public ProcessingResult process(ReplicationTask task) { // 处理单任务，用于Eureka Server向亚马逊AWS的ASG同步状态
         try {
             EurekaHttpResponse<?> httpResponse = task.execute();
             int statusCode = httpResponse.getStatusCode();
@@ -74,22 +74,22 @@ class ReplicationTaskProcessor implements TaskProcessor<ReplicationTask> {
     }
 
     @Override
-    public ProcessingResult process(List<ReplicationTask> tasks) {
-        ReplicationList list = createReplicationListOf(tasks);
+    public ProcessingResult process(List<ReplicationTask> tasks) { // 处理批量任务，用于Eureka Server集群注册信息的同步操作任务，一次性针对批量的同步操作任务发起请求
+        ReplicationList list = createReplicationListOf(tasks); // 创建批量提交同步操作任务的请求对象
         try {
-            EurekaHttpResponse<ReplicationListResponse> response = replicationClient.submitBatchUpdates(list);
+            EurekaHttpResponse<ReplicationListResponse> response = replicationClient.submitBatchUpdates(list); // 调用PeerReplicationResource#batchReplication(...)接口发起批量同步操作请求
             int statusCode = response.getStatusCode();
-            if (!isSuccess(statusCode)) {
-                if (statusCode == 503) {
+            if (!isSuccess(statusCode)) { // 判断请求是否成功
+                if (statusCode == 503) { // 响应状态码是503的原因可能是被限流；该情况为瞬时错误，会重试该同步操作任务
                     logger.warn("Server busy (503) HTTP status code received from the peer {}; rescheduling tasks after delay", peerId);
                     return ProcessingResult.Congestion;
-                } else {
+                } else { // 该情况为永久错误，会重试该同步操作任务
                     // Unexpected error returned from the server. This should ideally never happen.
                     logger.error("Batch update failure with HTTP status code {}; discarding {} replication tasks", statusCode, tasks.size());
                     return ProcessingResult.PermanentError;
                 }
-            } else {
-                handleBatchResponse(tasks, response.getEntity().getResponseList());
+            } else { // 请求成功（请求成功指的是整个请求成功，实际每个ReplicationInstanceResponse可能返回的状态码不在[200, 300)范围内）
+                handleBatchResponse(tasks, response.getEntity().getResponseList()); // 逐个处理每个ReplicationTask和ReplicationInstanceResponse
             }
         } catch (Throwable e) {
             if (maybeReadTimeOut(e)) {
