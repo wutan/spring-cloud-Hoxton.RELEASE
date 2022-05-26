@@ -153,7 +153,7 @@ public class EurekaServerBootstrap { // EurekaServerBootstrap几乎完全复制�
 		log.info("Initialized server context");
 
 		// Copy registry from neighboring eureka node
-		int registryCount = this.registry.syncUp(); // 从相邻的Eureka节点复制注册表
+		int registryCount = this.registry.syncUp(); // 从相邻的Eureka Server节点复制注册表
 		this.registry.openForTraffic(this.applicationInfoManager, registryCount); // 修改Eureka的状态为up，并开启服务剔除定时任务，默认每隔60秒执行剔除定时任务
 
 		// Register all monitoring statistics.

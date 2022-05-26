@@ -101,7 +101,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
     protected String[] allKnownRemoteRegions = EMPTY_STR_ARRAY;
     protected volatile int numberOfRenewsPerMinThreshold; // 每分钟最小续约数量（触发自我保护关键属性），通过updateRenewsPerMinThreshold方法进行更新
-    protected volatile int expectedNumberOfClientsSendingRenews; // 预期每分钟收到的续约数量=服务总数（触发自我保护关键属性），通过服务注册与服务下线来动态计数
+    protected volatile int expectedNumberOfClientsSendingRenews; // 预期每分钟收到的续约数量=实例总数（触发自我保护关键属性），通过服务注册与服务下线来动态计数
 
     protected final EurekaServerConfig serverConfig;
     protected final EurekaClientConfig clientConfig;
