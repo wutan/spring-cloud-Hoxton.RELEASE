@@ -283,7 +283,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 	 * </ul>
 	 */
 	static class RefreshablePeerEurekaNodes extends PeerEurekaNodes
-			implements ApplicationListener<EnvironmentChangeEvent> {
+			implements ApplicationListener<EnvironmentChangeEvent> { // Eureka Server集群节点列表
 
 		private ReplicationClientAdditionalFilters replicationClientAdditionalFilters;
 
