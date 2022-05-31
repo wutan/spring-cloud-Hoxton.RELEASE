@@ -217,7 +217,7 @@ public class EurekaClientAutoConfiguration {
 	}
 
 	@Bean
-	public EurekaServiceRegistry eurekaServiceRegistry() {
+	public EurekaServiceRegistry eurekaServiceRegistry() { // 初始化EurekaServiceRegistry（ServiceRegistry服务注册接口的实现类）
 		return new EurekaServiceRegistry();
 	}
 
@@ -240,7 +240,7 @@ public class EurekaClientAutoConfiguration {
 	@ConditionalOnProperty(
 			value = "spring.cloud.service-registry.auto-registration.enabled",
 			matchIfMissing = true)
-	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(
+	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration( // 初始化EurekaAutoServiceRegistration
 			ApplicationContext context, EurekaServiceRegistry registry,
 			EurekaRegistration registration) {
 		return new EurekaAutoServiceRegistration(context, registry, registration);

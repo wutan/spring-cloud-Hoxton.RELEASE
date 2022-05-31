@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  *   @author dliu
  */
-class InstanceInfoReplicator implements Runnable {
+class InstanceInfoReplicator implements Runnable { // 实例信息复制器，负责服务注册的线程任务，执行时机是：1.定时任务；2.实例状态发生变化时
     private static final Logger logger = LoggerFactory.getLogger(InstanceInfoReplicator.class);
 
     private final DiscoveryClient discoveryClient;
@@ -84,7 +84,7 @@ class InstanceInfoReplicator implements Runnable {
         }
     }
 
-    public boolean onDemandUpdate() { // 异步提交任务，执行run方法
+    public boolean onDemandUpdate() { // 实例信息发生变化时，异步提交任务，执行run方法
         if (rateLimiter.acquire(burstSize, allowedRatePerMinute)) { // 限流判断
             if (!scheduler.isShutdown()) {
                 scheduler.submit(new Runnable() { // 提交任务来异步处理
