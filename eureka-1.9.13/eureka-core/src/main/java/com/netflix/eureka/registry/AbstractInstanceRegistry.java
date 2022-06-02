@@ -341,24 +341,24 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      *
      * @see com.netflix.eureka.lease.LeaseManager#renew(java.lang.String, java.lang.String, boolean)
      */
-    public boolean renew(String appName, String id, boolean isReplication) {
-        RENEW.increment(isReplication);
-        Map<String, Lease<InstanceInfo>> gMap = registry.get(appName);
+    public boolean renew(String appName, String id, boolean isReplication) { // 续约逻辑
+        RENEW.increment(isReplication); // 增加续约次数到统计枚举
+        Map<String, Lease<InstanceInfo>> gMap = registry.get(appName); // 从Eureka Server的一级缓存中通过应用名获取map信息
         Lease<InstanceInfo> leaseToRenew = null;
         if (gMap != null) {
             leaseToRenew = gMap.get(id);
         }
-        if (leaseToRenew == null) {
+        if (leaseToRenew == null) { // 当lease为空时，则表示未注册过，即租约不存在会返回404状态（lease在第一次注册的时候会创建）
             RENEW_NOT_FOUND.increment(isReplication);
             logger.warn("DS: Registry: lease doesn't exist, registering resource: {} - {}", appName, id);
             return false;
         } else {
-            InstanceInfo instanceInfo = leaseToRenew.getHolder();
+            InstanceInfo instanceInfo = leaseToRenew.getHolder(); // 获取lease中的instance信息
             if (instanceInfo != null) {
                 // touchASGCache(instanceInfo.getASGName());
                 InstanceStatus overriddenInstanceStatus = this.getOverriddenInstanceStatus(
                         instanceInfo, leaseToRenew, isReplication);
-                if (overriddenInstanceStatus == InstanceStatus.UNKNOWN) {
+                if (overriddenInstanceStatus == InstanceStatus.UNKNOWN) { // 当服务端实例信息overriddenInstanceStatus为UNKNOWN时会返回404状态（在deleteStatusOverride的时候存在传入UNKONW的可能性）
                     logger.info("Instance status UNKNOWN possibly due to deleted override for instance {}"
                             + "; re-register required", instanceInfo.getId());
                     RENEW_NOT_FOUND.increment(isReplication);
@@ -374,8 +374,8 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
                 }
             }
-            renewsLastMin.increment();
-            leaseToRenew.renew();
+            renewsLastMin.increment(); // 设置每分钟的续约次数
+            leaseToRenew.renew(); // 更新lease续约时间
             return true;
         }
     }
@@ -1021,10 +1021,10 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      */
     @Override
     public InstanceInfo getInstanceByAppAndId(String appName, String id, boolean includeRemoteRegions) {
-        Map<String, Lease<InstanceInfo>> leaseMap = registry.get(appName);
+        Map<String, Lease<InstanceInfo>> leaseMap = registry.get(appName); // 从一级缓存中获取Map信息
         Lease<InstanceInfo> lease = null;
         if (leaseMap != null) {
-            lease = leaseMap.get(id);
+            lease = leaseMap.get(id); // 根据实例ID获取lease对象
         }
         if (lease != null
                 && (!isLeaseExpirationEnabled() || !lease.isExpired())) {

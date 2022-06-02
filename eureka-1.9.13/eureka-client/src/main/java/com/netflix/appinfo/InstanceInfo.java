@@ -148,7 +148,7 @@ public class InstanceInfo {
     @Auto
     private volatile Long lastUpdatedTimestamp;
     @Auto
-    private volatile Long lastDirtyTimestamp;
+    private volatile Long lastDirtyTimestamp; // lastDirtyTimestamp是客户端向服务端发请求的版本号，一切请求都以版本号大的为准
     @Auto
     private volatile ActionType actionType;
     @Auto

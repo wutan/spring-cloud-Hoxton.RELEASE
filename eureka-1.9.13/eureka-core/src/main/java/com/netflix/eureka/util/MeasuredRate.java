@@ -46,7 +46,7 @@ public class MeasuredRate {
         this.isActive = false;
     }
 
-    public synchronized void start() {
+    public synchronized void start() { // 一分钟的定时器，一分钟之后，将currentBucket重新设置为0
         if (!isActive) {
             timer.schedule(new TimerTask() {
 
@@ -82,7 +82,7 @@ public class MeasuredRate {
     /**
      * Increments the count in the current sample interval.
      */
-    public void increment() {
+    public void increment() { // 递增每分钟的续约次数
         currentBucket.incrementAndGet();
     }
 }

@@ -39,11 +39,11 @@ public class Lease<T> {
     public static final int DEFAULT_DURATION_IN_SECS = 90;
 
     private T holder;
-    private long evictionTimestamp;
-    private long registrationTimestamp;
-    private long serviceUpTimestamp;
+    private long evictionTimestamp; // 剔除时间
+    private long registrationTimestamp; // 注册时间（注册时间早于启动时间）
+    private long serviceUpTimestamp; // 启动时间
     // Make it volatile so that the expiration task would see this quicker
-    private volatile long lastUpdateTimestamp;
+    private volatile long lastUpdateTimestamp; // 上一次续约时间
     private long duration;
 
     public Lease(T r, int durationInSecs) {
@@ -59,7 +59,7 @@ public class Lease<T> {
      * associated {@link T} during registration, otherwise default duration is
      * {@link #DEFAULT_DURATION_IN_SECS}.
      */
-    public void renew() {
+    public void renew() { // 更新续约时间（源码中错误的加上了duration时间）
         lastUpdateTimestamp = System.currentTimeMillis() + duration;
 
     }

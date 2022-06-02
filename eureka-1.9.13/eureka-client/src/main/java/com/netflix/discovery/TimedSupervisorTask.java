@@ -61,10 +61,10 @@ public class TimedSupervisorTask extends TimerTask {
     public void run() {
         Future<?> future = null;
         try {
-            future = executor.submit(task);
+            future = executor.submit(task); // 异步提交任务
             threadPoolLevelGauge.set((long) executor.getActiveCount());
-            future.get(timeoutMillis, TimeUnit.MILLISECONDS);  // block until done or timeout
-            delay.set(timeoutMillis);
+            future.get(timeoutMillis, TimeUnit.MILLISECONDS);  // block until done or timeout // 超时阻塞
+            delay.set(timeoutMillis); // 当任务处理正常或恢复正常时，延时时间重置
             threadPoolLevelGauge.set((long) executor.getActiveCount());
             successCounter.increment();
         } catch (TimeoutException e) {
@@ -72,7 +72,7 @@ public class TimedSupervisorTask extends TimerTask {
             timeoutCounter.increment();
 
             long currentDelay = delay.get();
-            long newDelay = Math.min(maxDelay, currentDelay * 2);
+            long newDelay = Math.min(maxDelay, currentDelay * 2); // 当处理超时时，延迟时间翻倍/2倍衰减
             delay.compareAndSet(currentDelay, newDelay);
 
         } catch (RejectedExecutionException e) {

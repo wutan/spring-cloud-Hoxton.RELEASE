@@ -175,8 +175,8 @@ public class DiscoveryClient implements EurekaClient {
     private InstanceInfoReplicator instanceInfoReplicator;
 
     private volatile int registrySize = 0;
-    private volatile long lastSuccessfulRegistryFetchTimestamp = -1;
-    private volatile long lastSuccessfulHeartbeatTimestamp = -1;
+    private volatile long lastSuccessfulRegistryFetchTimestamp = -1; // 最后一次服务获取时间
+    private volatile long lastSuccessfulHeartbeatTimestamp = -1; // 最后一次心跳续约时间
     private final ThresholdLevelsMetric heartbeatStalenessMonitor;
     private final ThresholdLevelsMetric registryStalenessMonitor;
 
@@ -1421,7 +1421,7 @@ public class DiscoveryClient implements EurekaClient {
 
         public void run() {
             if (renew()) { // 发起续约
-                lastSuccessfulHeartbeatTimestamp = System.currentTimeMillis();
+                lastSuccessfulHeartbeatTimestamp = System.currentTimeMillis(); // 设置最后一次心跳续约时间为当前时间
             }
         }
     }
@@ -1497,7 +1497,7 @@ public class DiscoveryClient implements EurekaClient {
             boolean success = fetchRegistry(remoteRegionsModified); // 增量/全量刷新服务缓存
             if (success) {
                 registrySize = localRegionApps.get().size();
-                lastSuccessfulRegistryFetchTimestamp = System.currentTimeMillis();
+                lastSuccessfulRegistryFetchTimestamp = System.currentTimeMillis(); // 设置最后一次服务获取时间为当前时间
             }
 
             if (logger.isDebugEnabled()) { // 日志输出

@@ -415,9 +415,9 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
      * @see com.netflix.eureka.registry.InstanceRegistry#renew(java.lang.String,
      * java.lang.String, long, boolean)
      */
-    public boolean renew(final String appName, final String id, final boolean isReplication) {
-        if (super.renew(appName, id, isReplication)) {
-            replicateToPeers(Action.Heartbeat, appName, id, null, null, isReplication);
+    public boolean renew(final String appName, final String id, final boolean isReplication) { // 服务续约
+        if (super.renew(appName, id, isReplication)) { // 执行续约操作
+            replicateToPeers(Action.Heartbeat, appName, id, null, null, isReplication); // 同步到Eureka Server集群节点
             return true;
         }
         return false;
