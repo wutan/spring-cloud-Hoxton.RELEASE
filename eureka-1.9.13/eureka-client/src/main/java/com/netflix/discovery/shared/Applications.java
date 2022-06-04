@@ -186,7 +186,7 @@ public class Applications { // Eureka的服务/应用列表对象，维护了服
      *         applications
      */
     public int size() {
-        return applications.stream().mapToInt(Application::size).sum(); // 获取Application列表中的Application数量
+        return applications.stream().mapToInt(Application::size).sum(); // 获取Application列表中的实例数量
     }
 
     @Deprecated

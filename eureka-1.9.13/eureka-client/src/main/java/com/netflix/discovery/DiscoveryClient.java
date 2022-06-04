@@ -1065,7 +1065,7 @@ public class DiscoveryClient implements EurekaClient {
         logger.info("Getting all instance registry info from the eureka server");
 
         Applications apps = null;
-        EurekaHttpResponse<Applications> httpResponse = clientConfig.getRegistryRefreshSingleVipAddress() == null
+        EurekaHttpResponse<Applications> httpResponse = clientConfig.getRegistryRefreshSingleVipAddress() == null // 默认为null
                 ? eurekaTransport.queryClient.getApplications(remoteRegionsRef.get()) // 最终调用ApplicationsResource#getContainers(...)发起全量服务发现请求
                 : eurekaTransport.queryClient.getVip(clientConfig.getRegistryRefreshSingleVipAddress(), remoteRegionsRef.get());
         if (httpResponse.getStatusCode() == Status.OK.getStatusCode()) {
@@ -1496,7 +1496,7 @@ public class DiscoveryClient implements EurekaClient {
 
             boolean success = fetchRegistry(remoteRegionsModified); // 增量/全量刷新服务缓存
             if (success) {
-                registrySize = localRegionApps.get().size();
+                registrySize = localRegionApps.get().size(); // 更新实例注册数
                 lastSuccessfulRegistryFetchTimestamp = System.currentTimeMillis(); // 设置最后一次服务获取时间为当前时间
             }
 

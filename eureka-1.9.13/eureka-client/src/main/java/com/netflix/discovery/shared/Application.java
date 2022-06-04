@@ -218,11 +218,11 @@ public class Application { // Eureka的服务/应用对象，维护了服务/应
         }
         boolean remoteIndexingActive = indexByRemoteRegions && null != instanceRegionChecker && null != clientConfig
                 && null != remoteRegionsRegistry;
-        if (remoteIndexingActive || filterUpInstances) {
+        if (remoteIndexingActive || filterUpInstances) { // 默认clientConfig.shouldFilterOnlyUpInstances()为true
             Iterator<InstanceInfo> it = instanceInfoList.iterator();
-            while (it.hasNext()) {
+            while (it.hasNext()) { // 迭代实例列表
                 InstanceInfo instanceInfo = it.next();
-                if (filterUpInstances && InstanceStatus.UP != instanceInfo.getStatus()) {
+                if (filterUpInstances && InstanceStatus.UP != instanceInfo.getStatus()) { // 实例状态不为UP时，从列表中移除
                     it.remove();
                 } else if (remoteIndexingActive) {
                     String instanceRegion = instanceRegionChecker.getInstanceRegion(instanceInfo);
