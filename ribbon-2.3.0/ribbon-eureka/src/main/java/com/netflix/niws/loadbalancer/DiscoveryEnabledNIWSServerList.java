@@ -95,7 +95,7 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
         this(createClientConfig(vipAddresses), eurekaClientProvider);
     }
 
-    public DiscoveryEnabledNIWSServerList(IClientConfig clientConfig, Provider<EurekaClient> eurekaClientProvider) {
+    public DiscoveryEnabledNIWSServerList(IClientConfig clientConfig, Provider<EurekaClient> eurekaClientProvider) { // 构造函数
         this.eurekaClientProvider = eurekaClientProvider;
         initWithNiwsConfig(clientConfig);
     }

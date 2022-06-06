@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConditionalOnRibbonAndEurekaEnabled
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
-@RibbonClients(defaultConfiguration = EurekaRibbonClientConfiguration.class)
-public class RibbonEurekaAutoConfiguration {
+@RibbonClients(defaultConfiguration = EurekaRibbonClientConfiguration.class) // 指定Ribbon客户端为EurekaRibbonClientConfiguration
+public class RibbonEurekaAutoConfiguration { // 自动装配类
 
 }

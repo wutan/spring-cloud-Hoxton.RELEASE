@@ -374,8 +374,8 @@ public class DiscoveryClient implements EurekaClient {
 
             // This is a bit of hack to allow for existing code using DiscoveryManager.getInstance()
             // to work with DI'd DiscoveryClient
-            DiscoveryManager.getInstance().setDiscoveryClient(this);
-            DiscoveryManager.getInstance().setEurekaClientConfig(config);
+            DiscoveryManager.getInstance().setDiscoveryClient(this); // 给DiscoveryManager注入DiscoveryClient
+            DiscoveryManager.getInstance().setEurekaClientConfig(config); // 给DiscoveryManager注入EurekaClientConfig
 
             initTimestampMs = System.currentTimeMillis();
             logger.info("Discovery Client initialized at timestamp {} with initial instances count: {}",
@@ -1225,7 +1225,7 @@ public class DiscoveryClient implements EurekaClient {
                     }
                     logger.debug("Added instance {} to the existing apps in region {}", instance.getId(), instanceRegion);
                     applications.getRegisteredApplications(instance.getAppName()).addInstance(instance); // 给本地应用添加实例
-                } else if (ActionType.MODIFIED.equals(instance.getActionType())) { // 修改事件
+                } else if (ActionType.MODIFIED.equals(instance.getActionType())) { // 修改事件（修改事件的处理逻辑起始和新增事件相同）
                     Application existingApp = applications.getRegisteredApplications(instance.getAppName());
                     if (existingApp == null) {
                         applications.addApplication(app);
@@ -1253,7 +1253,7 @@ public class DiscoveryClient implements EurekaClient {
         logger.debug("The total number of instances fetched by the delta processor : {}", deltaCount);
 
         getApplications().setVersion(delta.getVersion());
-        getApplications().shuffleInstances(clientConfig.shouldFilterOnlyUpInstances());
+        getApplications().shuffleInstances(clientConfig.shouldFilterOnlyUpInstances()); // 清除非UP状态的实例
 
         for (Applications applications : remoteRegionVsApps.values()) {
             applications.setVersion(delta.getVersion());
