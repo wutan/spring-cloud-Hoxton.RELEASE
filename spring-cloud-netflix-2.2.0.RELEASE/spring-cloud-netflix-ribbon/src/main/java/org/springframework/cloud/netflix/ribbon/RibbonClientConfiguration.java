@@ -69,7 +69,7 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
 // https://github.com/spring-cloud/spring-cloud-netflix/issues/2086#issuecomment-316281653
 @Import({ HttpClientConfiguration.class, OkHttpRibbonConfiguration.class,
 		RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class })
-public class RibbonClientConfiguration {
+public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使用时才会加载）
 
 	/**
 	 * Ribbon client default connect timeout.

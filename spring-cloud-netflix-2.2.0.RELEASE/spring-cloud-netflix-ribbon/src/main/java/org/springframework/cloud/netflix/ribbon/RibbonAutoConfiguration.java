@@ -79,7 +79,7 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
-	public SpringClientFactory springClientFactory() {
+	public SpringClientFactory springClientFactory() { // 创建SpringClientFactory并设置RibbonClientSpecification
 		SpringClientFactory factory = new SpringClientFactory();
 		factory.setConfigurations(this.configurations);
 		return factory;

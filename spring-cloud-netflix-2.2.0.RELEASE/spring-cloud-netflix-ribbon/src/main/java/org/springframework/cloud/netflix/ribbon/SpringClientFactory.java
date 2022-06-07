@@ -40,7 +40,7 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	static final String NAMESPACE = "ribbon";
 
 	public SpringClientFactory() {
-		super(RibbonClientConfiguration.class, NAMESPACE, "ribbon.client.name");
+		super(RibbonClientConfiguration.class, NAMESPACE, "ribbon.client.name"); // 调用父类构造函数
 	}
 
 	/**

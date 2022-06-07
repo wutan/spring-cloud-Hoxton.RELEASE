@@ -59,11 +59,11 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 
 	private ApplicationContext parent;
 
-	private Class<?> defaultConfigType;
+	private Class<?> defaultConfigType; // 默认配置类
 
 	public NamedContextFactory(Class<?> defaultConfigType, String propertySourceName,
-			String propertyName) {
-		this.defaultConfigType = defaultConfigType;
+			String propertyName) { // 创建NamedContextFactory
+		this.defaultConfigType = defaultConfigType; // 传入默认配置类
 		this.propertySourceName = propertySourceName;
 		this.propertyName = propertyName;
 	}
@@ -73,7 +73,7 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 		this.parent = parent;
 	}
 
-	public void setConfigurations(List<C> configurations) {
+	public void setConfigurations(List<C> configurations) { // 在RibbonAutoConfiguration中进行设置
 		for (C client : configurations) {
 			this.configurations.put(client.getName(), client);
 		}
@@ -98,7 +98,7 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 		if (!this.contexts.containsKey(name)) {
 			synchronized (this.contexts) {
 				if (!this.contexts.containsKey(name)) {
-					this.contexts.put(name, createContext(name));
+					this.contexts.put(name, createContext(name)); // 当缓存不存在时进行创建
 				}
 			}
 		}
@@ -121,7 +121,7 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 			}
 		}
 		context.register(PropertyPlaceholderAutoConfiguration.class,
-				this.defaultConfigType);
+				this.defaultConfigType); // 注册默认配置类、PropertyPlaceholderAutoConfiguration类（也是RibbonClientConfiguration的入口）
 		context.getEnvironment().getPropertySources().addFirst(new MapPropertySource(
 				this.propertySourceName,
 				Collections.<String, Object>singletonMap(this.propertyName, name)));
