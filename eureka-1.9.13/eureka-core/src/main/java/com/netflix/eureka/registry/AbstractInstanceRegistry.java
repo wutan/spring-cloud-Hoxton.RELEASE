@@ -259,7 +259,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             if (InstanceStatus.UP.equals(registrant.getStatus())) { // 判断实例状态是否为UP状态
                 lease.serviceUp();
             }
-            registrant.setActionType(ActionType.ADDED); // 设置注册类型为添加
+            registrant.setActionType(ActionType.ADDED); // 设置操作类型为添加
             recentlyChangedQueue.add(new RecentlyChangedItem(lease)); // 租约变更记录队列，记录了实例的每次变化，用于注册信息的增量获取
             registrant.setLastUpdatedTimestamp();
             invalidateCache(registrant.getAppName(), registrant.getVIPAddress(), registrant.getSecureVipAddress()); // 实例信息写入registry注册表/一级缓存后，让读写缓存/二级缓存失效
@@ -285,7 +285,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      * @return true if the instance was removed from the {@link AbstractInstanceRegistry} successfully, false otherwise.
      */
     @Override
-    public boolean cancel(String appName, String id, boolean isReplication) {
+    public boolean cancel(String appName, String id, boolean isReplication) { // 执行下线请求
         return internalCancel(appName, id, isReplication);
     }
 
@@ -296,37 +296,37 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      */
     protected boolean internalCancel(String appName, String id, boolean isReplication) { // 服务下线
         try {
-            read.lock();
-            CANCEL.increment(isReplication);
-            Map<String, Lease<InstanceInfo>> gMap = registry.get(appName);
+            read.lock(); // 读锁加锁
+            CANCEL.increment(isReplication); // 添加取消次数给监控信息（是个枚举类，收集了取消次数）
+            Map<String, Lease<InstanceInfo>> gMap = registry.get(appName); // 从本地的一级缓存CurrentHashMap中，获取当前实例对应的Lease信息
             Lease<InstanceInfo> leaseToCancel = null;
             if (gMap != null) {
-                leaseToCancel = gMap.remove(id);
+                leaseToCancel = gMap.remove(id); // 移除实例信息
             }
-            synchronized (recentCanceledQueue) {
+            synchronized (recentCanceledQueue) { // 添加取消信息到取消队列，主要用于运维界面的信息统计
                 recentCanceledQueue.add(new Pair<Long, String>(System.currentTimeMillis(), appName + "(" + id + ")"));
             }
-            InstanceStatus instanceStatus = overriddenInstanceStatusMap.remove(id);
+            InstanceStatus instanceStatus = overriddenInstanceStatusMap.remove(id); // 移除这个实例ID对应的instance状态
             if (instanceStatus != null) {
                 logger.debug("Removed instance id {} from the overridden map which has value {}", id, instanceStatus.name());
             }
-            if (leaseToCancel == null) {
+            if (leaseToCancel == null) { // 如果实例信息不存在，则说明这个实例从来没有注册过来，或者已下线
                 CANCEL_NOT_FOUND.increment(isReplication);
                 logger.warn("DS: Registry: cancel failed because Lease is not registered for: {}/{}", appName, id);
                 return false;
             } else {
-                leaseToCancel.cancel();
-                InstanceInfo instanceInfo = leaseToCancel.getHolder();
+                leaseToCancel.cancel(); // 更新Lease实例信息里面的evictionTimestamp这个时间戳，标明下线时间
+                InstanceInfo instanceInfo = leaseToCancel.getHolder(); // 获取实例信息
                 String vip = null;
                 String svip = null;
                 if (instanceInfo != null) {
-                    instanceInfo.setActionType(ActionType.DELETED);
+                    instanceInfo.setActionType(ActionType.DELETED); // 设置操作类型为删除
                     recentlyChangedQueue.add(new RecentlyChangedItem(leaseToCancel));
                     instanceInfo.setLastUpdatedTimestamp();
                     vip = instanceInfo.getVIPAddress();
                     svip = instanceInfo.getSecureVipAddress();
                 }
-                invalidateCache(appName, vip, svip);
+                invalidateCache(appName, vip, svip); // 清除缓存
                 logger.info("Cancelled instance {}/{} (replication={})", appName, id, isReplication);
                 return true;
             }
@@ -493,7 +493,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                     if (replicaDirtyTimestamp > info.getLastDirtyTimestamp()) { // 如果replicaDirtyTimestamp 的时间大于instance的getLastDirtyTimestamp()，则更新
                         info.setLastDirtyTimestamp(replicaDirtyTimestamp);
                     }
-                    info.setActionType(ActionType.MODIFIED);
+                    info.setActionType(ActionType.MODIFIED); // 设置操作类型为修改
                     recentlyChangedQueue.add(new RecentlyChangedItem(lease));
                     info.setLastUpdatedTimestamp();
                     invalidateCache(appName, info.getVIPAddress(), info.getSecureVipAddress()); // 二级缓存失效
@@ -554,7 +554,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                     if (replicaDirtyTimestamp > info.getLastDirtyTimestamp()) {
                         info.setLastDirtyTimestamp(replicaDirtyTimestamp);
                     }
-                    info.setActionType(ActionType.MODIFIED);
+                    info.setActionType(ActionType.MODIFIED); // 设置操作类型为修改
                     recentlyChangedQueue.add(new RecentlyChangedItem(lease));
                     info.setLastUpdatedTimestamp();
                     invalidateCache(appName, info.getVIPAddress(), info.getSecureVipAddress());

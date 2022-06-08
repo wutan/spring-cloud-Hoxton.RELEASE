@@ -901,22 +901,22 @@ public class DiscoveryClient implements EurekaClient {
      */
     @PreDestroy
     @Override
-    public synchronized void shutdown() {
-        if (isShutdown.compareAndSet(false, true)) {
+    public synchronized void shutdown() { // 发起服务下线（当类被容器销毁时执行）
+        if (isShutdown.compareAndSet(false, true)) { //CAS操作
             logger.info("Shutting down DiscoveryClient ...");
 
             if (statusChangeListener != null && applicationInfoManager != null) {
-                applicationInfoManager.unregisterStatusChangeListener(statusChangeListener.getId());
+                applicationInfoManager.unregisterStatusChangeListener(statusChangeListener.getId()); // 注销实例状态变化监听
             }
 
-            cancelScheduledTasks();
+            cancelScheduledTasks(); // 取消定时任务（心跳续约、缓存刷新等）
 
             // If APPINFO was registered
             if (applicationInfoManager != null
                     && clientConfig.shouldRegisterWithEureka()
-                    && clientConfig.shouldUnregisterOnShutdown()) {
-                applicationInfoManager.setInstanceStatus(InstanceStatus.DOWN);
-                unregister();
+                    && clientConfig.shouldUnregisterOnShutdown()) { // 如果app注册过，则需要取消注册，即需要主动下线
+                applicationInfoManager.setInstanceStatus(InstanceStatus.DOWN); // 设置实例状态为DOWN
+                unregister(); // 执行下线逻辑
             }
 
             if (eurekaTransport != null) {
@@ -938,7 +938,7 @@ public class DiscoveryClient implements EurekaClient {
         if(eurekaTransport != null && eurekaTransport.registrationClient != null) {
             try {
                 logger.info("Unregistering ...");
-                EurekaHttpResponse<Void> httpResponse = eurekaTransport.registrationClient.cancel(instanceInfo.getAppName(), instanceInfo.getId());
+                EurekaHttpResponse<Void> httpResponse = eurekaTransport.registrationClient.cancel(instanceInfo.getAppName(), instanceInfo.getId()); // 发起下线请求
                 logger.info(PREFIX + "{} - deregister  status: {}", appPathIdentifier, httpResponse.getStatusCode());
             } catch (Exception e) {
                 logger.error(PREFIX + "{} - de-registration failed{}", appPathIdentifier, e.getMessage(), e);
@@ -1336,7 +1336,7 @@ public class DiscoveryClient implements EurekaClient {
         }
     }
 
-    private void cancelScheduledTasks() {
+    private void cancelScheduledTasks() { // 取消定时任务
         if (instanceInfoReplicator != null) {
             instanceInfoReplicator.stop();
         }

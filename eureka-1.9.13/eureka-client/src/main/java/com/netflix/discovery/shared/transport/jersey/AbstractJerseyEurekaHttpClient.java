@@ -67,7 +67,7 @@ public abstract class AbstractJerseyEurekaHttpClient implements EurekaHttpClient
     }
 
     @Override
-    public EurekaHttpResponse<Void> cancel(String appName, String id) {
+    public EurekaHttpResponse<Void> cancel(String appName, String id) { // 发起下线，请求InstanceResource.cancelLease接口
         String urlPath = "apps/" + appName + '/' + id;
         ClientResponse response = null;
         try {
@@ -86,7 +86,7 @@ public abstract class AbstractJerseyEurekaHttpClient implements EurekaHttpClient
     }
 
     @Override
-    public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info, InstanceStatus overriddenStatus) { // 发起续约
+    public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info, InstanceStatus overriddenStatus) { // 发起续约，请求InstanceResource.renewLease接口
         String urlPath = "apps/" + appName + '/' + id; // 接口地址：apps/ + appName + / + id
         ClientResponse response = null;
         try {

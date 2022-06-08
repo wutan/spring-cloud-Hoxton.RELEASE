@@ -94,7 +94,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 
 	@Override
 	public boolean cancel(String appName, String serverId, boolean isReplication) {
-		handleCancelation(appName, serverId, isReplication);
+		handleCancelation(appName, serverId, isReplication); // 发布下线事件
 		return super.cancel(appName, serverId, isReplication);
 	}
 

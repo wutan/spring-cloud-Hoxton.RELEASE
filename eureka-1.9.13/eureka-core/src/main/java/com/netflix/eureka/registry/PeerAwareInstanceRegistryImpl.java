@@ -373,14 +373,14 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
      */
     @Override
     public boolean cancel(final String appName, final String id,
-                          final boolean isReplication) {
-        if (super.cancel(appName, id, isReplication)) {
-            replicateToPeers(Action.Cancel, appName, id, null, null, isReplication);
+                          final boolean isReplication) { // 执行下线请求
+        if (super.cancel(appName, id, isReplication)) { // 执行父类的服务下线方法
+            replicateToPeers(Action.Cancel, appName, id, null, null, isReplication); // 集群同步
             synchronized (lock) { // 服务下线动态增加计数
                 if (this.expectedNumberOfClientsSendingRenews > 0) {
                     // Since the client wants to cancel it, reduce the number of clients to send renews
                     this.expectedNumberOfClientsSendingRenews = this.expectedNumberOfClientsSendingRenews - 1;
-                    updateRenewsPerMinThreshold();
+                    updateRenewsPerMinThreshold(); // 更新自我保护阈值
                 }
             }
             return true;

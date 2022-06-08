@@ -30,7 +30,7 @@ import com.netflix.eureka.registry.AbstractInstanceRegistry;
  *
  * @author Karthik Ranganathan, Greg Kim
  */
-public class Lease<T> {
+public class Lease<T> { // 泛型，在Eureka中存放的是InstanceInfo实例信息
 
     enum Action {
         Register, Cancel, Renew
@@ -44,7 +44,7 @@ public class Lease<T> {
     private long serviceUpTimestamp; // 启动时间
     // Make it volatile so that the expiration task would see this quicker
     private volatile long lastUpdateTimestamp; // 上一次续约时间
-    private long duration;
+    private long duration; // 持续时间
 
     public Lease(T r, int durationInSecs) {
         holder = r;
@@ -67,7 +67,7 @@ public class Lease<T> {
     /**
      * Cancels the lease by updating the eviction time.
      */
-    public void cancel() {
+    public void cancel() { // 设置下线时间
         if (evictionTimestamp <= 0) {
             evictionTimestamp = System.currentTimeMillis();
         }
@@ -77,7 +77,7 @@ public class Lease<T> {
      * Mark the service as up. This will only take affect the first time called,
      * subsequent calls will be ignored.
      */
-    public void serviceUp() {
+    public void serviceUp() { // 设置启动时间
         if (serviceUpTimestamp == 0) {
             serviceUpTimestamp = System.currentTimeMillis();
         }
