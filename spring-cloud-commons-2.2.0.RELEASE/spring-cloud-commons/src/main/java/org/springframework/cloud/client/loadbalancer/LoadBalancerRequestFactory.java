@@ -37,7 +37,7 @@ public class LoadBalancerRequestFactory {
 	private List<LoadBalancerRequestTransformer> transformers;
 
 	public LoadBalancerRequestFactory(LoadBalancerClient loadBalancer,
-			List<LoadBalancerRequestTransformer> transformers) {
+			List<LoadBalancerRequestTransformer> transformers) { // 在LoadBalancerAutoConfiguration中进行调用创建
 		this.loadBalancer = loadBalancer;
 		this.transformers = transformers;
 	}

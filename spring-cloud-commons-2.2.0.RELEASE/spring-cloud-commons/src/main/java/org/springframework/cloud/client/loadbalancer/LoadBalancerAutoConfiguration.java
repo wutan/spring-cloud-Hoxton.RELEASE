@@ -93,7 +93,7 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(
 						restTemplate.getInterceptors()); // 获取默认的拦截器链
 				list.add(loadBalancerInterceptor); // 添加到拦截器链中
-				restTemplate.setInterceptors(list); // 将拦截器链设置到RestTemplate中
+				restTemplate.setInterceptors(list); // 将拦截器链设置到RestTemplate中（RestTemplate继承自InterceptingHttpAccessor）
 			};
 		}
 

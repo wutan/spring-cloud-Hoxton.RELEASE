@@ -122,7 +122,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 				isSecure(server, serviceId),
 				serverIntrospector(serviceId).getMetadata(server));
 
-		return execute(serviceId, ribbonServer, request);
+		return execute(serviceId, ribbonServer, request); // 执行请求
 	}
 
 	@Override
@@ -186,7 +186,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			return null;
 		}
 		// Use 'default' on a null hint, or just pass it on?
-		return loadBalancer.chooseServer(hint != null ? hint : "default"); // 默认采用轮询算法来实现负载均衡
+		return loadBalancer.chooseServer(hint != null ? hint : "default"); // 默认采用区域感知轮询负载均衡策略来实现负载均衡
 	}
 
 	protected ILoadBalancer getLoadBalancer(String serviceId) {

@@ -487,7 +487,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
      * server list.
      */
     public void setServersList(List lsrv) {
-        Lock writeLock = allServerLock.writeLock();
+        Lock writeLock = allServerLock.writeLock(); // 通过ReadWriteLock写锁防止并发
         logger.debug("LoadBalancer [{}]: clearing server list (SET op)", name);
         
         ArrayList<Server> newServers = new ArrayList<Server>();
@@ -542,7 +542,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
             // This will reset readyToServe flag to true on all servers
             // regardless whether
             // previous priming connections are success or not
-            allServerList = allServers; // 设置所有服务列表
+            allServerList = allServers; // 设置所有服务列表（替换操作）
             if (canSkipPing()) {
                 for (Server s : allServerList) {
                     s.setAlive(true);

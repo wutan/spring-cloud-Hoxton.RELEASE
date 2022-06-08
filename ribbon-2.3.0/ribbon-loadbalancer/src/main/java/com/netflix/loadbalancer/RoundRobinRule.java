@@ -31,9 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Nikos Michalakis <nikos@netflix.com>
  *
  */
-public class RoundRobinRule extends AbstractLoadBalancerRule {
+public class RoundRobinRule extends AbstractLoadBalancerRule { // 简单轮询负载均衡
 
-    private AtomicInteger nextServerCyclicCounter;
+    private AtomicInteger nextServerCyclicCounter; // 计数器
     private static final boolean AVAILABLE_ONLY_SERVERS = true;
     private static final boolean ALL_SERVERS = false;
 
@@ -48,7 +48,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
         setLoadBalancer(lb);
     }
 
-    public Server choose(ILoadBalancer lb, Object key) { // 轮询算法
+    public Server choose(ILoadBalancer lb, Object key) { // 以轮询的方式依次将请求调度不同的服务（int next = (current + 1) % modulo）
         if (lb == null) {
             log.warn("no load balancer");
             return null;
@@ -56,7 +56,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
 
         Server server = null;
         int count = 0;
-        while (server == null && count++ < 10) {
+        while (server == null && count++ < 10) { // 获取不到服务时循环十次
             List<Server> reachableServers = lb.getReachableServers(); // 获取可用服务
             List<Server> allServers = lb.getAllServers(); // 获取所有服务
             int upCount = reachableServers.size();

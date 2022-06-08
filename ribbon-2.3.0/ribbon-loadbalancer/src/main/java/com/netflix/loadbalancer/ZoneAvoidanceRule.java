@@ -33,7 +33,7 @@ import com.netflix.client.config.IClientConfig;
  * @author awang
  *
  */
-public class ZoneAvoidanceRule extends PredicateBasedRule {
+public class ZoneAvoidanceRule extends PredicateBasedRule { // 区域感知轮询负载均衡（复合判断server所在区域的性能和server的可用性选择server）
 
     private static final Random random = new Random();
     

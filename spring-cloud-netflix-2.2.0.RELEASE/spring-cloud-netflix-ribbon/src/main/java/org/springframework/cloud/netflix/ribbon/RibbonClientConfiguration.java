@@ -69,7 +69,7 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
 // https://github.com/spring-cloud/spring-cloud-netflix/issues/2086#issuecomment-316281653
 @Import({ HttpClientConfiguration.class, OkHttpRibbonConfiguration.class,
 		RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class })
-public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使用时才会加载）
+public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使用时才会加载，各服务提供者相互独立）
 
 	/**
 	 * Ribbon client default connect timeout.
@@ -108,7 +108,7 @@ public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使
 
 	@Bean
 	@ConditionalOnMissingBean
-	public IRule ribbonRule(IClientConfig config) { // 创建负载均衡策略接口IRule实现类对象
+	public IRule ribbonRule(IClientConfig config) { // 创建负载均衡策略接口IRule实现类对象（选择一个最终的服务地址作为LoadBalancer结果，选择策略有简单轮询负载均衡(RoundRobin)、随机负载均衡(RoundRobinRule)、加权响应时间负载均衡(WeightedResponseTimeRule)、区域感知轮询负载均衡(ZoneAvoidanceRule)等）
 		if (this.propertiesFactory.isSet(IRule.class, name)) {
 			return this.propertiesFactory.get(IRule.class, config, name);
 		}
@@ -129,7 +129,7 @@ public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使
 	@Bean
 	@ConditionalOnMissingBean
 	@SuppressWarnings("unchecked")
-	public ServerList<Server> ribbonServerList(IClientConfig config) { // 服务列表
+	public ServerList<Server> ribbonServerList(IClientConfig config) { // 服务列表（用于获取地址列表，可以是静态的(提供一组固定的地址)，也可以是动态的(从注册中心中定期查询地址列表)）
 		if (this.propertiesFactory.isSet(ServerList.class, name)) {
 			return this.propertiesFactory.get(ServerList.class, config, name);
 		}
@@ -159,7 +159,7 @@ public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使
 	@Bean
 	@ConditionalOnMissingBean
 	@SuppressWarnings("unchecked")
-	public ServerListFilter<Server> ribbonServerListFilter(IClientConfig config) {
+	public ServerListFilter<Server> ribbonServerListFilter(IClientConfig config) { // 服务列表过滤策略（仅当使用动态ServerList时使用，用于在原始的服务列表中使用一定策略过虑掉一部分地址）
 		if (this.propertiesFactory.isSet(ServerListFilter.class, name)) {
 			return this.propertiesFactory.get(ServerListFilter.class, config, name);
 		}

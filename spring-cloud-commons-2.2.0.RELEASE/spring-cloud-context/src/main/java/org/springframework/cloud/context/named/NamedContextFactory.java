@@ -102,7 +102,7 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 				}
 			}
 		}
-		return this.contexts.get(name);
+		return this.contexts.get(name); // 返回name对应的ApplicationContext
 	}
 
 	protected AnnotationConfigApplicationContext createContext(String name) {
@@ -142,10 +142,10 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 	}
 
 	public <T> T getInstance(String name, Class<T> type) {
-		AnnotationConfigApplicationContext context = getContext(name);
+		AnnotationConfigApplicationContext context = getContext(name); // 从缓存中获取对应的ApplicationContext
 		if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context,
 				type).length > 0) {
-			return context.getBean(type);
+			return context.getBean(type); // ApplicationContext存在指定的Bean类型时直接返回对应的Bean
 		}
 		return null;
 	}

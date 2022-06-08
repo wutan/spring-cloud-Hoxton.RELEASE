@@ -234,20 +234,20 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     }
 
     @VisibleForTesting
-    public void updateListOfServers() {
+    public void updateListOfServers() { // Ribbon在工作时首选会通过ServerList来获取所有可用的服务列表，然后通过ServerListFilter过虑掉一部分地址，最后在剩下的地址中通过IRule选择出一个服务作为最终结果
         List<T> servers = new ArrayList<T>();
         if (serverListImpl != null) {
-            servers = serverListImpl.getUpdatedListOfServers(); // 调用实现类方法获取Server列表（这里是调用Eureka/Nacos获取服务列表的入口）
+            servers = serverListImpl.getUpdatedListOfServers(); // 调用实现类方法获取ServerList可用服务列表（这里是调用Eureka/Nacos获取服务列表的入口）
             LOGGER.debug("List of Servers for {} obtained from Discovery client: {}",
                     getIdentifier(), servers);
 
             if (filter != null) {
-                servers = filter.getFilteredListOfServers(servers);
+                servers = filter.getFilteredListOfServers(servers); //过滤服务
                 LOGGER.debug("Filtered List of Servers for {} obtained from Discovery client: {}",
                         getIdentifier(), servers);
             }
         }
-        updateAllServerList(servers);
+        updateAllServerList(servers); // 更新服务列表
     }
 
     /**

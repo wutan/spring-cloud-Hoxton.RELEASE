@@ -39,7 +39,7 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	static final String NAMESPACE = "ribbon";
 
-	public SpringClientFactory() {
+	public SpringClientFactory() { // 在RibbonAutoConfiguration中进行调用
 		super(RibbonClientConfiguration.class, NAMESPACE, "ribbon.client.name"); // 调用父类构造函数
 	}
 
@@ -118,7 +118,7 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	@Override
 	public <C> C getInstance(String name, Class<C> type) {
-		C instance = super.getInstance(name, type);
+		C instance = super.getInstance(name, type); // 从ApplicationContext中获取Bean对象
 		if (instance != null) {
 			return instance;
 		}
