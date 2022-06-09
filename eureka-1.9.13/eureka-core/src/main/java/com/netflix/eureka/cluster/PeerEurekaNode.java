@@ -131,10 +131,10 @@ public class PeerEurekaNode { // 单个集群节点信息
      *            that is send to this instance.
      * @throws Exception
      */
-    public void register(final InstanceInfo info) throws Exception {
+    public void register(final InstanceInfo info) throws Exception { // 处理注册同步操作
         long expiryTime = System.currentTimeMillis() + getLeaseRenewalOf(info);
-        batchingDispatcher.process(
-                taskId("register", info), // 相同应用实例的相同操作使用相同的任务编号，目的是合并相同操作减少操作量、剑少重复积压的任务
+        batchingDispatcher.process( // 默认采用批量任务处理器进行同步操作
+                taskId("register", info), // 相同应用实例的相同操作使用相同的任务编号，目的是合并相同操作减少操作量、减少重复积压的任务
                 new InstanceReplicationTask(targetHost, Action.Register, info, null, true) { // 创建同步操作任务
                     public EurekaHttpResponse<Void> execute() { // 实现类同步应用实例任务的execute抽象方法
                         return replicationClient.register(info); // 发起服务注册请求

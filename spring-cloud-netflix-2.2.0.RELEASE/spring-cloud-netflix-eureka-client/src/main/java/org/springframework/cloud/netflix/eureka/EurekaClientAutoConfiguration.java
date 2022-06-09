@@ -113,7 +113,7 @@ public class EurekaClientAutoConfiguration {
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class,
 			search = SearchStrategy.CURRENT)
 	public EurekaClientConfigBean eurekaClientConfigBean(ConfigurableEnvironment env) {
-		EurekaClientConfigBean client = new EurekaClientConfigBean();
+		EurekaClientConfigBean client = new EurekaClientConfigBean(); // 初始化EurekaClientConfig
 		if ("bootstrap".equals(this.env.getProperty("spring.config.name"))) {
 			// We don't register during bootstrap by default, but there will be another
 			// chance later.

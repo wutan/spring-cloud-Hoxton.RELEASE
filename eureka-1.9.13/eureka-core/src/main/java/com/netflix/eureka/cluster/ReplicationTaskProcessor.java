@@ -89,7 +89,7 @@ class ReplicationTaskProcessor implements TaskProcessor<ReplicationTask> { // �
                     return ProcessingResult.PermanentError;
                 }
             } else { // 请求成功（请求成功指的是整个请求成功，实际每个ReplicationInstanceResponse可能返回的状态码不在[200, 300)范围内）
-                handleBatchResponse(tasks, response.getEntity().getResponseList()); // 逐个处理每个ReplicationTask和ReplicationInstanceResponse
+                handleBatchResponse(tasks, response.getEntity().getResponseList()); // 循环调用处理每个ReplicationTask的ReplicationInstanceResponse结果
             }
         } catch (Throwable e) {
             if (maybeReadTimeOut(e)) {

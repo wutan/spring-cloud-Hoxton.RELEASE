@@ -82,13 +82,13 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 
 	@Override
 	public void register(InstanceInfo info, int leaseDuration, boolean isReplication) {
-		handleRegistration(info, leaseDuration, isReplication);
+		handleRegistration(info, leaseDuration, isReplication); // 发布注册事件
 		super.register(info, leaseDuration, isReplication);
 	}
 
 	@Override
 	public void register(final InstanceInfo info, final boolean isReplication) {
-		handleRegistration(info, resolveInstanceLeaseDuration(info), isReplication);
+		handleRegistration(info, resolveInstanceLeaseDuration(info), isReplication); // 发布注册事件
 		super.register(info, isReplication);
 	}
 
