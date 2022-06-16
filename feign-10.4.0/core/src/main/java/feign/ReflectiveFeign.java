@@ -50,7 +50,7 @@ public class ReflectiveFeign extends Feign {
   @Override
   public <T> T newInstance(Target<T> target) { // 用来创建一个动态代理
     Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target); // 根据接口类和Contract协议解析方式，解析接口类上的方法和注解，转换成内部的MethodHandler的处理方式
-    Map<Method, MethodHandler> methodToHandler = new LinkedHashMap<Method, MethodHandler>(); // dispatch
+    Map<Method, MethodHandler> methodToHandler = new LinkedHashMap<Method, MethodHandler>(); // dispatch，根据nameToHandler来构建methodToHandler
     List<DefaultMethodHandler> defaultMethodHandlers = new LinkedList<DefaultMethodHandler>();
 
     for (Method method : target.type().getMethods()) { // 对每个定义的接口方法进行特定的处理实现

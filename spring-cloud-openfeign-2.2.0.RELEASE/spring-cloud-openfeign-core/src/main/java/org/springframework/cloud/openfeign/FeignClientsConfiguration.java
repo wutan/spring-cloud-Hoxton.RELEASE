@@ -56,7 +56,7 @@ import org.springframework.format.support.FormattingConversionService;
  * @author Venil Noronha
  */
 @Configuration(proxyBeanMethods = false)
-public class FeignClientsConfiguration {
+public class FeignClientsConfiguration { // OpenFeign的客户端配置类（在使用时才会加载，各服务提供者相互独立）
 
 	@Autowired
 	private ObjectFactory<HttpMessageConverters> messageConverters;
@@ -90,7 +90,7 @@ public class FeignClientsConfiguration {
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.data.domain.Pageable")
 	@ConditionalOnMissingBean
-	public Encoder feignEncoderPageable() {
+	public Encoder feignEncoderPageable() { // 创建编码器
 		PageableSpringEncoder encoder = new PageableSpringEncoder(
 				new SpringEncoder(this.messageConverters));
 		if (springDataWebProperties != null) {
@@ -106,7 +106,7 @@ public class FeignClientsConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Contract feignContract(ConversionService feignConversionService) {
+	public Contract feignContract(ConversionService feignConversionService) { // 创建连接
 		return new SpringMvcContract(this.parameterProcessors, feignConversionService);
 	}
 

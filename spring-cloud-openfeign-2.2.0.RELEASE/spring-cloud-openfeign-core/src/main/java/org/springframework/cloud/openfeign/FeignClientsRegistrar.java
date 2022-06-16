@@ -149,8 +149,8 @@ class FeignClientsRegistrar
 		Map<String, Object> defaultAttrs = metadata
 				.getAnnotationAttributes(EnableFeignClients.class.getName(), true); // 从Spring Boot启动类上获取@EnableFeignClients注解的相关属性
 
-		if (defaultAttrs != null && defaultAttrs.containsKey("defaultConfiguration")) {
-			String name;
+		if (defaultAttrs != null && defaultAttrs.containsKey("defaultConfiguration")) { // 当@EnableFeignClients注解中配置了defaultConfiguration属性时
+			String name; // 指定name
 			if (metadata.hasEnclosingClass()) {
 				name = "default." + metadata.getEnclosingClassName();
 			}

@@ -34,14 +34,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * @author Eko Kurniawan Khannedy
  */
-@ConfigurationProperties("feign.client")
-public class FeignClientProperties {
+@ConfigurationProperties("feign.client") // 属性前缀: feign.client
+public class FeignClientProperties { // feign的client的属性配置
 
 	private boolean defaultToProperties = true;
 
-	private String defaultConfig = "default";
+	private String defaultConfig = "default"; // client默认的属性配置key: feign.client.config.default
 
-	private Map<String, FeignClientConfiguration> config = new HashMap<>();
+	private Map<String, FeignClientConfiguration> config = new HashMap<>(); // client属性配置key: feign.client.config.contextId
 
 	public boolean isDefaultToProperties() {
 		return this.defaultToProperties;
@@ -89,7 +89,7 @@ public class FeignClientProperties {
 	/**
 	 * Feign client configuration.
 	 */
-	public static class FeignClientConfiguration {
+	public static class FeignClientConfiguration { // 客户端配置
 
 		private Logger.Level loggerLevel;
 

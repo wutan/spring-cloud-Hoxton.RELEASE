@@ -73,7 +73,7 @@ final class SynchronousMethodHandler implements MethodHandler {
   @Override
   public Object invoke(Object[] argv) throws Throwable {
     RequestTemplate template = buildTemplateFromArgs.create(argv); // 根据参数生成RequestTemplate对象，该对象是Http请求的模版
-    Options options = findOptions(argv);
+    Options options = findOptions(argv); // 根据参数生成Options对象
     Retryer retryer = this.retryer.clone();
     while (true) {
       try {

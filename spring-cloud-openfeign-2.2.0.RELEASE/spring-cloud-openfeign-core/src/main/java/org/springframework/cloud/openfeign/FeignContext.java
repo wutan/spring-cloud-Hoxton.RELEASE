@@ -27,8 +27,8 @@ import org.springframework.cloud.context.named.NamedContextFactory;
  */ // FeignContext继承自NamedContextFactory，用来统一维护Feign中各个Feign客户端相互隔离的上下文
 public class FeignContext extends NamedContextFactory<FeignClientSpecification> {
 
-	public FeignContext() {
-		super(FeignClientsConfiguration.class, "feign", "feign.client.name");
+	public FeignContext() { // 在FeignAutoConfiguration中进行调用
+		super(FeignClientsConfiguration.class, "feign", "feign.client.name"); // 调用父类构造函数
 	}
 
 }

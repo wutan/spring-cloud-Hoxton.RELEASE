@@ -88,28 +88,28 @@ class FeignClientFactoryBean
 		// @formatter:off
 		Feign.Builder builder = get(context, Feign.Builder.class) // 构建Feign.Builder，构建时会向FeignContext获取配置的Encoder，Decoder等各种信息
 				// required values
-				.logger(logger)
+				.logger(logger) // 日志级别
 				.encoder(get(context, Encoder.class)) // 编码器
 				.decoder(get(context, Decoder.class)) // 解码器
-				.contract(get(context, Contract.class));
+				.contract(get(context, Contract.class)); // 连接
 		// @formatter:on
 
-		configureFeign(context, builder);
+		configureFeign(context, builder); // 从上下文、默认配置、自定义配置中设置FeignClient属性
 
 		return builder;
 	}
 
-	protected void configureFeign(FeignContext context, Feign.Builder builder) {
+	protected void configureFeign(FeignContext context, Feign.Builder builder) { // 从上下文、默认配置、自定义配置中设置FeignClient属性
 		FeignClientProperties properties = this.applicationContext
 				.getBean(FeignClientProperties.class);
 		if (properties != null) {
 			if (properties.isDefaultToProperties()) {
-				configureUsingConfiguration(context, builder);
+				configureUsingConfiguration(context, builder); // 从上下文中设置FeignClient属性
 				configureUsingProperties(
 						properties.getConfig().get(properties.getDefaultConfig()),
-						builder);
+						builder); // 从默认配置中设置FeignClient属性
 				configureUsingProperties(properties.getConfig().get(this.contextId),
-						builder);
+						builder); // 从自定义配置中设置FeignClient属性
 			}
 			else {
 				configureUsingProperties(
@@ -126,7 +126,7 @@ class FeignClientFactoryBean
 	}
 
 	protected void configureUsingConfiguration(FeignContext context,
-			Feign.Builder builder) {
+			Feign.Builder builder) { // 从上下文中设置FeignClient属性
 		Logger.Level level = getOptional(context, Logger.Level.class);
 		if (level != null) {
 			builder.logLevel(level);
@@ -144,7 +144,7 @@ class FeignClientFactoryBean
 			builder.options(options);
 		}
 		Map<String, RequestInterceptor> requestInterceptors = context
-				.getInstances(this.contextId, RequestInterceptor.class);
+				.getInstances(this.contextId, RequestInterceptor.class); // 从上下文中获取拦截器Map集合
 		if (requestInterceptors != null) {
 			builder.requestInterceptors(requestInterceptors.values());
 		}
@@ -286,7 +286,7 @@ class FeignClientFactoryBean
 		}
 		Targeter targeter = get(context, Targeter.class);
 		return (T) targeter.target(this, builder, context,
-				new HardCodedTarget<>(this.type, this.name, url)); // 调用Target.target()方法生成代理类
+				new HardCodedTarget<>(this.type, this.name, url)); // 当url不为空是，调用Target.target()方法生成代理类
 	}
 
 	private String cleanPath() {

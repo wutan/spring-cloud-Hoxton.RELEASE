@@ -51,9 +51,9 @@ import org.springframework.context.annotation.Primary;
 // Order is important here, last should be the default, first should be optional
 // see
 // https://github.com/spring-cloud/spring-cloud-netflix/issues/2086#issuecomment-316281653
-@Import({ HttpClientFeignLoadBalancedConfiguration.class,
-		OkHttpFeignLoadBalancedConfiguration.class,
-		DefaultFeignLoadBalancedConfiguration.class }) // 初始化Client实例
+@Import({ HttpClientFeignLoadBalancedConfiguration.class, // 当存在ApacheHttpClient时创建Client
+		OkHttpFeignLoadBalancedConfiguration.class, // 当存在OkHttpClient时创建Client
+		DefaultFeignLoadBalancedConfiguration.class }) // 默认创建Client实例
 public class FeignRibbonClientAutoConfiguration {
 
 	@Bean

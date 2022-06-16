@@ -90,8 +90,8 @@ public class FeignLoadBalancer extends
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
 		}
-		Response response = request.client().execute(request.toRequest(), options);
-		return new RibbonResponse(request.getUri(), response);
+		Response response = request.client().execute(request.toRequest(), options); // 根据Client获取响应（默认Client为Client.Default）
+		return new RibbonResponse(request.getUri(), response); // 设置响应
 	}
 
 	@Override

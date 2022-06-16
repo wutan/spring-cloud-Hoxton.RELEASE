@@ -33,11 +33,11 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
  * @author Dave Syer
  *
  */
-public class LoadBalancerFeignClient implements Client {
+public class LoadBalancerFeignClient implements Client { // OpenFeign的默认Client，在FeignRibbonClientAutoConfiguration中进行加载
 
 	static final Request.Options DEFAULT_OPTIONS = new Request.Options();
 
-	private final Client delegate;
+	private final Client delegate; // 默认为Client.Default
 
 	private CachingSpringLoadBalancerFactory lbClientFactory;
 
@@ -45,8 +45,8 @@ public class LoadBalancerFeignClient implements Client {
 
 	public LoadBalancerFeignClient(Client delegate,
 			CachingSpringLoadBalancerFactory lbClientFactory,
-			SpringClientFactory clientFactory) {
-		this.delegate = delegate;
+			SpringClientFactory clientFactory) { // 在FeignRibbonClientAutoConfiguration中根据上下文环境进行选择性创建
+		this.delegate = delegate; // 默认为Client.Default
 		this.lbClientFactory = lbClientFactory;
 		this.clientFactory = clientFactory;
 	}
@@ -76,7 +76,7 @@ public class LoadBalancerFeignClient implements Client {
 			String clientName = asUri.getHost(); // 获取clientName
 			URI uriWithoutHost = cleanUrl(request.url(), clientName);
 			FeignLoadBalancer.RibbonRequest ribbonRequest = new FeignLoadBalancer.RibbonRequest(
-					this.delegate, request, uriWithoutHost);
+					this.delegate, request, uriWithoutHost); // 构建RibbonRequest，内部维护了Client（默认的Client或第三方Client）
 
 			IClientConfig requestConfig = getClientConfig(options, clientName);
 			return lbClient(clientName)
@@ -116,7 +116,7 @@ public class LoadBalancerFeignClient implements Client {
 		return this.delegate;
 	}
 
-	private FeignLoadBalancer lbClient(String clientName) {
+	private FeignLoadBalancer lbClient(String clientName) { // 获取FeignLoadBalancer
 		return this.lbClientFactory.create(clientName);
 	}
 

@@ -36,7 +36,7 @@ import org.springframework.util.ConcurrentReferenceHashMap;
  */
 public class CachingSpringLoadBalancerFactory {
 
-	protected final SpringClientFactory factory;
+	protected final SpringClientFactory factory; // Ribbon的NamedContextFactory子类
 
 	protected LoadBalancedRetryFactory loadBalancedRetryFactory = null;
 
@@ -52,7 +52,7 @@ public class CachingSpringLoadBalancerFactory {
 		this.loadBalancedRetryFactory = loadBalancedRetryPolicyFactory;
 	}
 
-	public FeignLoadBalancer create(String clientName) {
+	public FeignLoadBalancer create(String clientName) { // 生成具有负载均衡的Feign
 		FeignLoadBalancer client = this.cache.get(clientName);
 		if (client != null) {
 			return client;

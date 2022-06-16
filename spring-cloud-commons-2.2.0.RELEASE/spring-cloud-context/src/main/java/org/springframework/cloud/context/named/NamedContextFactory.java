@@ -127,7 +127,7 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 				Collections.<String, Object>singletonMap(this.propertyName, name)));
 		if (this.parent != null) {
 			// Uses Environment from parent as well as beans
-			context.setParent(this.parent);
+			context.setParent(this.parent); // 设置父容器，当在子容器找不到时，会从父容器寻找
 			// jdk11 issue
 			// https://github.com/spring-cloud/spring-cloud-netflix/issues/3101
 			context.setClassLoader(this.parent.getClassLoader());
