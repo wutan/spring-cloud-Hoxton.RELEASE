@@ -74,7 +74,7 @@ public interface Client {
 
     @Override
     public Response execute(Request request, Options options) throws IOException { // Feign默认Client的真正执行逻辑
-      HttpURLConnection connection = convertAndSend(request, options);
+      HttpURLConnection connection = convertAndSend(request, options); // feign.Client.Default.execute()方法使用了HttpURLConnection的方式来进行请求，并没有使用对象池技术，所以性能较低，在实际工作中推荐使用Okhttp3作为请求连接池，但要注意的是Okhttp3的连接初始化默认只有5个，需要按需设置
       return convertResponse(connection, request);
     }
 

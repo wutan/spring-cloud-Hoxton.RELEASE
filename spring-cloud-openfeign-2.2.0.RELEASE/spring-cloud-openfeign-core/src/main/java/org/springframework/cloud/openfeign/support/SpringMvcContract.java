@@ -208,7 +208,7 @@ public class SpringMvcContract extends Contract.BaseContract
 	}
 
 	@Override
-	protected void processAnnotationOnMethod(MethodMetadata data,
+	protected void processAnnotationOnMethod(MethodMetadata data, // 解析FeignClient接口中方法上的注解
 			Annotation methodAnnotation, Method method) {
 		if (!RequestMapping.class.isInstance(methodAnnotation) && !methodAnnotation
 				.annotationType().isAnnotationPresent(RequestMapping.class)) {

@@ -46,7 +46,7 @@ public interface Contract {
   abstract class BaseContract implements Contract {
 
     @Override
-    public List<MethodMetadata> parseAndValidatateMetadata(Class<?> targetType) {
+    public List<MethodMetadata> parseAndValidatateMetadata(Class<?> targetType) { // 解析接口方法上的注解
       checkState(targetType.getTypeParameters().length == 0, "Parameterized types unsupported: %s",
           targetType.getSimpleName());
       checkState(targetType.getInterfaces().length <= 1, "Only single inheritance supported: %s",
@@ -94,7 +94,7 @@ public interface Contract {
 
 
       for (Annotation methodAnnotation : method.getAnnotations()) {
-        processAnnotationOnMethod(data, methodAnnotation, method);
+        processAnnotationOnMethod(data, methodAnnotation, method); // 由子类实现解析
       }
       checkState(data.template().method() != null,
           "Method %s not annotated with HTTP method type (ex. GET, POST)",

@@ -79,7 +79,7 @@ public class LoadBalancerFeignClient implements Client { // OpenFeign的默认Cl
 					this.delegate, request, uriWithoutHost); // 构建RibbonRequest，内部维护了Client（默认的Client或第三方Client）
 
 			IClientConfig requestConfig = getClientConfig(options, clientName);
-			return lbClient(clientName)
+			return lbClient(clientName) // 获取或生成具有负载均衡的Feign
 					.executeWithLoadBalancer(ribbonRequest, requestConfig).toResponse();
 		}
 		catch (ClientException e) {

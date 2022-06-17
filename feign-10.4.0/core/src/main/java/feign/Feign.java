@@ -251,13 +251,13 @@ public abstract class Feign {
       return build().newInstance(target);
     }
 
-    public Feign build() {
+    public Feign build() { // 终会调用new ReflectiveFeign(...)来生成Feign实例
       SynchronousMethodHandler.Factory synchronousMethodHandlerFactory =
           new SynchronousMethodHandler.Factory(client, retryer, requestInterceptors, logger,
               logLevel, decode404, closeAfterDecode, propagationPolicy);
       ParseHandlersByName handlersByName =
           new ParseHandlersByName(contract, options, encoder, decoder, queryMapEncoder,
-              errorDecoder, synchronousMethodHandlerFactory);
+              errorDecoder, synchronousMethodHandlerFactory); // ParseHandlersByName将Target的所有接口方法转换为Map<String, MethodHandler>对象
       return new ReflectiveFeign(handlersByName, invocationHandlerFactory, queryMapEncoder);
     }
   }

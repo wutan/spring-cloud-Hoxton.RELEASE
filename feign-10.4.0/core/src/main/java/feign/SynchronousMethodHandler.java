@@ -72,12 +72,12 @@ final class SynchronousMethodHandler implements MethodHandler {
 
   @Override
   public Object invoke(Object[] argv) throws Throwable {
-    RequestTemplate template = buildTemplateFromArgs.create(argv); // 根据参数生成RequestTemplate对象，该对象是Http请求的模版
+    RequestTemplate template = buildTemplateFromArgs.create(argv); // 根据请求参数解析生成RequestTemplate用于请求，该对象是Feign的Http请求模版
     Options options = findOptions(argv); // 根据参数生成Options对象
-    Retryer retryer = this.retryer.clone();
+    Retryer retryer = this.retryer.clone(); // 构建Retryer重试机制，Retryer不是线程安全的对象，所以每一次方法调用我们都需要借助于原型模式来生成一个新的对象
     while (true) {
       try {
-        return executeAndDecode(template, options); // 通过RequestTemplate生成Request请求对象，再利用HttpURLConnection获取response响应信息
+        return executeAndDecode(template, options); // 先通过RequestTemplate生成Request请求对象，再调用Client对象发起请求获取response响应信息
       } catch (RetryableException e) {
         try {
           retryer.continueOrPropagate(e);
@@ -100,21 +100,21 @@ final class SynchronousMethodHandler implements MethodHandler {
   Object executeAndDecode(RequestTemplate template, Options options) throws Throwable {
     Request request = targetRequest(template); // 通过RequestTemplate生成Request请求对象，转化为Http请求报文
 
-    if (logLevel != Logger.Level.NONE) {
+    if (logLevel != Logger.Level.NONE) { // 判断日志等级是否输出日志
       logger.logRequest(metadata.configKey(), logLevel, request);
     }
 
     Response response;
-    long start = System.nanoTime();
+    long start = System.nanoTime(); // 获取执行请求的开始时间
     try {
-      response = client.execute(request, options); // 默认采用JDK的HttpURLConnection发起远程调用
+      response = client.execute(request, options); // 调用Client对象发起请求，默认采用JDK的HttpURLConnection发起远程调用（Client可以是一个外部组件，如：okhttp3等）
     } catch (IOException e) {
       if (logLevel != Logger.Level.NONE) {
         logger.logIOException(metadata.configKey(), logLevel, e, elapsedTime(start));
       }
       throw errorExecuting(request, e);
     }
-    long elapsedTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+    long elapsedTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start); // 统计请求调用花费的时间
 
     boolean shouldClose = true;
     try {
@@ -135,7 +135,7 @@ final class SynchronousMethodHandler implements MethodHandler {
         byte[] bodyData = Util.toByteArray(response.body().asInputStream());
         return response.toBuilder().body(bodyData).build();
       }
-      if (response.status() >= 200 && response.status() < 300) {
+      if (response.status() >= 200 && response.status() < 300) { // 调用decode()进行解码，其中会对200、404等情况使用不同的接码器
         if (void.class == metadata.returnType()) {
           return null;
         } else {
@@ -156,7 +156,7 @@ final class SynchronousMethodHandler implements MethodHandler {
       }
       throw errorReading(request, response, e);
     } finally {
-      if (shouldClose) {
+      if (shouldClose) { // 关闭response，因为response可能是流操作，比如下载
         ensureClosed(response.body());
       }
     }
@@ -193,7 +193,7 @@ final class SynchronousMethodHandler implements MethodHandler {
         .orElse(this.options);
   }
 
-  static class Factory {
+  static class Factory { // 用于创建一个SynchronousMethodHandler对象
 
     private final Client client;
     private final Retryer retryer;

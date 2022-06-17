@@ -49,8 +49,8 @@ public class ReflectiveFeign extends Feign {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T newInstance(Target<T> target) { // 用来创建一个动态代理
-    Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target); // 根据接口类和Contract协议解析方式，解析接口类上的方法和注解，转换成内部的MethodHandler的处理方式
-    Map<Method, MethodHandler> methodToHandler = new LinkedHashMap<Method, MethodHandler>(); // dispatch，根据nameToHandler来构建methodToHandler
+    Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target); // 根据接口类和Contract协议解析方式，解析接口类上的方法和注解，生成方法名与MethodHandler的映射关系
+    Map<Method, MethodHandler> methodToHandler = new LinkedHashMap<Method, MethodHandler>(); // 构建Method与其对应的MethodHandler的关系存放入methodToHandler，即dispatch，主要用于在实际调用时能根据invoke方法的Method参数获取对应的MethodHandler发起请求
     List<DefaultMethodHandler> defaultMethodHandlers = new LinkedList<DefaultMethodHandler>();
 
     for (Method method : target.type().getMethods()) { // 对每个定义的接口方法进行特定的处理实现
@@ -85,7 +85,7 @@ public class ReflectiveFeign extends Feign {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable { // Feign的代理执行方法
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable { // FeignClient动态代理请求接口的实际执行方法
       if ("equals".equals(method.getName())) {
         try {
           Object otherHandler =
@@ -100,7 +100,7 @@ public class ReflectiveFeign extends Feign {
         return toString();
       }
 
-      return dispatch.get(method).invoke(args); // （策略模式）根据method获取对象的一个SynchronousMethodHandler进行拦截处理
+      return dispatch.get(method).invoke(args); // （策略模式）根据method获取对应的SynchronousMethodHandler进行请求处理
     }
 
     @Override
@@ -151,9 +151,9 @@ public class ReflectiveFeign extends Feign {
     }
 
     public Map<String, MethodHandler> apply(Target key) {
-      List<MethodMetadata> metadata = contract.parseAndValidatateMetadata(key.type()); // 解析接口方法上的注解
+      List<MethodMetadata> metadata = contract.parseAndValidatateMetadata(key.type()); // 解析FeignClient接口方法上的注解，生成方法元数据
       Map<String, MethodHandler> result = new LinkedHashMap<String, MethodHandler>(); // 维护一个<String，MethodHandler>的map
-      for (MethodMetadata md : metadata) {
+      for (MethodMetadata md : metadata) { // 根据每一个方法元数据实例化生成MethodHandler
         BuildTemplateByResolvingArgs buildTemplate;
         if (!md.formParams().isEmpty() && md.template().bodyTemplate() == null) {
           buildTemplate = new BuildFormEncodedTemplateFromArgs(md, encoder, queryMapEncoder);
@@ -163,7 +163,7 @@ public class ReflectiveFeign extends Feign {
           buildTemplate = new BuildTemplateByResolvingArgs(md, queryMapEncoder);
         }
         result.put(md.configKey(),
-            factory.create(key, md, buildTemplate, options, decoder, errorDecoder)); // 生成一个SynchronousMethodHandler
+            factory.create(key, md, buildTemplate, options, decoder, errorDecoder)); // 生成MethodHandler实例
       }
       return result;
     }
