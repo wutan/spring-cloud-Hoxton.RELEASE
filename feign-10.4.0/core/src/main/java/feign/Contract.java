@@ -82,7 +82,7 @@ public interface Contract {
     /**
      * Called indirectly by {@link #parseAndValidatateMetadata(Class)}.
      */
-    protected MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
+    protected MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) { // 解析Feign方法注解并生成MethodMetadata对象
       MethodMetadata data = new MethodMetadata();
       data.returnType(Types.resolve(targetType, targetType, method.getGenericReturnType()));
       data.configKey(Feign.configKey(targetType, method));
@@ -90,11 +90,11 @@ public interface Contract {
       if (targetType.getInterfaces().length == 1) {
         processAnnotationOnClass(data, targetType.getInterfaces()[0]);
       }
-      processAnnotationOnClass(data, targetType);
+      processAnnotationOnClass(data, targetType); // 解析类/接口级别的注解（由子类实现解析，子类SpringMvcContract只会解析@RequestMapping注解）
 
 
       for (Annotation methodAnnotation : method.getAnnotations()) {
-        processAnnotationOnMethod(data, methodAnnotation, method); // 由子类实现解析
+        processAnnotationOnMethod(data, methodAnnotation, method); // 解析方法级别的注解（由子类实现解析，子类SpringMvcContract只会解析@RequestMapping注解）
       }
       checkState(data.template().method() != null,
           "Method %s not annotated with HTTP method type (ex. GET, POST)",
@@ -104,14 +104,14 @@ public interface Contract {
 
       Annotation[][] parameterAnnotations = method.getParameterAnnotations();
       int count = parameterAnnotations.length;
-      for (int i = 0; i < count; i++) {
+      for (int i = 0; i < count; i++) { // 循环遍历每一个参数，如果参数上有注解的话则处理注解
         boolean isHttpAnnotation = false;
         if (parameterAnnotations[i] != null) {
-          isHttpAnnotation = processAnnotationsOnParameter(data, parameterAnnotations[i], i);
+          isHttpAnnotation = processAnnotationsOnParameter(data, parameterAnnotations[i], i); // 解析方法参数级别的注解（由子类实现解析）
         }
-        if (parameterTypes[i] == URI.class) {
+        if (parameterTypes[i] == URI.class) { // 如果参数是URI类型的，则标志该参数为url，可以实现动态变更请求URL
           data.urlIndex(i);
-        } else if (!isHttpAnnotation && parameterTypes[i] != Request.Options.class) {
+        } else if (!isHttpAnnotation && parameterTypes[i] != Request.Options.class) { // 如果方法参数既不是HTTP的注解、也不是Request.Option类型，则当做http的body来处理
           checkState(data.formParams().isEmpty(),
               "Body parameters cannot be used with form parameters.");
           checkState(data.bodyIndex() == null, "Method has too many Body parameters: %s", method);

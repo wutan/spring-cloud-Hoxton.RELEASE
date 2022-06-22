@@ -64,7 +64,7 @@ public class ReflectiveFeign extends Feign {
         methodToHandler.put(method, nameToHandler.get(Feign.configKey(target.type(), method)));
       }
     }
-    InvocationHandler handler = factory.create(target, methodToHandler); // 创建代理类要执行的InvocationHandler实现类FeignInvocationHandler
+    InvocationHandler handler = factory.create(target, methodToHandler); // 创建代理类要执行的InvocationHandler实现类ReflectiveFeign.FeignInvocationHandler
     T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(), // 基于Proxy.newProxyInstance 为接口类创建动态实现，将所有的请求转换给InvocationHandler处理
         new Class<?>[] {target.type()}, handler);
 
@@ -99,8 +99,8 @@ public class ReflectiveFeign extends Feign {
       } else if ("toString".equals(method.getName())) {
         return toString();
       }
-
-      return dispatch.get(method).invoke(args); // （策略模式）根据method获取对应的SynchronousMethodHandler进行请求处理
+      // dispatch保存的数据是由ParseHandlersByName解析接口得到的映射转换而来
+      return dispatch.get(method).invoke(args); // （策略模式）根据被调用的method方法获取对应的SynchronousMethodHandler对象，再调用invoke方法进行请求处理
     }
 
     @Override
@@ -163,7 +163,7 @@ public class ReflectiveFeign extends Feign {
           buildTemplate = new BuildTemplateByResolvingArgs(md, queryMapEncoder);
         }
         result.put(md.configKey(),
-            factory.create(key, md, buildTemplate, options, decoder, errorDecoder)); // 生成MethodHandler实例
+            factory.create(key, md, buildTemplate, options, decoder, errorDecoder)); // 生成MethodHandler实例: SynchronousMethodHandler
       }
       return result;
     }
@@ -200,7 +200,7 @@ public class ReflectiveFeign extends Feign {
     }
 
     @Override
-    public RequestTemplate create(Object[] argv) {
+    public RequestTemplate create(Object[] argv) { // 根据请求参数解析生成RequestTemplate
       RequestTemplate mutable = RequestTemplate.from(metadata.template());
       if (metadata.urlIndex() != null) {
         int urlIndex = metadata.urlIndex();
@@ -221,7 +221,7 @@ public class ReflectiveFeign extends Feign {
         }
       }
 
-      RequestTemplate template = resolve(argv, mutable, varBuilder);
+      RequestTemplate template = resolve(argv, mutable, varBuilder); // 调用BuildEncodedTemplateFromArgs#resolve方法生成RequestTemplate对象
       if (metadata.queryMapIndex() != null) {
         // add query map parameters after initial resolve so that they take
         // precedence over any predefined values
@@ -292,7 +292,7 @@ public class ReflectiveFeign extends Feign {
     private RequestTemplate addQueryMapQueryParameters(Map<String, Object> queryMap,
                                                        RequestTemplate mutable) {
       for (Entry<String, Object> currEntry : queryMap.entrySet()) {
-        Collection<String> values = new ArrayList<String>();
+        Collection<String> values i= new ArrayList<String>();
 
         boolean encoded = metadata.queryMapEncoded();
         Object currValue = currEntry.getValue();
@@ -342,7 +342,7 @@ public class ReflectiveFeign extends Feign {
         }
       }
       try {
-        encoder.encode(formVariables, Encoder.MAP_STRING_WILDCARD, mutable);
+        encoder.encode(formVariables, Encoder.MAP_STRING_WILDCARD, mutable); // 对template的body进行组装（这里会调用SpringFormEncoder的encode方法）
       } catch (EncodeException e) {
         throw e;
       } catch (RuntimeException e) {
@@ -366,10 +366,10 @@ public class ReflectiveFeign extends Feign {
     protected RequestTemplate resolve(Object[] argv,
                                       RequestTemplate mutable,
                                       Map<String, Object> variables) {
-      Object body = argv[metadata.bodyIndex()];
+      Object body = argv[metadata.bodyIndex()]; // 获取body参数
       checkArgument(body != null, "Body parameter %s was null", metadata.bodyIndex());
       try {
-        encoder.encode(body, metadata.bodyType(), mutable);
+        encoder.encode(body, metadata.bodyType(), mutable); // 对body进行编码处理
       } catch (EncodeException e) {
         throw e;
       } catch (RuntimeException e) {

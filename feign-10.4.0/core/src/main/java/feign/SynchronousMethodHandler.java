@@ -77,7 +77,7 @@ final class SynchronousMethodHandler implements MethodHandler {
     Retryer retryer = this.retryer.clone(); // 构建Retryer重试机制，Retryer不是线程安全的对象，所以每一次方法调用我们都需要借助于原型模式来生成一个新的对象
     while (true) {
       try {
-        return executeAndDecode(template, options); // 先通过RequestTemplate生成Request请求对象，再调用Client对象发起请求获取response响应信息
+        return executeAndDecode(template, options); // 先通过RequestTemplate生成Request请求对象，再调用Client对象发起请求获取response响应信息并进行解析
       } catch (RetryableException e) {
         try {
           retryer.continueOrPropagate(e);
