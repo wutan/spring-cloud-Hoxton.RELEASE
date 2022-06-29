@@ -54,7 +54,7 @@ public class HostInfoEnvironmentPostProcessor
 		map.put("spring.cloud.client.ip-address", hostInfo.getIpAddress());
 		MapPropertySource propertySource = new MapPropertySource(
 				"springCloudClientHostInfo", map);
-		environment.getPropertySources().addLast(propertySource);
+		environment.getPropertySources().addLast(propertySource); // 添加主机信息到Environment属性源中（主机名和IP地址）
 	}
 
 	private HostInfo getFirstNonLoopbackHostInfo(ConfigurableEnvironment environment) {

@@ -92,19 +92,19 @@ public class BootstrapApplicationListener
 	private int order = DEFAULT_ORDER;
 
 	@Override
-	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
+	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) { // 监听ApplicationEnvironmentPreparedEvent事件
 		ConfigurableEnvironment environment = event.getEnvironment();
-		if (!environment.getProperty("spring.cloud.bootstrap.enabled", Boolean.class,
+		if (!environment.getProperty("spring.cloud.bootstrap.enabled", Boolean.class, // 判断是否禁用bootstrap（默认不禁用）
 				true)) {
 			return;
 		}
 		// don't listen to events in a bootstrap context
-		if (environment.getPropertySources().contains(BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+		if (environment.getPropertySources().contains(BOOTSTRAP_PROPERTY_SOURCE_NAME)) { // 如果有bootstrap配置来源，则不处理
 			return;
 		}
 		ConfigurableApplicationContext context = null;
 		String configName = environment
-				.resolvePlaceholders("${spring.cloud.bootstrap.name:bootstrap}");
+				.resolvePlaceholders("${spring.cloud.bootstrap.name:bootstrap}"); // 从Environment中获取spring.cloud.bootstrap.name属性值，默认为bootstrap
 		for (ApplicationContextInitializer<?> initializer : event.getSpringApplication()
 				.getInitializers()) {
 			if (initializer instanceof ParentContextApplicationContextInitializer) {
@@ -169,7 +169,7 @@ public class BootstrapApplicationListener
 			bootstrapMap.put("spring.config.location", configLocation);
 		}
 		bootstrapProperties.addFirst(
-				new MapPropertySource(BOOTSTRAP_PROPERTY_SOURCE_NAME, bootstrapMap));
+				new MapPropertySource(BOOTSTRAP_PROPERTY_SOURCE_NAME, bootstrapMap)); // 加载bootstrap配置来源
 		for (PropertySource<?> source : environment.getPropertySources()) {
 			if (source instanceof StubPropertySource) {
 				continue;
