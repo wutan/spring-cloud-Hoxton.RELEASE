@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Import(EnableCircuitBreakerImportSelector.class)
-public @interface EnableCircuitBreaker {
+@Import(EnableCircuitBreakerImportSelector.class) // import导入EnableCircuitBreakerImportSelector类
+public @interface EnableCircuitBreaker { // @Enable模块驱动，通过@EnableCircuitBreaker驱动hystrix模块
 
 }

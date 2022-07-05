@@ -35,29 +35,29 @@ import com.netflix.hystrix.util.HystrixRollingPercentile;
  * <p>
  * Default implementation of methods uses Archaius (https://github.com/Netflix/archaius)
  */
-public abstract class HystrixCommandProperties {
+public abstract class HystrixCommandProperties { // Hystrix默认属性类
     private static final Logger logger = LoggerFactory.getLogger(HystrixCommandProperties.class);
 
     /* defaults */
-    /* package */ static final Integer default_metricsRollingStatisticalWindow = 10000;// default => statisticalWindow: 10000 = 10 seconds (and default of 10 buckets so each bucket is 1 second)
+    /* package */ static final Integer default_metricsRollingStatisticalWindow = 10000;// default => statisticalWindow: 10000 = 10 seconds (and default of 10 buckets so each bucket is 1 second) // 熔断时间窗口
     private static final Integer default_metricsRollingStatisticalWindowBuckets = 10;// default => statisticalWindowBuckets: 10 = 10 buckets in a 10 second window so each bucket is 1 second
-    private static final Integer default_circuitBreakerRequestVolumeThreshold = 20;// default => statisticalWindowVolumeThreshold: 20 requests in 10 seconds must occur before statistics matter
-    private static final Integer default_circuitBreakerSleepWindowInMilliseconds = 5000;// default => sleepWindow: 5000 = 5 seconds that we will sleep before trying again after tripping the circuit
-    private static final Integer default_circuitBreakerErrorThresholdPercentage = 50;// default => errorThresholdPercentage = 50 = if 50%+ of requests in 10 seconds are failures or latent then we will trip the circuit
+    private static final Integer default_circuitBreakerRequestVolumeThreshold = 20;// default => statisticalWindowVolumeThreshold: 20 requests in 10 seconds must occur before statistics matter // 熔断请求数阈值
+    private static final Integer default_circuitBreakerSleepWindowInMilliseconds = 5000;// default => sleepWindow: 5000 = 5 seconds that we will sleep before trying again after tripping the circuit // 熔断时间
+    private static final Integer default_circuitBreakerErrorThresholdPercentage = 50;// default => errorThresholdPercentage = 50 = if 50%+ of requests in 10 seconds are failures or latent then we will trip the circuit // 熔断失败率阈值
     private static final Boolean default_circuitBreakerForceOpen = false;// default => forceCircuitOpen = false (we want to allow traffic)
     /* package */ static final Boolean default_circuitBreakerForceClosed = false;// default => ignoreErrors = false 
-    private static final Integer default_executionTimeoutInMilliseconds = 1000; // default => executionTimeoutInMilliseconds: 1000 = 1 second
+    private static final Integer default_executionTimeoutInMilliseconds = 1000; // default => executionTimeoutInMilliseconds: 1000 = 1 second // 超时时间触发降级
     private static final Boolean default_executionTimeoutEnabled = true;
-    private static final ExecutionIsolationStrategy default_executionIsolationStrategy = ExecutionIsolationStrategy.THREAD;
+    private static final ExecutionIsolationStrategy default_executionIsolationStrategy = ExecutionIsolationStrategy.THREAD; // 资源隔离触发降级（默认为线程池隔离）
     private static final Boolean default_executionIsolationThreadInterruptOnTimeout = true;
     private static final Boolean default_executionIsolationThreadInterruptOnFutureCancel = false;
     private static final Boolean default_metricsRollingPercentileEnabled = true;
     private static final Boolean default_requestCacheEnabled = true;
     private static final Integer default_fallbackIsolationSemaphoreMaxConcurrentRequests = 10;
     private static final Boolean default_fallbackEnabled = true;
-    private static final Integer default_executionIsolationSemaphoreMaxConcurrentRequests = 10;
+    private static final Integer default_executionIsolationSemaphoreMaxConcurrentRequests = 10; // 信号量隔离触发降级阈值
     private static final Boolean default_requestLogEnabled = true;
-    private static final Boolean default_circuitBreakerEnabled = true;
+    private static final Boolean default_circuitBreakerEnabled = true; // 是否开启熔断
     private static final Integer default_metricsRollingPercentileWindow = 60000; // default to 1 minute for RollingPercentile 
     private static final Integer default_metricsRollingPercentileWindowBuckets = 6; // default to 6 buckets (10 seconds each in 60 second window)
     private static final Integer default_metricsRollingPercentileBucketSize = 100; // default to 100 values max per bucket
@@ -97,7 +97,7 @@ public abstract class HystrixCommandProperties {
      * <li>SEMAPHORE: Execute the {@link HystrixCommand#run()} method on the calling thread and restrict concurrent executions using the semaphore permit count.</li>
      * </ul>
      */
-    public static enum ExecutionIsolationStrategy {
+    public static enum ExecutionIsolationStrategy { // 资源隔离策略（线程池隔离、信号量隔离）
         THREAD, SEMAPHORE
     }
 

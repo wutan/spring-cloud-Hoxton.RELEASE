@@ -27,7 +27,7 @@ import org.springframework.core.annotation.Order;
  */
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
 public class EnableCircuitBreakerImportSelector
-		extends SpringFactoryImportSelector<EnableCircuitBreaker> {
+		extends SpringFactoryImportSelector<EnableCircuitBreaker> { // 继承自SpringFactoryImportSelector类，只需要重写isEnabled方法、在spring.factories文件中配置相关属性，key为该类的全路径类名
 
 	@Override
 	protected boolean isEnabled() {

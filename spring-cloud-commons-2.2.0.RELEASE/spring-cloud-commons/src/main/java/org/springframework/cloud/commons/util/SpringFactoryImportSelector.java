@@ -71,7 +71,7 @@ public abstract class SpringFactoryImportSelector<T>
 
 		// Find all possible auto configuration classes, filtering duplicates
 		List<String> factories = new ArrayList<>(new LinkedHashSet<>(SpringFactoriesLoader
-				.loadFactoryNames(this.annotationClass, this.beanClassLoader)));
+				.loadFactoryNames(this.annotationClass, this.beanClassLoader))); // 根据spring.factories机制获取该类名属性对应的自动装配类的类名列表，以供其注册到BeanDefinition
 
 		if (factories.isEmpty() && !hasDefaultFactory()) {
 			throw new IllegalStateException("Annotation @" + getSimpleName()
