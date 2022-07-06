@@ -61,7 +61,7 @@ import static com.netflix.hystrix.contrib.javanica.utils.ajc.AjcUtils.getAjcMeth
  * AspectJ aspect to process methods which annotated with {@link HystrixCommand} annotation.
  */
 @Aspect
-public class HystrixCommandAspect {
+public class HystrixCommandAspect { // @HystrixCommand注解的切面实现
 
     private static final Map<HystrixPointcutType, MetaHolderFactory> META_HOLDER_FACTORY_MAP;
 
@@ -74,15 +74,15 @@ public class HystrixCommandAspect {
 
     @Pointcut("@annotation(com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand)")
 
-    public void hystrixCommandAnnotationPointcut() {
+    public void hystrixCommandAnnotationPointcut() { // 定义@HystrixCommand注解的切点
     }
 
     @Pointcut("@annotation(com.netflix.hystrix.contrib.javanica.annotation.HystrixCollapser)")
-    public void hystrixCollapserAnnotationPointcut() {
+    public void hystrixCollapserAnnotationPointcut() { // 定义@HystrixCollapser注解的切点
     }
 
     @Around("hystrixCommandAnnotationPointcut() || hystrixCollapserAnnotationPointcut()")
-    public Object methodsAnnotatedWithHystrixCommand(final ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object methodsAnnotatedWithHystrixCommand(final ProceedingJoinPoint joinPoint) throws Throwable { // 切点的环绕处理方法
         Method method = getMethodFromTarget(joinPoint);
         Validate.notNull(method, "failed to get method from joinPoint: %s", joinPoint);
         if (method.isAnnotationPresent(HystrixCommand.class) && method.isAnnotationPresent(HystrixCollapser.class)) {
@@ -97,7 +97,7 @@ public class HystrixCommandAspect {
 
         Object result;
         try {
-            if (!metaHolder.isObservable()) {
+            if (!metaHolder.isObservable()) { // 默认为false
                 result = CommandExecutor.execute(invokable, executionType, metaHolder);
             } else {
                 result = executeObservable(invokable, executionType, metaHolder);

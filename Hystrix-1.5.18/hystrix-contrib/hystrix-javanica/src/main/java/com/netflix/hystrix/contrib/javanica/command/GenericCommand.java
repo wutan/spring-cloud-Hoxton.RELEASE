@@ -45,7 +45,7 @@ public class GenericCommand extends AbstractHystrixCommand<Object> {
         return process(new Action() {
             @Override
             Object execute() {
-                return getCommandAction().execute(getExecutionType());
+                return getCommandAction().execute(getExecutionType()); // getCommandAction()就是被注解修饰的方法
             }
         });
     }
