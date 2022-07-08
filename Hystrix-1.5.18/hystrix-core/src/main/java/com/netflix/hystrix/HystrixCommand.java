@@ -341,7 +341,7 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
      */
     public R execute() {
         try {
-            return queue().get(); // 同步阻塞获取
+            return queue().get(); // 同步阻塞获取，调用其匿名实现的get方法
         } catch (Exception e) {
             throw Exceptions.sneakyThrow(decomposeException(e));
         }
@@ -420,7 +420,7 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
 
             @Override
             public R get() throws InterruptedException, ExecutionException { // 同步阻塞获取
-                return delegate.get(); // 委派模式
+                return delegate.get(); // 通过委派模式进行处理
             }
 
             @Override

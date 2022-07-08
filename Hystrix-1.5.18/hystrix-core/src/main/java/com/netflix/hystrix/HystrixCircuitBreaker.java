@@ -26,7 +26,7 @@ import com.netflix.hystrix.HystrixCommandMetrics.HealthCounts;
  * <p>
  * It will then allow single retries after a defined sleepWindow until the execution succeeds at which point it will again close the circuit and allow executions again.
  */
-public interface HystrixCircuitBreaker {
+public interface HystrixCircuitBreaker { // Hystrix熔断器
 
     /**
      * Every {@link HystrixCommand} requests asks this if it is allowed to proceed or not.
@@ -35,19 +35,19 @@ public interface HystrixCircuitBreaker {
      * 
      * @return boolean whether a request should be permitted
      */
-    public boolean allowRequest();
+    public boolean allowRequest(); // 判断是否允许请求服务
 
     /**
      * Whether the circuit is currently open (tripped).
      * 
      * @return boolean state of circuit breaker
      */
-    public boolean isOpen();
+    public boolean isOpen(); // 判断熔断器是否开启
 
     /**
      * Invoked on successful executions from {@link HystrixCommand} as part of feedback mechanism when in a half-open state.
      */
-    /* package */void markSuccess();
+    /* package */void markSuccess(); // 尝试请求成功后关闭熔断器（当熔断器开启后，超过熔断时间让其放行请求，如果成功则将熔断器开启）
 
     /**
      * @ExcludeFromJavadoc
@@ -120,24 +120,24 @@ public interface HystrixCircuitBreaker {
      * @ExcludeFromJavadoc
      * @ThreadSafe
      */
-    /* package */static class HystrixCircuitBreakerImpl implements HystrixCircuitBreaker {
+    /* package */static class HystrixCircuitBreakerImpl implements HystrixCircuitBreaker { // 熔断器实现类
         private final HystrixCommandProperties properties;
         private final HystrixCommandMetrics metrics;
 
         /* track whether this circuit is open/closed at any given point in time (default to false==closed) */
-        private AtomicBoolean circuitOpen = new AtomicBoolean(false);
+        private AtomicBoolean circuitOpen = new AtomicBoolean(false); // 熔断器的开启状态，默认为false（通过AtomicBoolean原子类来维护）
 
         /* when the circuit was marked open or was last allowed to try a 'singleTest' */
-        private AtomicLong circuitOpenedOrLastTestedTime = new AtomicLong();
+        private AtomicLong circuitOpenedOrLastTestedTime = new AtomicLong(); // 熔断开启时间或最后尝试请求时间（通过AtomicLong原子类来维护）
 
         protected HystrixCircuitBreakerImpl(HystrixCommandKey key, HystrixCommandGroupKey commandGroup, HystrixCommandProperties properties, HystrixCommandMetrics metrics) {
             this.properties = properties;
             this.metrics = metrics;
         }
 
-        public void markSuccess() {
+        public void markSuccess() { // 尝试请求成功后关闭熔断器（当熔断器开启后，超过熔断时间让其放行请求，如果成功则将熔断器开启）
             if (circuitOpen.get()) {
-                if (circuitOpen.compareAndSet(true, false)) {
+                if (circuitOpen.compareAndSet(true, false)) { // 关闭熔断器
                     //win the thread race to reset metrics
                     //Unsubscribe from the current stream to reset the health counts stream.  This only affects the health counts view,
                     //and all other metric consumers are unaffected by the reset
@@ -147,28 +147,28 @@ public interface HystrixCircuitBreaker {
         }
 
         @Override
-        public boolean allowRequest() {
-            if (properties.circuitBreakerForceOpen().get()) {
+        public boolean allowRequest() { // 判断是否允许请求服务
+            if (properties.circuitBreakerForceOpen().get()) { // 如果熔断器强制开启
                 // properties have asked us to force the circuit open so we will allow NO requests
                 return false;
             }
-            if (properties.circuitBreakerForceClosed().get()) {
+            if (properties.circuitBreakerForceClosed().get()) { // 如果熔断器强制关闭
                 // we still want to allow isOpen() to perform it's calculations so we simulate normal behavior
                 isOpen();
                 // properties have asked us to ignore errors so we will ignore the results of isOpen and just allow all traffic through
                 return true;
             }
-            return !isOpen() || allowSingleTest();
+            return !isOpen() || allowSingleTest(); // 当熔断器处于关闭状态 || 超过熔断时间且更新最后尝试时间成功 时，表示允许尝试
         }
 
-        public boolean allowSingleTest() {
-            long timeCircuitOpenedOrWasLastTested = circuitOpenedOrLastTestedTime.get();
+        public boolean allowSingleTest() { // 判断是否允许尝试请求一次服务
+            long timeCircuitOpenedOrWasLastTested = circuitOpenedOrLastTestedTime.get(); // 获取熔断开启时间或上次尝试时间
             // 1) if the circuit is open
             // 2) and it's been longer than 'sleepWindow' since we opened the circuit
-            if (circuitOpen.get() && System.currentTimeMillis() > timeCircuitOpenedOrWasLastTested + properties.circuitBreakerSleepWindowInMilliseconds().get()) {
+            if (circuitOpen.get() && System.currentTimeMillis() > timeCircuitOpenedOrWasLastTested + properties.circuitBreakerSleepWindowInMilliseconds().get()) { // 当熔断器开启且超过熔断时间
                 // We push the 'circuitOpenedTime' ahead by 'sleepWindow' since we have allowed one request to try.
                 // If it succeeds the circuit will be closed, otherwise another singleTest will be allowed at the end of the 'sleepWindow'.
-                if (circuitOpenedOrLastTestedTime.compareAndSet(timeCircuitOpenedOrWasLastTested, System.currentTimeMillis())) {
+                if (circuitOpenedOrLastTestedTime.compareAndSet(timeCircuitOpenedOrWasLastTested, System.currentTimeMillis())) { // 更新最后一次尝试时间，且在熔断时间内只允许成功更新一次
                     // if this returns true that means we set the time so we'll return true to allow the singleTest
                     // if it returned false it means another thread raced us and allowed the singleTest before we did
                     return true;
@@ -178,8 +178,8 @@ public interface HystrixCircuitBreaker {
         }
 
         @Override
-        public boolean isOpen() {
-            if (circuitOpen.get()) {
+        public boolean isOpen() { // 判断熔断器是否开启
+            if (circuitOpen.get()) { // 如果熔断器已开启，直接返回true
                 // if we're open we immediately return true and don't bother attempting to 'close' ourself as that is left to allowSingleTest and a subsequent successful test to close
                 return true;
             }
@@ -188,18 +188,18 @@ public interface HystrixCircuitBreaker {
             HealthCounts health = metrics.getHealthCounts();
 
             // check if we are past the statisticalWindowVolumeThreshold
-            if (health.getTotalRequests() < properties.circuitBreakerRequestVolumeThreshold().get()) {
+            if (health.getTotalRequests() < properties.circuitBreakerRequestVolumeThreshold().get()) { // 判断当前滑动窗口内的请求数是否>=熔断请求数阈值，不是则表示熔断器未开启
                 // we are not past the minimum volume threshold for the statisticalWindow so we'll return false immediately and not calculate anything
                 return false;
             }
 
-            if (health.getErrorPercentage() < properties.circuitBreakerErrorThresholdPercentage().get()) {
+            if (health.getErrorPercentage() < properties.circuitBreakerErrorThresholdPercentage().get()) { // 判断当前滑动窗口内的失败率是否>=熔断失败率阈值，不是则表示熔断器未开启
                 return false;
-            } else {
+            } else { // 当前统计周期内的失败率>=熔断失败率阈值时，开启熔断器
                 // our failure rate is too high, trip the circuit
-                if (circuitOpen.compareAndSet(false, true)) {
+                if (circuitOpen.compareAndSet(false, true)) { // 开启熔断器
                     // if the previousValue was false then we want to set the currentTime
-                    circuitOpenedOrLastTestedTime.set(System.currentTimeMillis());
+                    circuitOpenedOrLastTestedTime.set(System.currentTimeMillis()); // 设置熔断开启时间
                     return true;
                 } else {
                     // How could previousValue be true? If another thread was going through this code at the same time a race-condition could have

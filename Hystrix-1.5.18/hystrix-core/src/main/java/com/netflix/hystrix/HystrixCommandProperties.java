@@ -39,7 +39,7 @@ public abstract class HystrixCommandProperties { // Hystrix默认属性类
     private static final Logger logger = LoggerFactory.getLogger(HystrixCommandProperties.class);
 
     /* defaults */
-    /* package */ static final Integer default_metricsRollingStatisticalWindow = 10000;// default => statisticalWindow: 10000 = 10 seconds (and default of 10 buckets so each bucket is 1 second) // 熔断时间窗口
+    /* package */ static final Integer default_metricsRollingStatisticalWindow = 10000;// default => statisticalWindow: 10000 = 10 seconds (and default of 10 buckets so each bucket is 1 second) // 熔断滑动时间窗口
     private static final Integer default_metricsRollingStatisticalWindowBuckets = 10;// default => statisticalWindowBuckets: 10 = 10 buckets in a 10 second window so each bucket is 1 second
     private static final Integer default_circuitBreakerRequestVolumeThreshold = 20;// default => statisticalWindowVolumeThreshold: 20 requests in 10 seconds must occur before statistics matter // 熔断请求数阈值
     private static final Integer default_circuitBreakerSleepWindowInMilliseconds = 5000;// default => sleepWindow: 5000 = 5 seconds that we will sleep before trying again after tripping the circuit // 熔断时间
@@ -47,15 +47,15 @@ public abstract class HystrixCommandProperties { // Hystrix默认属性类
     private static final Boolean default_circuitBreakerForceOpen = false;// default => forceCircuitOpen = false (we want to allow traffic)
     /* package */ static final Boolean default_circuitBreakerForceClosed = false;// default => ignoreErrors = false 
     private static final Integer default_executionTimeoutInMilliseconds = 1000; // default => executionTimeoutInMilliseconds: 1000 = 1 second // 超时时间触发降级
-    private static final Boolean default_executionTimeoutEnabled = true;
-    private static final ExecutionIsolationStrategy default_executionIsolationStrategy = ExecutionIsolationStrategy.THREAD; // 资源隔离触发降级（默认为线程池隔离）
+    private static final Boolean default_executionTimeoutEnabled = true; // 是否开启超时处理，如果为false则超时时间交给Ribbon处理
+    private static final ExecutionIsolationStrategy default_executionIsolationStrategy = ExecutionIsolationStrategy.THREAD; // 资源隔离触发降级（默认为线程池资源隔离）
     private static final Boolean default_executionIsolationThreadInterruptOnTimeout = true;
     private static final Boolean default_executionIsolationThreadInterruptOnFutureCancel = false;
     private static final Boolean default_metricsRollingPercentileEnabled = true;
     private static final Boolean default_requestCacheEnabled = true;
-    private static final Integer default_fallbackIsolationSemaphoreMaxConcurrentRequests = 10;
-    private static final Boolean default_fallbackEnabled = true;
-    private static final Integer default_executionIsolationSemaphoreMaxConcurrentRequests = 10; // 信号量隔离触发降级阈值
+    private static final Integer default_fallbackIsolationSemaphoreMaxConcurrentRequests = 10; // 服务降级的信号量资源隔离阈值
+    private static final Boolean default_fallbackEnabled = true; // 是否开启降级，默认为true
+    private static final Integer default_executionIsolationSemaphoreMaxConcurrentRequests = 10; // 信号量资源隔离阈值
     private static final Boolean default_requestLogEnabled = true;
     private static final Boolean default_circuitBreakerEnabled = true; // 是否开启熔断
     private static final Integer default_metricsRollingPercentileWindow = 60000; // default to 1 minute for RollingPercentile 
@@ -110,7 +110,7 @@ public abstract class HystrixCommandProperties { // Hystrix默认属性类
     }
 
     // known that we're using deprecated HystrixPropertiesChainedServoProperty until ChainedDynamicProperty exists in Archaius
-    protected HystrixCommandProperties(HystrixCommandKey key, HystrixCommandProperties.Setter builder, String propertyPrefix) {
+    protected HystrixCommandProperties(HystrixCommandKey key, HystrixCommandProperties.Setter builder, String propertyPrefix) { // propertyPrefix默认为：hystrix，默认全局的前缀为：hystrix.command.default.
         this.key = key;
         this.circuitBreakerEnabled = getProperty(propertyPrefix, key, "circuitBreaker.enabled", builder.getCircuitBreakerEnabled(), default_circuitBreakerEnabled);
         this.circuitBreakerRequestVolumeThreshold = getProperty(propertyPrefix, key, "circuitBreaker.requestVolumeThreshold", builder.getCircuitBreakerRequestVolumeThreshold(), default_circuitBreakerRequestVolumeThreshold);
