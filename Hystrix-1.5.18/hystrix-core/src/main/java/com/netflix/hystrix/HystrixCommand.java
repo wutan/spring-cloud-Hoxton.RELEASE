@@ -129,7 +129,7 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
      * @param setter
      *            Fluent interface for constructor arguments
      */
-    protected HystrixCommand(Setter setter) {
+    protected HystrixCommand(Setter setter) { // 初始化HystrixCommand
         // use 'null' to specify use the default
         this(setter.groupKey, setter.commandKey, setter.threadPoolKey, null, null, setter.commandPropertiesDefaults, setter.threadPoolPropertiesDefaults, null, null, null, null, null);
     }
@@ -145,7 +145,7 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
             HystrixCommandProperties.Setter commandPropertiesDefaults, HystrixThreadPoolProperties.Setter threadPoolPropertiesDefaults,
             HystrixCommandMetrics metrics, TryableSemaphore fallbackSemaphore, TryableSemaphore executionSemaphore,
             HystrixPropertiesStrategy propertiesStrategy, HystrixCommandExecutionHook executionHook) {
-        super(group, key, threadPoolKey, circuitBreaker, threadPool, commandPropertiesDefaults, threadPoolPropertiesDefaults, metrics, fallbackSemaphore, executionSemaphore, propertiesStrategy, executionHook);
+        super(group, key, threadPoolKey, circuitBreaker, threadPool, commandPropertiesDefaults, threadPoolPropertiesDefaults, metrics, fallbackSemaphore, executionSemaphore, propertiesStrategy, executionHook); // 创建AbstractCommand
     }
 
     /**
@@ -273,7 +273,7 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
      * @throws Exception
      *             if command execution fails
      */
-    protected abstract R run() throws Exception;
+    protected abstract R run() throws Exception; // 执行正常逻辑的方法（由子类实现）
 
     /**
      * If {@link #execute()} or {@link #queue()} fails in any way then this method will be invoked to provide an opportunity to return a fallback response.
@@ -289,17 +289,17 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
      * 
      * @return R or throw UnsupportedOperationException if not implemented
      */
-    protected R getFallback() {
+    protected R getFallback() { // 执行降级逻辑的方法（由子类实现）
         throw new UnsupportedOperationException("No fallback available.");
     }
 
     @Override
-    final protected Observable<R> getExecutionObservable() {
+    final protected Observable<R> getExecutionObservable() { // 获取执行服务目标方法的被观察者
         return Observable.defer(new Func0<Observable<R>>() {
             @Override
             public Observable<R> call() {
                 try {
-                    return Observable.just(run()); // 执行run方法
+                    return Observable.just(run()); // 执行服务正常逻辑的run方法
                 } catch (Throwable ex) {
                     return Observable.error(ex);
                 }
@@ -314,12 +314,12 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
     }
 
     @Override
-    final protected Observable<R> getFallbackObservable() {
+    final protected Observable<R> getFallbackObservable() { // 获取执行服务降级方法的被观察者
         return Observable.defer(new Func0<Observable<R>>() {
             @Override
             public Observable<R> call() {
                 try {
-                    return Observable.just(getFallback());
+                    return Observable.just(getFallback()); // 执行服务降级方法，默认执行GenericCommand#getFallback()方法
                 } catch (Throwable ex) {
                     return Observable.error(ex);
                 }

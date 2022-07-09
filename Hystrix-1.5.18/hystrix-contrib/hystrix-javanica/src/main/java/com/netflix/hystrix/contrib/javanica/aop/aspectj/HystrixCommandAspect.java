@@ -90,8 +90,8 @@ public class HystrixCommandAspect { // @HystrixCommand注解的切面实现
                     "annotations at the same time");
         }
         MetaHolderFactory metaHolderFactory = META_HOLDER_FACTORY_MAP.get(HystrixPointcutType.of(method)); // 根据方法上修饰的注解类型获取对应的工厂类，@HystrixCommand注解对应的是CommandMetaHolderFactory类
-        MetaHolder metaHolder = metaHolderFactory.create(joinPoint); // 通过工厂类创建MetaHolder对象
-        HystrixInvokable invokable = HystrixCommandFactory.getInstance().create(metaHolder);
+        MetaHolder metaHolder = metaHolderFactory.create(joinPoint); // 通过工厂类创建MetaHolder对象（封装了注解中的所有信息）
+        HystrixInvokable invokable = HystrixCommandFactory.getInstance().create(metaHolder); // 默认返回GenericCommand对象，会初始化熔断器、线程池等对象
         ExecutionType executionType = metaHolder.isCollapserAnnotationPresent() ?
                 metaHolder.getCollapserExecutionType() : metaHolder.getExecutionType();
 

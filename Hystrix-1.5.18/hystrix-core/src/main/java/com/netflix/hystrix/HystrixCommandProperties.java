@@ -49,7 +49,7 @@ public abstract class HystrixCommandProperties { // Hystrix默认属性类
     private static final Integer default_executionTimeoutInMilliseconds = 1000; // default => executionTimeoutInMilliseconds: 1000 = 1 second // 超时时间触发降级
     private static final Boolean default_executionTimeoutEnabled = true; // 是否开启超时处理，如果为false则超时时间交给Ribbon处理
     private static final ExecutionIsolationStrategy default_executionIsolationStrategy = ExecutionIsolationStrategy.THREAD; // 资源隔离触发降级（默认为线程池资源隔离）
-    private static final Boolean default_executionIsolationThreadInterruptOnTimeout = true;
+    private static final Boolean default_executionIsolationThreadInterruptOnTimeout = true; // 线程池资源隔离是否超时中断（默认为true）
     private static final Boolean default_executionIsolationThreadInterruptOnFutureCancel = false;
     private static final Boolean default_metricsRollingPercentileEnabled = true;
     private static final Boolean default_requestCacheEnabled = true;

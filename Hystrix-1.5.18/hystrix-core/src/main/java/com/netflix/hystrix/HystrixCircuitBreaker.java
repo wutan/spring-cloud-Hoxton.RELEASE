@@ -55,7 +55,7 @@ public interface HystrixCircuitBreaker { // Hystrix熔断器
      */
     public static class Factory {
         // String is HystrixCommandKey.name() (we can't use HystrixCommandKey directly as we can't guarantee it implements hashcode/equals correctly)
-        private static ConcurrentHashMap<String, HystrixCircuitBreaker> circuitBreakersByCommand = new ConcurrentHashMap<String, HystrixCircuitBreaker>();
+        private static ConcurrentHashMap<String, HystrixCircuitBreaker> circuitBreakersByCommand = new ConcurrentHashMap<String, HystrixCircuitBreaker>(); // 熔断器本地缓存
 
         /**
          * Get the {@link HystrixCircuitBreaker} instance for a given {@link HystrixCommandKey}.
@@ -74,7 +74,7 @@ public interface HystrixCircuitBreaker { // Hystrix熔断器
          */
         public static HystrixCircuitBreaker getInstance(HystrixCommandKey key, HystrixCommandGroupKey group, HystrixCommandProperties properties, HystrixCommandMetrics metrics) {
             // this should find it for all but the first time
-            HystrixCircuitBreaker previouslyCached = circuitBreakersByCommand.get(key.name());
+            HystrixCircuitBreaker previouslyCached = circuitBreakersByCommand.get(key.name()); // 根据HystrixCommandKey的name从缓存中获取熔断器
             if (previouslyCached != null) {
                 return previouslyCached;
             }
@@ -84,7 +84,7 @@ public interface HystrixCircuitBreaker { // Hystrix熔断器
             // Create and add to the map ... use putIfAbsent to atomically handle the possible race-condition of
             // 2 threads hitting this point at the same time and let ConcurrentHashMap provide us our thread-safety
             // If 2 threads hit here only one will get added and the other will get a non-null response instead.
-            HystrixCircuitBreaker cbForCommand = circuitBreakersByCommand.putIfAbsent(key.name(), new HystrixCircuitBreakerImpl(key, group, properties, metrics));
+            HystrixCircuitBreaker cbForCommand = circuitBreakersByCommand.putIfAbsent(key.name(), new HystrixCircuitBreakerImpl(key, group, properties, metrics)); // 创建熔断器对象，并放入缓存
             if (cbForCommand == null) {
                 // this means the putIfAbsent step just created a new one so let's retrieve and return it
                 return circuitBreakersByCommand.get(key.name());

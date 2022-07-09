@@ -91,7 +91,7 @@ public abstract class HystrixConcurrencyStrategy {
         }
     }
 
-    public ThreadPoolExecutor getThreadPool(final HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties threadPoolProperties) {
+    public ThreadPoolExecutor getThreadPool(final HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties threadPoolProperties) { // 初始化ThreadPoolExecutor
         final ThreadFactory threadFactory = getThreadFactory(threadPoolKey);
 
         final boolean allowMaximumSizeToDivergeFromCoreSize = threadPoolProperties.getAllowMaximumSizeToDivergeFromCoreSize().get();

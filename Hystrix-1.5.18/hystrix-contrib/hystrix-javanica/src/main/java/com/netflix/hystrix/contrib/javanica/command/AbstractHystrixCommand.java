@@ -47,8 +47,8 @@ public abstract class AbstractHystrixCommand<T> extends com.netflix.hystrix.Hyst
     private final ExecutionType executionType;
     private final HystrixCacheKeyGenerator defaultCacheKeyGenerator = HystrixCacheKeyGenerator.getInstance();
 
-    protected AbstractHystrixCommand(HystrixCommandBuilder builder) {
-        super(builder.getSetterBuilder().build());
+    protected AbstractHystrixCommand(HystrixCommandBuilder builder) { // 初始化AbstractHystrixCommand
+        super(builder.getSetterBuilder().build()); // 创建HystrixCommand
         this.commandActions = builder.getCommandActions();
         this.collapsedRequests = builder.getCollapsedRequests();
         this.cacheResultInvocationContext = builder.getCacheResultInvocationContext();

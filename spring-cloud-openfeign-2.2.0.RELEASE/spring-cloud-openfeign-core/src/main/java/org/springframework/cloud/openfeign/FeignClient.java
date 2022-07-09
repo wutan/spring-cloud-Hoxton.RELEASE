@@ -45,7 +45,7 @@ public @interface FeignClient {
 	 * @return the name of the service with optional protocol prefix
 	 */
 	@AliasFor("name")
-	String value() default "";
+	String value() default ""; // 服务名称（可以根据服务名称获取服务地址，当url为空或没有非空字符时通过负载均衡器获取真实的服务地址）
 
 	/**
 	 * The service id with optional protocol prefix. Synonym for {@link #value() value}.
@@ -67,7 +67,7 @@ public @interface FeignClient {
 	 * value}.
 	 */
 	@AliasFor("value")
-	String name() default "";
+	String name() default ""; // 服务名称（可以根据服务名称获取服务地址）
 
 	/**
 	 * @return the <code>@Qualifier</code> value for the feign client.
@@ -77,7 +77,7 @@ public @interface FeignClient {
 	/**
 	 * @return an absolute URL or resolvable hostname (the protocol is optional).
 	 */
-	String url() default "";
+	String url() default ""; // 服务地址，当url不为空（有非空字符）时，使用配置的服务地址
 
 	/**
 	 * @return whether 404s should be decoded instead of throwing FeignExceptions
@@ -92,14 +92,14 @@ public @interface FeignClient {
 	 * @see FeignClientsConfiguration for the defaults
 	 * @return list of configurations for feign client
 	 */
-	Class<?>[] configuration() default {};
+	Class<?>[] configuration() default {}; // FeignClient的私有Bean
 
 	/**
 	 * Fallback class for the specified Feign client interface. The fallback class must
 	 * implement the interface annotated by this annotation and be a valid spring bean.
 	 * @return fallback class for the specified Feign client interface
 	 */
-	Class<?> fallback() default void.class;
+	Class<?> fallback() default void.class; // 服务降级类，需要注册到Spring中并配置属性feign.hystrix.enabled=true（不能捕获异常打印堆栈信息，不利于问题排查）
 
 	/**
 	 * Define a fallback factory for the specified Feign client interface. The fallback
@@ -109,13 +109,13 @@ public @interface FeignClient {
 	 * @see feign.hystrix.FallbackFactory for details.
 	 * @return fallback factory for the specified Feign client interface
 	 */
-	Class<?> fallbackFactory() default void.class;
+	Class<?> fallbackFactory() default void.class; // 服务降级工厂类，需要注册到Spring中并配置属性feign.hystrix.enabled=true（可以捕获异常打印堆栈信息，有利于问题排查）
 
 	/**
 	 * @return path prefix to be used by all method-level mappings. Can be used with or
 	 * without <code>@RibbonClient</code>.
 	 */
-	String path() default "";
+	String path() default ""; // 请求方法的前缀路径
 
 	/**
 	 * @return whether to mark the feign proxy as a primary bean. Defaults to true.

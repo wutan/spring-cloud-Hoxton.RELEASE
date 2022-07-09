@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * For more information see the Github Wiki: https://github.com/Netflix/Hystrix/wiki/Configuration#wiki-ThreadPool and https://github.com/Netflix/Hystrix/wiki/How-it-Works#wiki-Isolation
  */
-public interface HystrixThreadPool {
+public interface HystrixThreadPool { // Hystrix线程池
 
     /**
      * Implementation of {@link ThreadPoolExecutor}.
@@ -85,12 +85,12 @@ public interface HystrixThreadPool {
     /**
      * @ExcludeFromJavadoc
      */
-    /* package */static class Factory {
+    /* package */static class Factory { // 线程池工厂类，用于创建线程池
         /*
          * Use the String from HystrixThreadPoolKey.name() instead of the HystrixThreadPoolKey instance as it's just an interface and we can't ensure the object
          * we receive implements hashcode/equals correctly and do not want the default hashcode/equals which would create a new threadpool for every object we get even if the name is the same
          */
-        /* package */final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new ConcurrentHashMap<String, HystrixThreadPool>();
+        /* package */final static ConcurrentHashMap<String, HystrixThreadPool> threadPools = new ConcurrentHashMap<String, HystrixThreadPool>(); // 线程池缓存
 
         /**
          * Get the {@link HystrixThreadPool} instance for a given {@link HystrixThreadPoolKey}.
@@ -99,20 +99,20 @@ public interface HystrixThreadPool {
          *
          * @return {@link HystrixThreadPool} instance
          */
-        /* package */static HystrixThreadPool getInstance(HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties.Setter propertiesBuilder) {
+        /* package */static HystrixThreadPool getInstance(HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties.Setter propertiesBuilder) { // 创建线程池
             // get the key to use instead of using the object itself so that if people forget to implement equals/hashcode things will still work
             String key = threadPoolKey.name();
 
             // this should find it for all but the first time
-            HystrixThreadPool previouslyCached = threadPools.get(key);
+            HystrixThreadPool previouslyCached = threadPools.get(key); // 根据threadPoolKey的name获取缓存中的线程池对象
             if (previouslyCached != null) {
                 return previouslyCached;
             }
 
             // if we get here this is the first time so we need to initialize
             synchronized (HystrixThreadPool.class) {
-                if (!threadPools.containsKey(key)) {
-                    threadPools.put(key, new HystrixThreadPoolDefault(threadPoolKey, propertiesBuilder));
+                if (!threadPools.containsKey(key)) { // 双重检查，避免重复创建
+                    threadPools.put(key, new HystrixThreadPoolDefault(threadPoolKey, propertiesBuilder)); // 创建线程池，并放入缓存
                 }
             }
             return threadPools.get(key);
@@ -159,7 +159,7 @@ public interface HystrixThreadPool {
      * @ExcludeFromJavadoc
      * @ThreadSafe
      */
-    /* package */static class HystrixThreadPoolDefault implements HystrixThreadPool {
+    /* package */static class HystrixThreadPoolDefault implements HystrixThreadPool { // Hystrix线程池的默认实现类
         private static final Logger logger = LoggerFactory.getLogger(HystrixThreadPoolDefault.class);
 
         private final HystrixThreadPoolProperties properties;
@@ -168,13 +168,13 @@ public interface HystrixThreadPool {
         private final HystrixThreadPoolMetrics metrics;
         private final int queueSize;
 
-        public HystrixThreadPoolDefault(HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties.Setter propertiesDefaults) {
+        public HystrixThreadPoolDefault(HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties.Setter propertiesDefaults) { // 初始化线程池
             this.properties = HystrixPropertiesFactory.getThreadPoolProperties(threadPoolKey, propertiesDefaults);
             HystrixConcurrencyStrategy concurrencyStrategy = HystrixPlugins.getInstance().getConcurrencyStrategy();
             this.queueSize = properties.maxQueueSize().get();
 
-            this.metrics = HystrixThreadPoolMetrics.getInstance(threadPoolKey,
-                    concurrencyStrategy.getThreadPool(threadPoolKey, properties),
+            this.metrics = HystrixThreadPoolMetrics.getInstance(threadPoolKey, // 创建HystrixThreadPoolMetrics（内部维护了ThreadPoolExecutor）
+                    concurrencyStrategy.getThreadPool(threadPoolKey, properties), // 创建ThreadPoolExecutor
                     properties);
             this.threadPool = this.metrics.getThreadPool();
             this.queue = this.threadPool.getQueue();

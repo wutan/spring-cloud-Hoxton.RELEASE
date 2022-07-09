@@ -33,14 +33,14 @@ public class HystrixCommandFactory {
         return INSTANCE;
     }
 
-    public HystrixInvokable create(MetaHolder metaHolder) {
+    public HystrixInvokable create(MetaHolder metaHolder) { // 创建HystrixInvokable实现类对象
         HystrixInvokable executable;
         if (metaHolder.isCollapserAnnotationPresent()) {
             executable = new CommandCollapser(metaHolder);
         } else if (metaHolder.isObservable()) {
             executable = new GenericObservableCommand(HystrixCommandBuilderFactory.getInstance().create(metaHolder));
         } else {
-            executable = new GenericCommand(HystrixCommandBuilderFactory.getInstance().create(metaHolder));
+            executable = new GenericCommand(HystrixCommandBuilderFactory.getInstance().create(metaHolder)); // 默认返回GenericCommand对象
         }
         return executable;
     }

@@ -59,7 +59,7 @@ public class HystrixThreadPoolMetrics extends HystrixMetrics {
      *            Pass-thru to {@link HystrixThreadPoolMetrics} instance on first time when constructed
      * @return {@link HystrixThreadPoolMetrics}
      */
-    public static HystrixThreadPoolMetrics getInstance(HystrixThreadPoolKey key, ThreadPoolExecutor threadPool, HystrixThreadPoolProperties properties) {
+    public static HystrixThreadPoolMetrics getInstance(HystrixThreadPoolKey key, ThreadPoolExecutor threadPool, HystrixThreadPoolProperties properties) { // 初始化HystrixThreadPoolMetrics（维护了ThreadPoolExecutor）
         // attempt to retrieve from cache first
         HystrixThreadPoolMetrics threadPoolMetrics = metrics.get(key.name());
         if (threadPoolMetrics != null) {

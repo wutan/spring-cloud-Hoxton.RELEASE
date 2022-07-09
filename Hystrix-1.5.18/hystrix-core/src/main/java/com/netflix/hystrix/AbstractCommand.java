@@ -154,7 +154,7 @@ import java.util.concurrent.atomic.AtomicReference;
         return name;
     }
 
-    protected AbstractCommand(HystrixCommandGroupKey group, HystrixCommandKey key, HystrixThreadPoolKey threadPoolKey, HystrixCircuitBreaker circuitBreaker, HystrixThreadPool threadPool,
+    protected AbstractCommand(HystrixCommandGroupKey group, HystrixCommandKey key, HystrixThreadPoolKey threadPoolKey, HystrixCircuitBreaker circuitBreaker, HystrixThreadPool threadPool, // 初始化AbstractCommand
             HystrixCommandProperties.Setter commandPropertiesDefaults, HystrixThreadPoolProperties.Setter threadPoolPropertiesDefaults,
             HystrixCommandMetrics metrics, TryableSemaphore fallbackSemaphore, TryableSemaphore executionSemaphore,
             HystrixPropertiesStrategy propertiesStrategy, HystrixCommandExecutionHook executionHook) {
@@ -162,10 +162,10 @@ import java.util.concurrent.atomic.AtomicReference;
         this.commandGroup = initGroupKey(group);
         this.commandKey = initCommandKey(key, getClass());
         this.properties = initCommandProperties(this.commandKey, propertiesStrategy, commandPropertiesDefaults);
-        this.threadPoolKey = initThreadPoolKey(threadPoolKey, this.commandGroup, this.properties.executionIsolationThreadPoolKeyOverride().get());
+        this.threadPoolKey = initThreadPoolKey(threadPoolKey, this.commandGroup, this.properties.executionIsolationThreadPoolKeyOverride().get()); // 初始化线程池Key
         this.metrics = initMetrics(metrics, this.commandGroup, this.threadPoolKey, this.commandKey, this.properties);
-        this.circuitBreaker = initCircuitBreaker(this.properties.circuitBreakerEnabled().get(), circuitBreaker, this.commandGroup, this.commandKey, this.properties, this.metrics);
-        this.threadPool = initThreadPool(threadPool, this.threadPoolKey, threadPoolPropertiesDefaults);
+        this.circuitBreaker = initCircuitBreaker(this.properties.circuitBreakerEnabled().get(), circuitBreaker, this.commandGroup, this.commandKey, this.properties, this.metrics); // 初始化熔断器
+        this.threadPool = initThreadPool(threadPool, this.threadPoolKey, threadPoolPropertiesDefaults); // 初始化线程池
 
         //Strategies from plugins
         this.eventNotifier = HystrixPlugins.getInstance().getEventNotifier();
@@ -245,11 +245,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
     private static HystrixCircuitBreaker initCircuitBreaker(boolean enabled, HystrixCircuitBreaker fromConstructor,
                                                             HystrixCommandGroupKey groupKey, HystrixCommandKey commandKey,
-                                                            HystrixCommandProperties properties, HystrixCommandMetrics metrics) {
+                                                            HystrixCommandProperties properties, HystrixCommandMetrics metrics) { // 初始化熔断器
         if (enabled) {
             if (fromConstructor == null) {
                 // get the default implementation of HystrixCircuitBreaker
-                return HystrixCircuitBreaker.Factory.getInstance(commandKey, groupKey, properties, metrics);
+                return HystrixCircuitBreaker.Factory.getInstance(commandKey, groupKey, properties, metrics); // 初始化熔断器
             } else {
                 return fromConstructor;
             }
@@ -271,10 +271,10 @@ import java.util.concurrent.atomic.AtomicReference;
         }
     }
 
-    private static HystrixThreadPool initThreadPool(HystrixThreadPool fromConstructor, HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties.Setter threadPoolPropertiesDefaults) {
+    private static HystrixThreadPool initThreadPool(HystrixThreadPool fromConstructor, HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties.Setter threadPoolPropertiesDefaults) { // 初始化线程池
         if (fromConstructor == null) {
             // get the default implementation of HystrixThreadPool
-            return HystrixThreadPool.Factory.getInstance(threadPoolKey, threadPoolPropertiesDefaults);
+            return HystrixThreadPool.Factory.getInstance(threadPoolKey, threadPoolPropertiesDefaults); // 创建线程池
         } else {
             return fromConstructor;
         }
@@ -527,7 +527,7 @@ import java.util.concurrent.atomic.AtomicReference;
                 @Override
                 public void call() {
                     if (semaphoreHasBeenReleased.compareAndSet(false, true)) {
-                        executionSemaphore.release(); // 释放令牌
+                        executionSemaphore.release(); // 释放信号量/令牌
                     }
                 }
             };
@@ -539,13 +539,13 @@ import java.util.concurrent.atomic.AtomicReference;
                 }
             };
 
-            if (executionSemaphore.tryAcquire()) { // 2.判断是否被限流（信号量资源隔离是否生效，默认不限制）
+            if (executionSemaphore.tryAcquire()) { // 2.判断信号量资源隔离是否生效（默认的资源隔离策略是线程池资源隔离，所以信号量资源隔离默认不限制）
                 try {
                     /* used to track userThreadExecutionTime */
                     executionResult = executionResult.setInvocationStartTime(System.currentTimeMillis());
                     return executeCommandAndObserve(_cmd) // 执行Hystrix命令
                             .doOnError(markExceptionThrown)
-                            .doOnTerminate(singleSemaphoreRelease)
+                            .doOnTerminate(singleSemaphoreRelease) // 注册singleSemaphoreRelease
                             .doOnUnsubscribe(singleSemaphoreRelease);
                 } catch (RuntimeException e) {
                     return Observable.error(e);
@@ -639,7 +639,7 @@ import java.util.concurrent.atomic.AtomicReference;
         }
 
         return execution.doOnNext(markEmits)
-                .doOnCompleted(markOnCompleted)
+                .doOnCompleted(markOnCompleted) // 注册完成事件，执行markOnCompleted去关闭熔断器
                 .onErrorResumeNext(handleFallback)
                 .doOnEach(setRequestContext);
     }
@@ -676,7 +676,7 @@ import java.util.concurrent.atomic.AtomicReference;
                             executionHook.onThreadStart(_cmd);
                             executionHook.onRunStart(_cmd);
                             executionHook.onExecutionStart(_cmd);
-                            return getUserExecutionObservable(_cmd); // 用户执行命令
+                            return getUserExecutionObservable(_cmd); // 获取可执行服务目标方法/用户命令的被观察者
                         } catch (Throwable ex) {
                             return Observable.error(ex);
                         }
@@ -707,7 +707,7 @@ import java.util.concurrent.atomic.AtomicReference;
                     }
                     //if it was terminal, then other cleanup handled it
                 }
-            }).subscribeOn(threadPool.getScheduler(new Func0<Boolean>() {
+            }).subscribeOn(threadPool.getScheduler(new Func0<Boolean>() { // 注册订阅事件
                 @Override
                 public Boolean call() {
                     return properties.executionIsolationThreadInterruptOnTimeout().get() && _cmd.isCommandTimedOut.get() == TimedOutStatus.TIMED_OUT;
@@ -753,7 +753,7 @@ import java.util.concurrent.atomic.AtomicReference;
      * @throws HystrixRuntimeException
      *             if getFallback() fails (throws an Exception) or is rejected by the semaphore
      */
-    private Observable<R> getFallbackOrThrowException(final AbstractCommand<R> _cmd, final HystrixEventType eventType, final FailureType failureType, final String message, final Exception originalException) {
+    private Observable<R> getFallbackOrThrowException(final AbstractCommand<R> _cmd, final HystrixEventType eventType, final FailureType failureType, final String message, final Exception originalException) { // 执行服务降级方法
         final HystrixRequestContext requestContext = HystrixRequestContext.getContextForCurrentThread();
         long latency = System.currentTimeMillis() - executionResult.getStartTimestamp();
         // record the executionResult
@@ -852,7 +852,7 @@ import java.util.concurrent.atomic.AtomicReference;
                     try {
                         if (isFallbackUserDefined()) {
                             executionHook.onFallbackStart(this);
-                            fallbackExecutionChain = getFallbackObservable();
+                            fallbackExecutionChain = getFallbackObservable(); // 获取执行服务降级方法的被观察者
                         } else {
                             //same logic as above without the hook invocation
                             fallbackExecutionChain = getFallbackObservable();
@@ -880,11 +880,11 @@ import java.util.concurrent.atomic.AtomicReference;
         }
     }
 
-    private Observable<R> getUserExecutionObservable(final AbstractCommand<R> _cmd) {
+    private Observable<R> getUserExecutionObservable(final AbstractCommand<R> _cmd) { // 获取可执行服务目标方法的被观察者
         Observable<R> userObservable;
 
         try {
-            userObservable = getExecutionObservable(); // 执行命令
+            userObservable = getExecutionObservable(); // 执行服务目标方法，默认执行HystrixCommand#getExecutionObservable方法
         } catch (Throwable ex) {
             // the run() method is a user provided implementation so can throw instead of using Observable.onError
             // so we catch it here and turn it into Observable.error
@@ -1656,7 +1656,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
     }
 
-    /* package */static interface TryableSemaphore {
+    /* package */static interface TryableSemaphore { // 信号量资源隔离接口
 
         /**
          * Use like this:
