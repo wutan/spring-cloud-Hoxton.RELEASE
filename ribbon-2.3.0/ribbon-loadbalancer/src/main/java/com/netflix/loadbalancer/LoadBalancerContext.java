@@ -473,7 +473,7 @@ public class LoadBalancerContext implements IClientConfigAware {
         // Various Supported Cases
         // The loadbalancer to use and the instances it has is based on how it was registered
         // In each of these cases, the client might come in using Full Url or Partial URL
-        ILoadBalancer lb = getLoadBalancer();
+        ILoadBalancer lb = getLoadBalancer(); // 获取服务均衡器
         if (host == null) {
             // Partial URI or no URI Case
             // well we have to just get the right instances from lb - or we fall back
@@ -569,7 +569,7 @@ public class LoadBalancerContext implements IClientConfigAware {
         return new Server(host, port);
     }
 
-    public URI reconstructURIWithServer(Server server, URI original) {
+    public URI reconstructURIWithServer(Server server, URI original) { // 根据请求的服务及负载均衡请求地址获取真实的请求地址
         String host = server.getHost();
         int port = server.getPort();
         String scheme = server.getScheme();

@@ -181,7 +181,7 @@ public class LoadBalancerCommand<T> {
             @Override
             public void call(Subscriber<? super Server> next) {
                 try {
-                    Server server = loadBalancerContext.getServerFromLoadBalancer(loadBalancerURI, loadBalancerKey);   
+                    Server server = loadBalancerContext.getServerFromLoadBalancer(loadBalancerURI, loadBalancerKey); // 根据负载均衡器额获取服务
                     next.onNext(server);
                     next.onCompleted();
                 } catch (Exception e) {

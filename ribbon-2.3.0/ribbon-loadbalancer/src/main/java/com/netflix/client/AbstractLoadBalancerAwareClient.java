@@ -90,18 +90,18 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
      * @param request request to be dispatched to a server chosen by the load balancer. The URI can be a partial
      * URI which does not contain the host name or the protocol.
      */
-    public T executeWithLoadBalancer(final S request, final IClientConfig requestConfig) throws ClientException {
-        LoadBalancerCommand<T> command = buildLoadBalancerCommand(request, requestConfig);
+    public T executeWithLoadBalancer(final S request, final IClientConfig requestConfig) throws ClientException { // 根据负载均衡执行请求
+        LoadBalancerCommand<T> command = buildLoadBalancerCommand(request, requestConfig); // 构建LoadBalancerCommand对象
 
         try {
-            return command.submit(
+            return command.submit( // 执行submit方法
                 new ServerOperation<T>() {
                     @Override
                     public Observable<T> call(Server server) {
-                        URI finalUri = reconstructURIWithServer(server, request.getUri());
+                        URI finalUri = reconstructURIWithServer(server, request.getUri()); // 根据请求的服务及负载均衡请求地址获取真实的请求地址（子类FeignLoadBalancer进行了重写）
                         S requestForServer = (S) request.replaceUri(finalUri);
                         try {
-                            return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig));
+                            return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig)); // 最终发起请求
                         } 
                         catch (Exception e) {
                             return Observable.error(e);
@@ -123,9 +123,9 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
     
     public abstract RequestSpecificRetryHandler getRequestSpecificRetryHandler(S request, IClientConfig requestConfig);
 
-    protected LoadBalancerCommand<T> buildLoadBalancerCommand(final S request, final IClientConfig config) {
+    protected LoadBalancerCommand<T> buildLoadBalancerCommand(final S request, final IClientConfig config) { // 构建LoadBalancerCommand对象
 		RequestSpecificRetryHandler handler = getRequestSpecificRetryHandler(request, config);
-		LoadBalancerCommand.Builder<T> builder = LoadBalancerCommand.<T>builder()
+		LoadBalancerCommand.Builder<T> builder = LoadBalancerCommand.<T>builder() // 构建LoadBalancerCommand对象
 				.withLoadBalancerContext(this)
 				.withRetryHandler(handler)
 				.withLoadBalancerURI(request.getUri());

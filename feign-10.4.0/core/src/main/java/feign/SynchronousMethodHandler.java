@@ -98,7 +98,7 @@ final class SynchronousMethodHandler implements MethodHandler {
   }
 
   Object executeAndDecode(RequestTemplate template, Options options) throws Throwable {
-    Request request = targetRequest(template); // 通过RequestTemplate生成Request请求对象，转化为Http请求报文
+    Request request = targetRequest(template); // 通过RequestTemplate生成Request请求对象，转化为Http请求报文（在生成Request请求对象前，会调用Feign的拦截器进行拦截处理）
 
     if (logLevel != Logger.Level.NONE) { // 判断日志等级是否输出日志
       logger.logRequest(metadata.configKey(), logLevel, request);
@@ -139,7 +139,7 @@ final class SynchronousMethodHandler implements MethodHandler {
         if (void.class == metadata.returnType()) {
           return null;
         } else {
-          Object result = decode(response);
+          Object result = decode(response); // 解码操作
           shouldClose = closeAfterDecode;
           return result;
         }
