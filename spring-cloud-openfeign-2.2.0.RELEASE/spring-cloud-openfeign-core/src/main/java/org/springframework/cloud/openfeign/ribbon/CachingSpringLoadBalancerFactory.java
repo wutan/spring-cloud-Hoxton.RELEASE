@@ -40,7 +40,7 @@ public class CachingSpringLoadBalancerFactory {
 
 	protected LoadBalancedRetryFactory loadBalancedRetryFactory = null;
 
-	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>();
+	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>(); // Feign整合Ribbon的负载均衡器的缓存容器
 
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory) {
 		this.factory = factory;
@@ -53,19 +53,19 @@ public class CachingSpringLoadBalancerFactory {
 	}
 
 	public FeignLoadBalancer create(String clientName) { // 生成具有负载均衡的Feign
-		FeignLoadBalancer client = this.cache.get(clientName);
-		if (client != null) {
+		FeignLoadBalancer client = this.cache.get(clientName); // 先从缓存中获取clientName对应的负载均衡器
+		if (client != null) { // 当缓存中存在时直接返回
 			return client;
 		}
-		IClientConfig config = this.factory.getClientConfig(clientName);
-		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
+		IClientConfig config = this.factory.getClientConfig(clientName); // 获取负载均衡配置
+		ILoadBalancer lb = this.factory.getLoadBalancer(clientName); // 获取负载均衡器
 		ServerIntrospector serverIntrospector = this.factory.getInstance(clientName,
 				ServerIntrospector.class);
 		client = this.loadBalancedRetryFactory != null
 				? new RetryableFeignLoadBalancer(lb, config, serverIntrospector,
 						this.loadBalancedRetryFactory)
-				: new FeignLoadBalancer(lb, config, serverIntrospector);
-		this.cache.put(clientName, client);
+				: new FeignLoadBalancer(lb, config, serverIntrospector); // 创建Feign的负载均衡器
+		this.cache.put(clientName, client); // 放入缓存
 		return client;
 	}
 

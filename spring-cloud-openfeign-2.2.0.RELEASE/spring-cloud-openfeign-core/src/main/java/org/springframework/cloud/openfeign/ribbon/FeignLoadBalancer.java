@@ -54,7 +54,7 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
  * @author Olga Maciaszek-Sharma
  */
 public class FeignLoadBalancer extends
-		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
+		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> { // Feign整合Ribbon的负载均衡器
 
 	private final RibbonProperties ribbon;
 
@@ -79,7 +79,7 @@ public class FeignLoadBalancer extends
 	}
 
 	@Override
-	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride)
+	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride) // 最终发起请求
 			throws IOException {
 		Request.Options options;
 		if (configOverride != null) {

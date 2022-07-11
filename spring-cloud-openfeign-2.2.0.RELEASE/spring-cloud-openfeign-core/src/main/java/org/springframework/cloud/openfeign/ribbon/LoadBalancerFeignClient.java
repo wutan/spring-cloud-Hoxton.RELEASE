@@ -70,7 +70,7 @@ public class LoadBalancerFeignClient implements Client { // OpenFeign的默认Cl
 	}
 
 	@Override
-	public Response execute(Request request, Request.Options options) throws IOException {
+	public Response execute(Request request, Request.Options options) throws IOException { // 执行请求
 		try {
 			URI asUri = URI.create(request.url());
 			String clientName = asUri.getHost(); // 获取clientName
@@ -79,8 +79,8 @@ public class LoadBalancerFeignClient implements Client { // OpenFeign的默认Cl
 					this.delegate, request, uriWithoutHost); // 构建RibbonRequest，内部维护了Client（默认的Client或第三方Client）
 
 			IClientConfig requestConfig = getClientConfig(options, clientName);
-			return lbClient(clientName) // 获取或生成具有负载均衡的Feign
-					.executeWithLoadBalancer(ribbonRequest, requestConfig).toResponse();
+			return lbClient(clientName) // 从缓存中获取或创建具有负载均衡的Client--FeignLoadBalancer
+					.executeWithLoadBalancer(ribbonRequest, requestConfig).toResponse(); // 根据负载均衡执行请求
 		}
 		catch (ClientException e) {
 			IOException io = findIOException(e);
@@ -117,7 +117,7 @@ public class LoadBalancerFeignClient implements Client { // OpenFeign的默认Cl
 	}
 
 	private FeignLoadBalancer lbClient(String clientName) { // 获取FeignLoadBalancer
-		return this.lbClientFactory.create(clientName);
+		return this.lbClientFactory.create(clientName); // 获取FeignLoadBalancer（先从缓存中获取）
 	}
 
 	static class FeignOptionsClientConfig extends DefaultClientConfigImpl {
