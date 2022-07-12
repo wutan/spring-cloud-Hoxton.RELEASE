@@ -33,7 +33,7 @@ import rx.Observable;
 import rx.Single;
 import static feign.Util.checkNotNull;
 
-final class HystrixInvocationHandler implements InvocationHandler {
+final class HystrixInvocationHandler implements InvocationHandler { // 当@FeignClient设置了fallback或fallbackFactory时的InvocationHandler实现类，当客户端发起请求时会进入到FeignInvocationHandler.invoke方法中
 
   private final Target<?> target;
   private final Map<Method, MethodHandler> dispatch;
@@ -83,7 +83,7 @@ final class HystrixInvocationHandler implements InvocationHandler {
   }
 
   @Override
-  public Object invoke(final Object proxy, final Method method, final Object[] args)
+  public Object invoke(final Object proxy, final Method method, final Object[] args) // FeignClient动态代理请求接口的实际执行方法
       throws Throwable {
     // early exit if the invoked method is from java.lang.Object
     // code is the same as ReflectiveFeign.FeignInvocationHandler
@@ -101,12 +101,12 @@ final class HystrixInvocationHandler implements InvocationHandler {
       return toString();
     }
 
-    HystrixCommand<Object> hystrixCommand =
+    HystrixCommand<Object> hystrixCommand = // 构建HystrixCommand对象
         new HystrixCommand<Object>(setterMethodMap.get(method)) {
           @Override
           protected Object run() throws Exception {
             try {
-              return HystrixInvocationHandler.this.dispatch.get(method).invoke(args);
+              return HystrixInvocationHandler.this.dispatch.get(method).invoke(args); // （策略模式）根据被调用的method方法获取对应的SynchronousMethodHandler对象，再调用invoke方法进行请求处理
             } catch (Exception e) {
               throw e;
             } catch (Throwable t) {
@@ -167,7 +167,7 @@ final class HystrixInvocationHandler implements InvocationHandler {
     } else if (isReturnsCompletableFuture(method)) {
       return new ObservableCompletableFuture<>(hystrixCommand);
     }
-    return hystrixCommand.execute();
+    return hystrixCommand.execute(); // 执行HystrixCommand
   }
 
   private boolean isReturnsCompletable(Method method) {

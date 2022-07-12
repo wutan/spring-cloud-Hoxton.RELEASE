@@ -79,7 +79,7 @@ public class FeignAutoConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(name = "feign.hystrix.HystrixFeign")
+	@ConditionalOnClass(name = "feign.hystrix.HystrixFeign") // OpenFeign默认引入feign-hystrix依赖包，默认会生效
 	protected static class HystrixFeignTargeterConfiguration {
 
 		@Bean

@@ -35,7 +35,7 @@ public class ReflectiveFeign extends Feign {
   private final InvocationHandlerFactory factory;
   private final QueryMapEncoder queryMapEncoder;
 
-  ReflectiveFeign(ParseHandlersByName targetToHandlersByName, InvocationHandlerFactory factory,
+  ReflectiveFeign(ParseHandlersByName targetToHandlersByName, InvocationHandlerFactory factory, // 初始化ReflectiveFeign
       QueryMapEncoder queryMapEncoder) {
     this.targetToHandlersByName = targetToHandlersByName;
     this.factory = factory;
@@ -64,7 +64,7 @@ public class ReflectiveFeign extends Feign {
         methodToHandler.put(method, nameToHandler.get(Feign.configKey(target.type(), method)));
       }
     }
-    InvocationHandler handler = factory.create(target, methodToHandler); // 创建代理类要执行的InvocationHandler实现类ReflectiveFeign.FeignInvocationHandler
+    InvocationHandler handler = factory.create(target, methodToHandler); // 创建代理类要执行的InvocationHandler实现类，当@FeignClient设置了fallback或fallbackFactory时为HystrixInvocationHandler（详见HystrixFeign.Builder#build方法），未设置时为ReflectiveFeign.FeignInvocationHandler
     T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(), // 基于Proxy.newProxyInstance 为接口类创建动态实现，将所有的请求转换给InvocationHandler处理
         new Class<?>[] {target.type()}, handler);
 
@@ -74,7 +74,7 @@ public class ReflectiveFeign extends Feign {
     return proxy;
   }
 
-  static class FeignInvocationHandler implements InvocationHandler { // OpenFeign最终返回的是一个ReflectiveFeign.FeignInvocationHandler的对象，当客户端发起请求时会进入到FeignInvocationHandler.invoke方法中
+  static class FeignInvocationHandler implements InvocationHandler { // @FeignClient未设置fallback或fallbackFactory时的InvocationHandler实现类，当客户端发起请求时会进入到FeignInvocationHandler.invoke方法中
 
     private final Target target;
     private final Map<Method, MethodHandler> dispatch;
@@ -292,7 +292,7 @@ public class ReflectiveFeign extends Feign {
     private RequestTemplate addQueryMapQueryParameters(Map<String, Object> queryMap,
                                                        RequestTemplate mutable) {
       for (Entry<String, Object> currEntry : queryMap.entrySet()) {
-        Collection<String> values i= new ArrayList<String>();
+        Collection<String> values = new ArrayList<String>();
 
         boolean encoded = metadata.queryMapEncoded();
         Object currValue = currEntry.getValue();

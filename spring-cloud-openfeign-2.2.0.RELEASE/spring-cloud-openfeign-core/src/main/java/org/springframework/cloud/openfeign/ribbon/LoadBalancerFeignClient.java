@@ -39,7 +39,7 @@ public class LoadBalancerFeignClient implements Client { // OpenFeign的默认Cl
 
 	private final Client delegate; // 默认为Client.Default
 
-	private CachingSpringLoadBalancerFactory lbClientFactory;
+	private CachingSpringLoadBalancerFactory lbClientFactory; // 缓存工厂类，根据clientName获取FeignLoadBalancer（具体整合Ribbon的功能在该类中）
 
 	private SpringClientFactory clientFactory;
 

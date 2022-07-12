@@ -42,7 +42,7 @@ public final class HystrixFeign {
     return new Builder();
   }
 
-  public static final class Builder extends Feign.Builder {
+  public static final class Builder extends Feign.Builder { // HystrixFeign.Builder继承自Feign.Builder
 
     private Contract contract = new Contract.Default();
     private SetterFactory setterFactory = new SetterFactory.Default();
@@ -58,16 +58,16 @@ public final class HystrixFeign {
     /**
      * @see #target(Class, String, Object)
      */
-    public <T> T target(Target<T> target, T fallback) {
-      return build(fallback != null ? new FallbackFactory.Default<T>(fallback) : null)
+    public <T> T target(Target<T> target, T fallback) { // 生成代理对象
+      return build(fallback != null ? new FallbackFactory.Default<T>(fallback) : null) // 生成代理对象
           .newInstance(target);
     }
 
     /**
      * @see #target(Class, String, FallbackFactory)
      */
-    public <T> T target(Target<T> target, FallbackFactory<? extends T> fallbackFactory) {
-      return build(fallbackFactory).newInstance(target);
+    public <T> T target(Target<T> target, FallbackFactory<? extends T> fallbackFactory) { // 生成代理对象
+      return build(fallbackFactory).newInstance(target); // 生成代理对象
     }
 
     /**
@@ -138,8 +138,8 @@ public final class HystrixFeign {
     }
 
     /** Configures components needed for hystrix integration. */
-    Feign build(final FallbackFactory<?> nullableFallbackFactory) {
-      super.invocationHandlerFactory(new InvocationHandlerFactory() {
+    Feign build(final FallbackFactory<?> nullableFallbackFactory) { // 通过HystrixFeign.Builder#build构建ReflectiveFeign，设置InvocationHandlerFactory
+      super.invocationHandlerFactory(new InvocationHandlerFactory() { // 设置InvocationHandlerFactory
         @Override
         public InvocationHandler create(Target target,
                                         Map<Method, MethodHandler> dispatch) {
@@ -147,8 +147,8 @@ public final class HystrixFeign {
               nullableFallbackFactory);
         }
       });
-      super.contract(new HystrixDelegatingContract(contract));
-      return super.build();
+      super.contract(new HystrixDelegatingContract(contract)); // 设置Contract
+      return super.build(); // 调用父类的Feign.Builder.build方法构建ReflectiveFeign对象
     }
 
     // Covariant overrides to support chaining to new fallback method.

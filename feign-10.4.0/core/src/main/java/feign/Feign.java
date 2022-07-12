@@ -106,7 +106,7 @@ public abstract class Feign {
     private QueryMapEncoder queryMapEncoder = new QueryMapEncoder.Default();
     private ErrorDecoder errorDecoder = new ErrorDecoder.Default();
     private Options options = new Options();
-    private InvocationHandlerFactory invocationHandlerFactory =
+    private InvocationHandlerFactory invocationHandlerFactory = // 初始化InvocationHandlerFactory，默认为InvocationHandlerFactory.Default，当使用了服务降级时为HystrixInvocationHandler
         new InvocationHandlerFactory.Default();
     private boolean decode404;
     private boolean closeAfterDecode = true;
@@ -215,7 +215,7 @@ public abstract class Feign {
     /**
      * Allows you to override how reflective dispatch works inside of Feign.
      */
-    public Builder invocationHandlerFactory(InvocationHandlerFactory invocationHandlerFactory) {
+    public Builder invocationHandlerFactory(InvocationHandlerFactory invocationHandlerFactory) { // 设置InvocationHandlerFactory（当Feign使用了服务降级功能时会覆盖默认值，通过匿名内部类进行设置）
       this.invocationHandlerFactory = invocationHandlerFactory;
       return this;
     }
@@ -248,7 +248,7 @@ public abstract class Feign {
     }
 
     public <T> T target(Target<T> target) { // 不管@FeignCLient是否配置url，都会到这里统一生成代理对象
-      return build().newInstance(target);
+      return build().newInstance(target); // 先生成Feign实例，再创建代理对象
     }
 
     public Feign build() { // 终会调用new ReflectiveFeign(...)来生成Feign实例
@@ -258,7 +258,7 @@ public abstract class Feign {
       ParseHandlersByName handlersByName =
           new ParseHandlersByName(contract, options, encoder, decoder, queryMapEncoder,
               errorDecoder, synchronousMethodHandlerFactory); // ParseHandlersByName将Target的所有接口方法转换为Map<String, MethodHandler>对象
-      return new ReflectiveFeign(handlersByName, invocationHandlerFactory, queryMapEncoder);
+      return new ReflectiveFeign(handlersByName, invocationHandlerFactory, queryMapEncoder); // 创建ReflectiveFeign
     }
   }
 
