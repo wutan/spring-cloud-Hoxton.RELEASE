@@ -19,7 +19,7 @@ package org.springframework.cloud.gateway.route;
 /**
  * @author Spencer Gibb
  */
-public interface RouteDefinitionRepository
+public interface RouteDefinitionRepository // 路由定义Dao层接口，实现该接口来定义路由定义的存储和获取方式
 		extends RouteDefinitionLocator, RouteDefinitionWriter {
 
 }

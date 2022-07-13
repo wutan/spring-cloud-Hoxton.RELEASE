@@ -21,10 +21,10 @@ import reactor.core.publisher.Mono;
 /**
  * @author Spencer Gibb
  */
-public interface RouteDefinitionWriter {
+public interface RouteDefinitionWriter { // 路由定义写接口
 
-	Mono<Void> save(Mono<RouteDefinition> route);
+	Mono<Void> save(Mono<RouteDefinition> route); // 添加路由定义
 
-	Mono<Void> delete(Mono<String> routeId);
+	Mono<Void> delete(Mono<String> routeId); // 删除路由定义
 
 }

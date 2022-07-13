@@ -38,7 +38,7 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.G
 /**
  * @author Spencer Gibb
  */
-public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
+public class RoutePredicateHandlerMapping extends AbstractHandlerMapping { // 负责路由查找，并根据路由断言判断路由是否可用
 
 	private final FilteringWebHandler webHandler;
 
@@ -48,7 +48,7 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 
 	private final ManagementPortType managementPortType;
 
-	public RoutePredicateHandlerMapping(FilteringWebHandler webHandler,
+	public RoutePredicateHandlerMapping(FilteringWebHandler webHandler, // 初始化RoutePredicateHandlerMapping
 			RouteLocator routeLocator, GlobalCorsProperties globalCorsProperties,
 			Environment environment) {
 		this.webHandler = webHandler;
@@ -84,7 +84,7 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 		}
 		exchange.getAttributes().put(GATEWAY_HANDLER_MAPPER_ATTR, getSimpleName());
 
-		return lookupRoute(exchange)
+		return lookupRoute(exchange) // 路由查找，根据路由断言判断路由是否可用
 				// .log("route-predicate-handler-mapping", Level.FINER) //name this
 				.flatMap((Function<Route, Mono<?>>) r -> {
 					exchange.getAttributes().remove(GATEWAY_PREDICATE_ROUTE_ATTR);
@@ -94,7 +94,7 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 					}
 
 					exchange.getAttributes().put(GATEWAY_ROUTE_ATTR, r);
-					return Mono.just(webHandler);
+					return Mono.just(webHandler); // 断言成功，由FilteringWebHandler创建过滤器链并调用
 				}).switchIfEmpty(Mono.empty().then(Mono.fromRunnable(() -> {
 					exchange.getAttributes().remove(GATEWAY_PREDICATE_ROUTE_ATTR);
 					if (logger.isTraceEnabled()) {
@@ -124,7 +124,7 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 		return out.toString();
 	}
 
-	protected Mono<Route> lookupRoute(ServerWebExchange exchange) {
+	protected Mono<Route> lookupRoute(ServerWebExchange exchange) { // 路由查找，根据路由断言判断路由是否可用
 		return this.routeLocator.getRoutes()
 				// individually filter routes so that filterWhen error delaying is not a
 				// problem

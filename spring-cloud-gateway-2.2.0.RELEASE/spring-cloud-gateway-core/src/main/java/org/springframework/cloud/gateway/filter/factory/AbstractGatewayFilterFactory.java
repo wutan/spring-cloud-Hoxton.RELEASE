@@ -25,7 +25,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
  *
  * @param <C> {@link AbstractConfigurable} subtype
  */
-public abstract class AbstractGatewayFilterFactory<C> extends AbstractConfigurable<C>
+public abstract class AbstractGatewayFilterFactory<C> extends AbstractConfigurable<C> // 路由过滤工厂抽象类（所有的局部路由过滤器都需要继承该类，全局路由过滤器需要实现GlobalFilter接口）
 		implements GatewayFilterFactory<C>, ApplicationEventPublisherAware {
 
 	private ApplicationEventPublisher publisher;

@@ -45,13 +45,13 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.G
  * @author Spencer Gibb
  * @since 0.1
  */
-public class FilteringWebHandler implements WebHandler {
+public class FilteringWebHandler implements WebHandler { // 负责创建路由过滤器链并调用
 
 	protected static final Log logger = LogFactory.getLog(FilteringWebHandler.class);
 
 	private final List<GatewayFilter> globalFilters;
 
-	public FilteringWebHandler(List<GlobalFilter> globalFilters) {
+	public FilteringWebHandler(List<GlobalFilter> globalFilters) { // 初始化FilteringWebHandler
 		this.globalFilters = loadFilters(globalFilters);
 	}
 

@@ -18,7 +18,7 @@ package org.springframework.cloud.gateway.handler.predicate;
 
 import org.springframework.cloud.gateway.support.AbstractConfigurable;
 
-public abstract class AbstractRoutePredicateFactory<C> extends AbstractConfigurable<C>
+public abstract class AbstractRoutePredicateFactory<C> extends AbstractConfigurable<C> // 路由断言工厂抽象类（所有的路由断言规则都需要继承该类）
 		implements RoutePredicateFactory<C> {
 
 	public AbstractRoutePredicateFactory(Class<C> configClass) {

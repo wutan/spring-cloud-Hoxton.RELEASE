@@ -39,24 +39,24 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
  * @author Spencer Gibb
  */
 @Validated
-public class RouteDefinition {
+public class RouteDefinition { // 路由规则定义
 
 	@NotEmpty
-	private String id = UUID.randomUUID().toString();
+	private String id = UUID.randomUUID().toString(); // 路由规则Id（不指定是默认为UUID）
 
 	@NotEmpty
 	@Valid
-	private List<PredicateDefinition> predicates = new ArrayList<>();
+	private List<PredicateDefinition> predicates = new ArrayList<>(); // 路由断言规则（判断路由是否成立）
 
 	@Valid
-	private List<FilterDefinition> filters = new ArrayList<>();
+	private List<FilterDefinition> filters = new ArrayList<>(); // 路由过滤器（修改请求和响应信息）
 
 	@NotNull
-	private URI uri;
+	private URI uri; // 请求路由地址
 
 	private Map<String, Object> metadata = new HashMap<>();
 
-	private int order = 0;
+	private int order = 0; // 路由规则顺序（数字越小，路由优先级则越高）
 
 	public RouteDefinition() {
 	}

@@ -32,7 +32,7 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
  * @author Spencer Gibb
  */
 @Validated
-public class PredicateDefinition {
+public class PredicateDefinition { // 路由断言规则（判断路由是否成立）
 
 	@NotNull
 	private String name;

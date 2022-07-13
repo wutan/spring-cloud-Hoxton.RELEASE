@@ -31,7 +31,7 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
  * @author Spencer Gibb
  */
 @Validated
-public class FilterDefinition {
+public class FilterDefinition { // 路由过滤器（路由前对请求信息进行操作）
 
 	@NotNull
 	private String name;

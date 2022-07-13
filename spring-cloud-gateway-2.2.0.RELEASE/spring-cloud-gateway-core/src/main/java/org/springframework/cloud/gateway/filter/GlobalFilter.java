@@ -28,7 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rossen Stoyanchev
  * @since 5.0
  */
-public interface GlobalFilter {
+public interface GlobalFilter { // 全局路由过滤器（所有的全局路由过滤器需要实现该接口，局部路由过滤器都需要继承AbstractGatewayFilterFactory类）
 
 	/**
 	 * Process the Web request and (optionally) delegate to the next {@code WebFilter}

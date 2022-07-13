@@ -38,7 +38,7 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.W
  * @author Spencer Gibb
  */
 // TODO: make this a generic Choose out of group predicate?
-public class WeightRoutePredicateFactory
+public class WeightRoutePredicateFactory // 根据权重进行路由断言
 		extends AbstractRoutePredicateFactory<WeightConfig>
 		implements ApplicationEventPublisherAware {
 
@@ -67,7 +67,7 @@ public class WeightRoutePredicateFactory
 
 	@Override
 	public List<String> shortcutFieldOrder() {
-		return Arrays.asList(GROUP_KEY, WEIGHT_KEY);
+		return Arrays.asList(GROUP_KEY, WEIGHT_KEY); // 格式：组名, 权重值
 	}
 
 	@Override
