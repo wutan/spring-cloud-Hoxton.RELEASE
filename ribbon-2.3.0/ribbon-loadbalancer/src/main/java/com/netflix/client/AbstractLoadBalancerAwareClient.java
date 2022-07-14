@@ -101,7 +101,7 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
                         URI finalUri = reconstructURIWithServer(server, request.getUri()); // 根据请求的服务及负载均衡请求地址获取真实的请求地址（子类FeignLoadBalancer进行了重写）
                         S requestForServer = (S) request.replaceUri(finalUri);
                         try {
-                            return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig)); // 最终发起请求
+                            return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig)); // 最终发起请求，由子类实现
                         } 
                         catch (Exception e) {
                             return Observable.error(e);

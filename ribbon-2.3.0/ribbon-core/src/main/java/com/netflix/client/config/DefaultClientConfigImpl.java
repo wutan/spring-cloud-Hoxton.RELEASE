@@ -80,7 +80,7 @@ You should use {@link #getClientConfigWithDefaultValues(String, String)} - in th
  * @author awang
  *
  */
-public class DefaultClientConfigImpl implements IClientConfig {
+public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默认IClientConfig实现类
 
     public static final Boolean DEFAULT_PRIORITIZE_VIP_ADDRESS_BASED_SERVERS = Boolean.TRUE;
 
@@ -124,11 +124,11 @@ public class DefaultClientConfigImpl implements IClientConfig {
 
     public static final int DEFAULT_BACKOFF_INTERVAL = 0;
     
-    public static final int DEFAULT_READ_TIMEOUT = 5000;
+    public static final int DEFAULT_READ_TIMEOUT = 5000; // Ribbon的默认读取超时时间（在RibbonClientConfiguration#ribbonClientConfig方法中被重新设置）
 
     public static final int DEFAULT_CONNECTION_MANAGER_TIMEOUT = 2000;
 
-    public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
+    public static final int DEFAULT_CONNECT_TIMEOUT = 2000; // Ribbon的默认连接超时时间（在RibbonClientConfiguration#ribbonClientConfig方法中被重新设置）
 
     public static final Boolean DEFAULT_ENABLE_CONNECTION_POOL = Boolean.TRUE;
     
@@ -373,7 +373,7 @@ public class DefaultClientConfigImpl implements IClientConfig {
 	/**
 	 * Create instance with no properties in default name space {@link #DEFAULT_PROPERTY_NAME_SPACE}
 	 */
-    public DefaultClientConfigImpl() {
+    public DefaultClientConfigImpl() { // 创建DefaultClientConfigImpl
         this.dynamicProperties.clear();
         this.enableDynamicProperties = false;
     }

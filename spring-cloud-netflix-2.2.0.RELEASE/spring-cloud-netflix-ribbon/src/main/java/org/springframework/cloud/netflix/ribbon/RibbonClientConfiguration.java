@@ -98,10 +98,10 @@ public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使
 	@Bean
 	@ConditionalOnMissingBean // Spring容器中不存在该Bean时
 	public IClientConfig ribbonClientConfig() { // 创建客户端负载均衡器配置接口IClientConfig实现类对象
-		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+		DefaultClientConfigImpl config = new DefaultClientConfigImpl(); // 初始化DefaultClientConfigImpl
 		config.loadProperties(this.name);
-		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT);
-		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT);
+		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT); // 重新设置连接超时时间（默认为1秒）
+		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT); // 重新设置读取超时时间（默认为1秒）
 		config.set(CommonClientConfigKey.GZipPayload, DEFAULT_GZIP_PAYLOAD);
 		return config;
 	}
