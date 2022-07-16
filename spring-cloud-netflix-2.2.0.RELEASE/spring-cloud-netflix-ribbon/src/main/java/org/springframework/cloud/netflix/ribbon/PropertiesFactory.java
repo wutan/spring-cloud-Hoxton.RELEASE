@@ -35,12 +35,12 @@ import static org.springframework.cloud.netflix.ribbon.SpringClientFactory.NAMES
 /**
  * @author Spencer Gibb
  */
-public class PropertiesFactory {
+public class PropertiesFactory { // Ribbon属性工厂
 
 	@Autowired
 	private Environment environment;
 
-	private Map<Class, String> classToProperty = new HashMap<>();
+	private Map<Class, String> classToProperty = new HashMap<>(); // 属性缓存，在构造函数中进行初始化设置
 
 	public PropertiesFactory() {
 		classToProperty.put(ILoadBalancer.class, "NFLoadBalancerClassName");
@@ -50,7 +50,7 @@ public class PropertiesFactory {
 		classToProperty.put(ServerListFilter.class, "NIWSServerListFilterClassName");
 	}
 
-	public boolean isSet(Class clazz, String name) {
+	public boolean isSet(Class clazz, String name) { // 判断应用中是否自定义属性
 		return StringUtils.hasText(getClassName(clazz, name));
 	}
 
@@ -58,7 +58,7 @@ public class PropertiesFactory {
 		if (this.classToProperty.containsKey(clazz)) {
 			String classNameProperty = this.classToProperty.get(clazz);
 			String className = environment
-					.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
+					.getProperty(name + "." + NAMESPACE + "." + classNameProperty); // 从Environment中获取自定义属性名为"服务名.ribbon.属性名"的属性值
 			return className;
 		}
 		return null;

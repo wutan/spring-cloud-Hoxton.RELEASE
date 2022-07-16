@@ -34,15 +34,15 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 	public void registerBeanDefinitions(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) {
 		Map<String, Object> attrs = metadata
-				.getAnnotationAttributes(RibbonClients.class.getName(), true);
-		if (attrs != null && attrs.containsKey("value")) {
+				.getAnnotationAttributes(RibbonClients.class.getName(), true); // 1.获取@RibbonClients注解中定义的相关信息
+		if (attrs != null && attrs.containsKey("value")) { // 获取@RibbonClients注解中定义的value信息（RibbonClient类的数组信息）
 			AnnotationAttributes[] clients = (AnnotationAttributes[]) attrs.get("value");
-			for (AnnotationAttributes client : clients) {
-				registerClientConfiguration(registry, getClientName(client),
+			for (AnnotationAttributes client : clients) { // 遍历RibbonClient
+				registerClientConfiguration(registry, getClientName(client), // 1.1注册RibbonClient配置信息
 						client.get("configuration"));
 			}
 		}
-		if (attrs != null && attrs.containsKey("defaultConfiguration")) {
+		if (attrs != null && attrs.containsKey("defaultConfiguration")) { // 1.2获取@RibbonClients注解中定义的defaultConfiguration信息（RibbonClient的默认配置）
 			String name;
 			if (metadata.hasEnclosingClass()) {
 				name = "default." + metadata.getEnclosingClassName();
@@ -50,18 +50,18 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			else {
 				name = "default." + metadata.getClassName();
 			}
-			registerClientConfiguration(registry, name,
+			registerClientConfiguration(registry, name, // 注册RibbonClient的默认配置信息
 					attrs.get("defaultConfiguration"));
 		}
 		Map<String, Object> client = metadata
-				.getAnnotationAttributes(RibbonClient.class.getName(), true);
+				.getAnnotationAttributes(RibbonClient.class.getName(), true); // 2.获取@RibbonClient注解中定义的相关信息
 		String name = getClientName(client);
 		if (name != null) {
-			registerClientConfiguration(registry, name, client.get("configuration"));
+			registerClientConfiguration(registry, name, client.get("configuration")); // 注册RibbonClient配置信息
 		}
 	}
 
-	private String getClientName(Map<String, Object> client) {
+	private String getClientName(Map<String, Object> client) { // 获取@RibbonClient注解对应的name信息
 		if (client == null) {
 			return null;
 		}

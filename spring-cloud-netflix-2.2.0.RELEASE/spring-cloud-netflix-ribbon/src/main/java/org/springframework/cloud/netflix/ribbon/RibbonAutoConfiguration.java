@@ -61,14 +61,14 @@ import org.springframework.web.client.RestTemplate;
 @RibbonClients
 @AutoConfigureAfter(
 		name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
-@AutoConfigureBefore({ LoadBalancerAutoConfiguration.class,
-		AsyncLoadBalancerAutoConfiguration.class }) // RibbonAutoConfiguration会在LoadBalancerAutoConfiguration之前加载
+@AutoConfigureBefore({ LoadBalancerAutoConfiguration.class, // RibbonAutoConfiguration会在LoadBalancerAutoConfiguration之前加载
+		AsyncLoadBalancerAutoConfiguration.class })
 @EnableConfigurationProperties({ RibbonEagerLoadProperties.class,
 		ServerIntrospectorProperties.class })
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
-	private List<RibbonClientSpecification> configurations = new ArrayList<>();
+	private List<RibbonClientSpecification> configurations = new ArrayList<>(); // 收集Ribbon子容器私有规范/配置
 
 	@Autowired
 	private RibbonEagerLoadProperties ribbonEagerLoadProperties; // Ribbon饥饿加载配置
@@ -79,9 +79,9 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
-	public SpringClientFactory springClientFactory() { // 创建SpringClientFactory并设置RibbonClientSpecification
-		SpringClientFactory factory = new SpringClientFactory();
-		factory.setConfigurations(this.configurations);
+	public SpringClientFactory springClientFactory() {
+		SpringClientFactory factory = new SpringClientFactory(); // 创建SpringClientFactory并设置RibbonClientSpecification，即创建Ribbon子容器工厂并设置Ribbon子容器私有规范/配置
+		factory.setConfigurations(this.configurations); // 将RibbonClientSpecification集合设置到SpringClientFactory中
 		return factory;
 	}
 
@@ -102,7 +102,7 @@ public class RibbonAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public PropertiesFactory propertiesFactory() {
-		return new PropertiesFactory();
+		return new PropertiesFactory(); // 创建PropertiesFactory
 	}
 
 	@Bean

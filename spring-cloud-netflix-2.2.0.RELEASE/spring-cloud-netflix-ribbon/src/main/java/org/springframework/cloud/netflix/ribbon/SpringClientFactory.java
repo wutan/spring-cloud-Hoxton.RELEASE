@@ -35,11 +35,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @author Spencer Gibb
  * @author Dave Syer
  */
-public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecification> {
+public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecification> { // Ribbon子容器工厂
 
 	static final String NAMESPACE = "ribbon";
 
-	public SpringClientFactory() { // 在RibbonAutoConfiguration中进行调用
+	public SpringClientFactory() { // 在RibbonAutoConfiguration中进行自动注入
 		super(RibbonClientConfiguration.class, NAMESPACE, "ribbon.client.name"); // 调用父类构造函数
 	}
 
@@ -118,7 +118,7 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	@Override
 	public <C> C getInstance(String name, Class<C> type) {
-		C instance = super.getInstance(name, type); // 从ApplicationContext中获取Bean对象
+		C instance = super.getInstance(name, type); // 从子容器中获取Bean对象
 		if (instance != null) {
 			return instance;
 		}

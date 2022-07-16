@@ -69,24 +69,24 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
 // https://github.com/spring-cloud/spring-cloud-netflix/issues/2086#issuecomment-316281653
 @Import({ HttpClientConfiguration.class, OkHttpRibbonConfiguration.class,
 		RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class })
-public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使用时才会加载，各服务提供者相互独立）
+public class RibbonClientConfiguration { // Ribbon的客户端默认配置类（在使用时才会加载，各服务提供者相互独立）
 
 	/**
 	 * Ribbon client default connect timeout.
 	 */
-	public static final int DEFAULT_CONNECT_TIMEOUT = 1000;
+	public static final int DEFAULT_CONNECT_TIMEOUT = 1000; // Ribbon客户端的默认连接超时时间
 
 	/**
 	 * Ribbon client default read timeout.
 	 */
-	public static final int DEFAULT_READ_TIMEOUT = 1000;
+	public static final int DEFAULT_READ_TIMEOUT = 1000; // Ribbon客户端的默认读取超时时间
 
 	/**
 	 * Ribbon client default Gzip Payload flag.
 	 */
 	public static final boolean DEFAULT_GZIP_PAYLOAD = true;
 
-	@RibbonClientName
+	@RibbonClientName // 通过@Value("${ribbon.client.name}")从Environment环境中获取子容器服务名
 	private String name = "client";
 
 	// TODO: maybe re-instate autowired load balancers: identified by name they could be
@@ -98,8 +98,8 @@ public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使
 	@Bean
 	@ConditionalOnMissingBean // Spring容器中不存在该Bean时
 	public IClientConfig ribbonClientConfig() { // 创建客户端负载均衡器配置接口IClientConfig实现类对象
-		DefaultClientConfigImpl config = new DefaultClientConfigImpl(); // 初始化DefaultClientConfigImpl
-		config.loadProperties(this.name);
+		DefaultClientConfigImpl config = new DefaultClientConfigImpl(); // 初始化DefaultClientConfigImpl（Ribbon客户端默认配置实现类）
+		config.loadProperties(this.name); // 加载对应服务名的Ribbon客户端属性配置
 		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT); // 重新设置连接超时时间（默认为1秒）
 		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT); // 重新设置读取超时时间（默认为1秒）
 		config.set(CommonClientConfigKey.GZipPayload, DEFAULT_GZIP_PAYLOAD);
@@ -148,12 +148,12 @@ public class RibbonClientConfiguration { // Ribbon的客户端配置类（在使
 	@ConditionalOnMissingBean
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
 			ServerList<Server> serverList, ServerListFilter<Server> serverListFilter,
-			IRule rule, IPing ping, ServerListUpdater serverListUpdater) { // 默认创建负载均衡器实现类对象ZoneAwareLoadBalancer
+			IRule rule, IPing ping, ServerListUpdater serverListUpdater) {
 		if (this.propertiesFactory.isSet(ILoadBalancer.class, name)) {
 			return this.propertiesFactory.get(ILoadBalancer.class, config, name);
 		}
-		return new ZoneAwareLoadBalancer<>(config, rule, ping, serverList,
-				serverListFilter, serverListUpdater); // 负载均衡器包含了客户端负载均衡器配置、负载均衡策略、负载均衡探活策略、服务列表、服务列表更新策略
+		return new ZoneAwareLoadBalancer<>(config, rule, ping, serverList, // 创建负载均衡器实现类对象ZoneAwareLoadBalancer（负载均衡器包含了客户端负载均衡器配置、负载均衡策略、负载均衡探活策略、服务列表、服务列表更新策略）
+				serverListFilter, serverListUpdater);
 	}
 
 	@Bean

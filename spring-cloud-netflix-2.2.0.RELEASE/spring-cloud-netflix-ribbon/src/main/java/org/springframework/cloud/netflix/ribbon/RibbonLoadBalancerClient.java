@@ -40,11 +40,11 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
  * @author Ryan Baxter
  * @author Tim Ysewyn
  */
-public class RibbonLoadBalancerClient implements LoadBalancerClient {
+public class RibbonLoadBalancerClient implements LoadBalancerClient { // Ribbon的默认负载均衡客户端
 
-	private SpringClientFactory clientFactory;
+	private SpringClientFactory clientFactory; // Ribbon子容器工厂
 
-	public RibbonLoadBalancerClient(SpringClientFactory clientFactory) {
+	public RibbonLoadBalancerClient(SpringClientFactory clientFactory) { // 初始化RibbonLoadBalancerClient，并注入Ribbon子容器工厂
 		this.clientFactory = clientFactory;
 	}
 
@@ -74,7 +74,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	@Override
-	public ServiceInstance choose(String serviceId) {
+	public ServiceInstance choose(String serviceId) { // 根据服务Id通过负载均衡获取一个服务实例
 		return choose(serviceId, null);
 	}
 
@@ -94,7 +94,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	@Override
-	public <T> T execute(String serviceId, LoadBalancerRequest<T> request)
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) // 从负载均衡器中选择一个服务并执行
 			throws IOException {
 		return execute(serviceId, request, null);
 	}
@@ -113,12 +113,12 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	 */
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
 			throws IOException {
-		ILoadBalancer loadBalancer = getLoadBalancer(serviceId); // 根据服务名获取负载均衡器，其负载均衡器在RibbonClientConfiguration中进行了创建，默认延迟加载
+		ILoadBalancer loadBalancer = getLoadBalancer(serviceId); // 根据服务名从Ribbon子容器中获取负载均衡器（其负载均衡器在RibbonClientConfiguration中进行了创建，默认延迟加载）
 		Server server = getServer(loadBalancer, hint); // 根据负载均衡器选择Server服务（默认采用轮询算法）
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
 		}
-		RibbonServer ribbonServer = new RibbonServer(serviceId, server,
+		RibbonServer ribbonServer = new RibbonServer(serviceId, server, // 封装成服务实例
 				isSecure(server, serviceId),
 				serverIntrospector(serviceId).getMetadata(server));
 
