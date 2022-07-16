@@ -80,7 +80,7 @@ You should use {@link #getClientConfigWithDefaultValues(String, String)} - in th
  * @author awang
  *
  */
-public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默认IClientConfig实现类
+public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默认客户端配置实现类
 
     public static final Boolean DEFAULT_PRIORITIZE_VIP_ADDRESS_BASED_SERVERS = Boolean.TRUE;
 
@@ -386,7 +386,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
     	this.propertyNameSpace = nameSpace;
     }
 
-    public void loadDefaultValues() {
+    public void loadDefaultValues() { // 加载属性值
         putDefaultIntegerProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, getDefaultMaxHttpConnectionsPerHost());
         putDefaultIntegerProperty(CommonClientConfigKey.MaxTotalHttpConnections, getDefaultMaxTotalHttpConnections());
         putDefaultBooleanProperty(CommonClientConfigKey.EnableConnectionPool, getDefaultEnableConnectionPool());
@@ -506,7 +506,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
 	// Helper methods which first check if a "default" (with rest client name)
 	// property exists. If so, that value is used, else the default value
 	// passed as argument is used to put into the properties member variable
-    protected void putDefaultIntegerProperty(IClientConfigKey propName, Integer defaultValue) {
+    protected void putDefaultIntegerProperty(IClientConfigKey propName, Integer defaultValue) { // 设置属性值，先从Environment环境中获取，如果获取不到使用默认值
         Integer value = ConfigurationManager.getConfigInstance().getInteger(
                 getDefaultPropName(propName), defaultValue);
         setPropertyInternal(propName, value);
@@ -572,10 +572,10 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
      * and any properties already defined with Archaius ConfigurationManager.
      */
     @Override
-	public void loadProperties(String restClientName){
+	public void loadProperties(String restClientName){ // 加载Ribbon客户端属性配置
         enableDynamicProperties = true;
-        setClientName(restClientName);
-        loadDefaultValues();
+        setClientName(restClientName); // 设置服务名
+        loadDefaultValues(); // 加载属性值
         Configuration props = ConfigurationManager.getConfigInstance().subset(restClientName);
         for (Iterator<String> keys = props.getKeys(); keys.hasNext(); ){
             String key = keys.next();

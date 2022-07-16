@@ -262,7 +262,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     	return config;
     }
     
-    private boolean canSkipPing() { // 判断是否跳过Ping操作（默认情况下会跳过）
+    private boolean canSkipPing() { // 判断是否跳过Ping操作（默认情况会跳过）
         if (ping == null
                 || ping.getClass().getName().equals(DummyPing.class.getName())) {
             // default ping, no need to set up timer

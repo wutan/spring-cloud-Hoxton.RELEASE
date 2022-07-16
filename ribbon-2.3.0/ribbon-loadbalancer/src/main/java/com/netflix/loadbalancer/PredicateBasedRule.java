@@ -33,7 +33,7 @@ public abstract class PredicateBasedRule extends ClientConfigEnabledRoundRobinRu
      * Method that provides an instance of {@link AbstractServerPredicate} to be used by this class.
      * 
      */
-    public abstract AbstractServerPredicate getPredicate();
+    public abstract AbstractServerPredicate getPredicate(); // 钩子方法（由子类实现）
         
     /**
      * Get a server by calling {@link AbstractServerPredicate#chooseRandomlyAfterFiltering(java.util.List, Object)}.
@@ -42,7 +42,7 @@ public abstract class PredicateBasedRule extends ClientConfigEnabledRoundRobinRu
     @Override
     public Server choose(Object key) {
         ILoadBalancer lb = getLoadBalancer();
-        Optional<Server> server = getPredicate().chooseRoundRobinAfterFiltering(lb.getAllServers(), key);
+        Optional<Server> server = getPredicate().chooseRoundRobinAfterFiltering(lb.getAllServers(), key); // 根据过滤规则再进行轮询算法挑选服务
         if (server.isPresent()) {
             return server.get();
         } else {
