@@ -33,12 +33,12 @@ import org.springframework.util.Assert;
  */
 public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor { // LoadBalancer拦截器
 
-	private LoadBalancerClient loadBalancer;
+	private LoadBalancerClient loadBalancer; // LoadBalancer客户端（LoadBalancer拦截器会委托给LoadBalancer客户端进行处理）
 
 	private LoadBalancerRequestFactory requestFactory;
 
-	public LoadBalancerInterceptor(LoadBalancerClient loadBalancer,
-			LoadBalancerRequestFactory requestFactory) { // 构造方法注入
+	public LoadBalancerInterceptor(LoadBalancerClient loadBalancer, // 初始化拦截器LoadBalancerInterceptor（构造方法注入LoadBalancerClient、LoadBalancerRequestFactory）
+			LoadBalancerRequestFactory requestFactory) {
 		this.loadBalancer = loadBalancer;
 		this.requestFactory = requestFactory;
 	}
@@ -49,7 +49,7 @@ public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor { /
 	}
 
 	@Override
-	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, // 拦截请求，在InterceptingClientHttpRequest.InterceptingRequestExecution.execute方法中会被调用到
+	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, // 拦截请求，在InterceptingClientHttpRequest.InterceptingRequestExecution#execute方法中会被调用到
 			final ClientHttpRequestExecution execution) throws IOException {
 		final URI originalUri = request.getURI(); // 获取访问地址
 		String serviceName = originalUri.getHost(); // 获取访问地址的服务名

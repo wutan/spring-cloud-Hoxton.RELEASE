@@ -50,7 +50,7 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 
 	@LoadBalanced // @LoadBalanced注解
 	@Autowired(required = false)
-	private List<RestTemplate> restTemplates = Collections.emptyList(); // 注入修饰了@LoadBalanced(@Qualifier标记)的RestTemplate
+	private List<RestTemplate> restTemplates = Collections.emptyList(); // 收集修饰了@LoadBalanced(@Qualifier标记)的RestTemplate
 
 	@Autowired(required = false)
 	private List<LoadBalancerRequestTransformer> transformers = Collections.emptyList();
@@ -69,9 +69,9 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 
 	@Bean
 	@ConditionalOnMissingBean
-	public LoadBalancerRequestFactory loadBalancerRequestFactory( // 0.初始化LoadBalancerRequestFactory
+	public LoadBalancerRequestFactory loadBalancerRequestFactory(
 			LoadBalancerClient loadBalancerClient) {
-		return new LoadBalancerRequestFactory(loadBalancerClient, this.transformers);
+		return new LoadBalancerRequestFactory(loadBalancerClient, this.transformers); // 0.创建LoadBalancerRequestFactory
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -79,10 +79,10 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 	static class LoadBalancerInterceptorConfig {
 
 		@Bean
-		public LoadBalancerInterceptor ribbonInterceptor( // 1.初始化拦截器LoadBalancerInterceptor
+		public LoadBalancerInterceptor ribbonInterceptor(
 				LoadBalancerClient loadBalancerClient,
 				LoadBalancerRequestFactory requestFactory) {
-			return new LoadBalancerInterceptor(loadBalancerClient, requestFactory);
+			return new LoadBalancerInterceptor(loadBalancerClient, requestFactory); // 1.创建拦截器LoadBalancerInterceptor
 		}
 
 		@Bean
@@ -92,8 +92,8 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 			return restTemplate -> { // 函数式接口
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(
 						restTemplate.getInterceptors()); // 获取默认的拦截器链
-				list.add(loadBalancerInterceptor); // 添加到拦截器链中
-				restTemplate.setInterceptors(list); // 将拦截器链设置到RestTemplate中（RestTemplate继承自InterceptingHttpAccessor）
+				list.add(loadBalancerInterceptor); // 添加Spring容器中的拦截器
+				restTemplate.setInterceptors(list); // 将拦截器列表设置到RestTemplate中（RestTemplate继承自InterceptingHttpAccessor）
 			};
 		}
 
