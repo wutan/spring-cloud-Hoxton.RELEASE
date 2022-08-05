@@ -57,7 +57,7 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 
 	private Map<String, C> configurations = new ConcurrentHashMap<>(); // 子容器私有规范/配置实例缓存（转为了Map结构）
 
-	private ApplicationContext parent; // 父容器
+	private ApplicationContext parent; // 父容器，父容器为当前应用容器
 
 	private Class<?> defaultConfigType; // 子容器默认配置类（创建子容器时，子容器默认配置类一定会被加载）
 
@@ -125,7 +125,7 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 		context.getEnvironment().getPropertySources().addFirst(new MapPropertySource(
 				this.propertySourceName,
 				Collections.<String, Object>singletonMap(this.propertyName, name))); // 在子容器中添加PropertySources（子容器名的属性key、子容器名的属性value）
-		if (this.parent != null) { // 父容器存在时
+		if (this.parent != null) { // 父容器存在时，父容器为当前应用容器
 			// Uses Environment from parent as well as beans
 			context.setParent(this.parent); // 设置父容器，当在子容器找不到时，会从父容器寻找
 			// jdk11 issue
