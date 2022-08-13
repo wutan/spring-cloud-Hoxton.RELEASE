@@ -268,8 +268,8 @@ public class LoadBalancerCommand<T> {
             }
         }
 
-        final int maxRetrysSame = retryHandler.getMaxRetriesOnSameServer();
-        final int maxRetrysNext = retryHandler.getMaxRetriesOnNextServer();
+        final int maxRetrysSame = retryHandler.getMaxRetriesOnSameServer(); // 同一实例的重试次数，默认为0
+        final int maxRetrysNext = retryHandler.getMaxRetriesOnNextServer(); // 同一服务不同实例的重试次数，默认为1
 
         // Use the load balancer
         Observable<T> o = 
