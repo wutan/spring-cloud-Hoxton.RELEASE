@@ -34,7 +34,7 @@ import java.util.List;
  * 
  * @author awang
  */
-public class DefaultLoadBalancerRetryHandler implements RetryHandler {
+public class DefaultLoadBalancerRetryHandler implements RetryHandler { // 默认重试策略
 
     @SuppressWarnings("unchecked")
     private List<Class<? extends Throwable>> retriable = 
@@ -44,9 +44,9 @@ public class DefaultLoadBalancerRetryHandler implements RetryHandler {
     private List<Class<? extends Throwable>> circuitRelated = 
             Lists.<Class<? extends Throwable>>newArrayList(SocketException.class, SocketTimeoutException.class);
 
-    protected final int retrySameServer;
-    protected final int retryNextServer;
-    protected final boolean retryEnabled;
+    protected final int retrySameServer; // 同一实例的重试次数，默认为0
+    protected final int retryNextServer; // 同一服务不同实例的重试次数，默认为1
+    protected final boolean retryEnabled; // 是否对所有操作重试，默认为false
 
     public DefaultLoadBalancerRetryHandler() {
         this.retrySameServer = 0;
@@ -60,10 +60,10 @@ public class DefaultLoadBalancerRetryHandler implements RetryHandler {
         this.retryEnabled = retryEnabled;
     }
     
-    public DefaultLoadBalancerRetryHandler(IClientConfig clientConfig) {
-        this.retrySameServer = clientConfig.get(CommonClientConfigKey.MaxAutoRetries, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES);
-        this.retryNextServer = clientConfig.get(CommonClientConfigKey.MaxAutoRetriesNextServer, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES_NEXT_SERVER);
-        this.retryEnabled = clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations, false);
+    public DefaultLoadBalancerRetryHandler(IClientConfig clientConfig) { // 实例化默认重试策略，最大重试次数=(1+maxAutoRetries)*(1+maxAutoRetriesNextServer)
+        this.retrySameServer = clientConfig.get(CommonClientConfigKey.MaxAutoRetries, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES); // 同一实例的重试次数，默认为0
+        this.retryNextServer = clientConfig.get(CommonClientConfigKey.MaxAutoRetriesNextServer, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES_NEXT_SERVER); // 同一服务不同实例的重试次数，默认为1
+        this.retryEnabled = clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations, false); // 是否对所有操作重试，默认为false
     }
     
     @Override
