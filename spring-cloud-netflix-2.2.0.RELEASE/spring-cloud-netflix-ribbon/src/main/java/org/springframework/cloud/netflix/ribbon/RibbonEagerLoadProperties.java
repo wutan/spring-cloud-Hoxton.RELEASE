@@ -27,11 +27,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Biju Kunjummen
  */
 @ConfigurationProperties(prefix = "ribbon.eager-load")
-public class RibbonEagerLoadProperties {
+public class RibbonEagerLoadProperties { // Ribbon饥饿加载配置
 
 	private boolean enabled = false;
 
-	private List<String> clients;
+	private List<String> clients; // 要饥饿加载的Ribbon客户端列表
 
 	public boolean isEnabled() {
 		return enabled;

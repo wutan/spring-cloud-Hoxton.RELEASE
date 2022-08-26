@@ -96,7 +96,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient { // Ribbon�
 	@Override
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) // 从负载均衡器中选择一个服务并执行
 			throws IOException {
-		return execute(serviceId, request, null);
+		return execute(serviceId, request, null); // 从负载均衡器中选择一个服务并执行
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient { // Ribbon�
 	 * @return request execution result
 	 * @throws IOException executing the request may result in an {@link IOException}
 	 */
-	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint) // 从负载均衡器中选择一个服务并执行
 			throws IOException {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId); // 根据服务名从Ribbon子容器中获取负载均衡器（其负载均衡器在RibbonClientConfiguration中进行了创建，默认延迟加载）
 		Server server = getServer(loadBalancer, hint); // 根据负载均衡器选择Server服务（默认采用轮询算法）

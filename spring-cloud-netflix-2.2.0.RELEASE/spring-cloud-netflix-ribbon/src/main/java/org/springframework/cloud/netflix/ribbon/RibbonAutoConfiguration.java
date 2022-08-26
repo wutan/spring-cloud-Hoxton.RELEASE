@@ -102,14 +102,14 @@ public class RibbonAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public PropertiesFactory propertiesFactory() {
-		return new PropertiesFactory(); // 创建PropertiesFactory
+		return new PropertiesFactory(); // 创建PropertiesFactory - Ribbon属性工厂，通过配置方式指定RibbonClientConfiguration的相关Bean
 	}
 
 	@Bean
-	@ConditionalOnProperty("ribbon.eager-load.enabled") // 当有ribbon.eager-load.enabled属性是才初始化
+	@ConditionalOnProperty("ribbon.eager-load.enabled") // 当有ribbon.eager-load.enabled属性时才初始化
 	public RibbonApplicationContextInitializer ribbonApplicationContextInitializer() {
-		return new RibbonApplicationContextInitializer(springClientFactory(),
-				ribbonEagerLoadProperties.getClients()); // 要饥饿加载的客户端列表
+		return new RibbonApplicationContextInitializer(springClientFactory(), // 创建RibbonApplicationContextInitializer，传入Ribbon子容器工厂及要饥饿加载的客户端列表
+				ribbonEagerLoadProperties.getClients());
 	}
 
 	@Configuration(proxyBeanMethods = false)

@@ -50,7 +50,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			else {
 				name = "default." + metadata.getClassName();
 			}
-			registerClientConfiguration(registry, name, // 注册RibbonClient的默认配置信息
+			registerClientConfiguration(registry, name, // 注册RibbonClient的默认配置信息（默认情况下会注册一个空集合的默认配置）
 					attrs.get("defaultConfiguration"));
 		}
 		Map<String, Object> client = metadata

@@ -93,7 +93,7 @@ public class RibbonClientConfiguration { // Ribbon的客户端默认配置类（
 	// associated with ribbon clients
 
 	@Autowired
-	private PropertiesFactory propertiesFactory;
+	private PropertiesFactory propertiesFactory; // Ribbon属性工厂，通过配置方式指定RibbonClientConfiguration的相关Bean
 
 	@Bean
 	@ConditionalOnMissingBean // Spring容器中不存在该Bean时

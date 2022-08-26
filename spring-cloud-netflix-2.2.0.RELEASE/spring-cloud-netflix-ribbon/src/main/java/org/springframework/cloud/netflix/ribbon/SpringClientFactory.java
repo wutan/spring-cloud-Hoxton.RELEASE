@@ -127,8 +127,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	}
 
 	@Override
-	protected AnnotationConfigApplicationContext getContext(String name) {
-		return super.getContext(name);
+	protected AnnotationConfigApplicationContext getContext(String name) { // 从缓存中获取子容器（子容器不存在时进行创建）
+		return super.getContext(name); // 从缓存中获取子容器（子容器不存在时进行创建）
 	}
 
 }
