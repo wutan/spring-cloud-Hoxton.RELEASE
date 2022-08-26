@@ -32,7 +32,7 @@ import org.springframework.http.client.ClientHttpResponse;
  */
 public class LoadBalancerRequestFactory {
 
-	private LoadBalancerClient loadBalancer;
+	private LoadBalancerClient loadBalancer; // 默认为RibbonLoadBalancerClient
 
 	private List<LoadBalancerRequestTransformer> transformers;
 
@@ -46,7 +46,7 @@ public class LoadBalancerRequestFactory {
 		this.loadBalancer = loadBalancer;
 	}
 
-	public LoadBalancerRequest<ClientHttpResponse> createRequest(
+	public LoadBalancerRequest<ClientHttpResponse> createRequest( // 构建LoadBalancerRequest
 			final HttpRequest request, final byte[] body,
 			final ClientHttpRequestExecution execution) {
 		return instance -> {

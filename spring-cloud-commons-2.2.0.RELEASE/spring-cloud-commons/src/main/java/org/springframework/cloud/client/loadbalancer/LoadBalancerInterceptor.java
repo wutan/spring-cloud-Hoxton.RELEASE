@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  */
 public class LoadBalancerInterceptor implements ClientHttpRequestInterceptor { // LoadBalancer拦截器
 
-	private LoadBalancerClient loadBalancer; // LoadBalancer客户端（LoadBalancer拦截器会委托给LoadBalancer客户端进行处理）
+	private LoadBalancerClient loadBalancer; // LoadBalancer客户端，默认为RibbonLoadBalancerClient（LoadBalancer拦截器会委托给LoadBalancer客户端进行处理）
 
 	private LoadBalancerRequestFactory requestFactory;
 
