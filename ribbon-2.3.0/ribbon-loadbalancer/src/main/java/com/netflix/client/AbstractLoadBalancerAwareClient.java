@@ -94,11 +94,11 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
         LoadBalancerCommand<T> command = buildLoadBalancerCommand(request, requestConfig); // 构建LoadBalancerCommand对象
 
         try {
-            return command.submit( // 执行submit方法
+            return command.submit( // 执行submit方法，调用Ribbon获取服务实例
                 new ServerOperation<T>() {
                     @Override
                     public Observable<T> call(Server server) {
-                        URI finalUri = reconstructURIWithServer(server, request.getUri()); // 根据请求的服务及负载均衡请求地址获取真实的请求地址（子类FeignLoadBalancer进行了重写）
+                        URI finalUri = reconstructURIWithServer(server, request.getUri()); // 根据服务实例及负载均衡请求地址获取真实的请求地址（子类FeignLoadBalancer进行了重写）
                         S requestForServer = (S) request.replaceUri(finalUri);
                         try {
                             return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig)); // 最终发起请求，由子类实现
@@ -124,10 +124,10 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
     public abstract RequestSpecificRetryHandler getRequestSpecificRetryHandler(S request, IClientConfig requestConfig);
 
     protected LoadBalancerCommand<T> buildLoadBalancerCommand(final S request, final IClientConfig config) { // 构建LoadBalancerCommand对象
-		RequestSpecificRetryHandler handler = getRequestSpecificRetryHandler(request, config);
+		RequestSpecificRetryHandler handler = getRequestSpecificRetryHandler(request, config); // 获取重试处理器
 		LoadBalancerCommand.Builder<T> builder = LoadBalancerCommand.<T>builder() // 构建LoadBalancerCommand对象
-				.withLoadBalancerContext(this)
-				.withRetryHandler(handler)
+				.withLoadBalancerContext(this) // 将当前类FeignLoadBalancer赋值给loadBalancerContext属性
+				.withRetryHandler(handler) // 设置重试处理器
 				.withLoadBalancerURI(request.getUri());
 		customizeLoadBalancerCommandBuilder(request, config, builder);
 		return builder.build();

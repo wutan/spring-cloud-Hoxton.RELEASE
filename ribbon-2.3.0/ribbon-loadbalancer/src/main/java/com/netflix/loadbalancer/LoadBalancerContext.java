@@ -459,7 +459,7 @@ public class LoadBalancerContext implements IClientConfigAware {
      *
      * @param original Original URI passed from caller
      */
-    public Server getServerFromLoadBalancer(@Nullable URI original, @Nullable Object loadBalancerKey) throws ClientException {
+    public Server getServerFromLoadBalancer(@Nullable URI original, @Nullable Object loadBalancerKey) throws ClientException { // 根据负载均衡器额获取服务
         String host = null;
         int port = -1;
         if (original != null) {
