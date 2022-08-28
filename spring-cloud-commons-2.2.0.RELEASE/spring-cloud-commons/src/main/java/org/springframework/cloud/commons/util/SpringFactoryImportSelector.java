@@ -48,22 +48,22 @@ public abstract class SpringFactoryImportSelector<T>
 
 	private ClassLoader beanClassLoader;
 
-	private Class<T> annotationClass;
+	private Class<T> annotationClass; // 指定泛型的注解类
 
 	private Environment environment;
 
 	@SuppressWarnings("unchecked")
 	protected SpringFactoryImportSelector() {
-		this.annotationClass = (Class<T>) GenericTypeResolver
+		this.annotationClass = (Class<T>) GenericTypeResolver // 获取指定泛型的注解类
 				.resolveTypeArgument(this.getClass(), SpringFactoryImportSelector.class);
 	}
 
 	@Override
 	public String[] selectImports(AnnotationMetadata metadata) {
-		if (!isEnabled()) {
+		if (!isEnabled()) { // 判断是否需要导入（钩子方法，需要子类实现）
 			return new String[0];
 		}
-		AnnotationAttributes attributes = AnnotationAttributes.fromMap(
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap( // 获取注解元信息
 				metadata.getAnnotationAttributes(this.annotationClass.getName(), true));
 
 		Assert.notNull(attributes, "No " + getSimpleName() + " attributes found. Is "

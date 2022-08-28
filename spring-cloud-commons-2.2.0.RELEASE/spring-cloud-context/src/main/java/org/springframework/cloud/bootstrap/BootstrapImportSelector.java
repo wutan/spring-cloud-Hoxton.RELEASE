@@ -62,7 +62,7 @@ public class BootstrapImportSelector implements EnvironmentAware, DeferredImport
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		// Use names and ensure unique to protect against duplicates
 		List<String> names = new ArrayList<>(SpringFactoriesLoader
-				.loadFactoryNames(BootstrapConfiguration.class, classLoader));
+				.loadFactoryNames(BootstrapConfiguration.class, classLoader)); // 通过工厂加载机制获取@BootstrapConfiguration注解对应的工厂类
 		names.addAll(Arrays.asList(StringUtils.commaDelimitedListToStringArray(
 				this.environment.getProperty("spring.cloud.bootstrap.sources", ""))));
 

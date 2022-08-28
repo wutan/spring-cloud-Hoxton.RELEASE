@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Import;
  * @author Spencer Gibb
  */
 @Configuration(proxyBeanMethods = false)
-@Import(BootstrapImportSelector.class)
-public class BootstrapImportSelectorConfiguration {
+@Import(BootstrapImportSelector.class) // 导入BootstrapImportSelector
+public class BootstrapImportSelectorConfiguration { // Bootstrap应用上下文的ConfigBean
 
 }
