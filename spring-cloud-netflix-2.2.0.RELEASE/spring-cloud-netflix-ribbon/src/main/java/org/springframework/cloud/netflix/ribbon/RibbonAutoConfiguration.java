@@ -68,7 +68,7 @@ import org.springframework.web.client.RestTemplate;
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
-	private List<RibbonClientSpecification> configurations = new ArrayList<>(); // 收集Ribbon子容器私有规范/配置
+	private List<RibbonClientSpecification> configurations = new ArrayList<>(); // 收集Ribbon子容器私有规范/配置（默认情况下会有一个由当前类修饰的@RibbonClients生成的空实例）
 
 	@Autowired
 	private RibbonEagerLoadProperties ribbonEagerLoadProperties; // Ribbon饥饿加载配置
@@ -88,11 +88,11 @@ public class RibbonAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
 	public LoadBalancerClient loadBalancerClient() {
-		return new RibbonLoadBalancerClient(springClientFactory()); // 创建LoadBalancerClient接口实例，用于委托调用
+		return new RibbonLoadBalancerClient(springClientFactory()); // 传入Ribbon子容器工厂，创建LoadBalancerClient接口实例，用于委托调用
 	}
 
 	@Bean
-	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
+	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate") // 需要引入spring-retry依赖
 	@ConditionalOnMissingBean
 	public LoadBalancedRetryFactory loadBalancedRetryPolicyFactory(
 			final SpringClientFactory clientFactory) {
