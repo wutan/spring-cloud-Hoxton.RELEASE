@@ -47,7 +47,7 @@ import feign.Request.Options;
 /**
  * Submits HTTP {@link Request requests}. Implementations are expected to be thread-safe.
  */
-public interface Client {
+public interface Client { // Feign的Client接口类
 
   /**
    * Executes a request against its {@link Request#url() url} and returns a response.
@@ -57,9 +57,9 @@ public interface Client {
    * @return connected response, {@link Response.Body} is absent or unread.
    * @throws IOException on a network error connecting to {@link Request#url()}.
    */
-  Response execute(Request request, Options options) throws IOException;
+  Response execute(Request request, Options options) throws IOException; // 执行Feign的请求
 
-  class Default implements Client {
+  class Default implements Client { // Feign中默认的Client实现
 
     private final SSLSocketFactory sslContextFactory;
     private final HostnameVerifier hostnameVerifier;
@@ -67,7 +67,7 @@ public interface Client {
     /**
      * Null parameters imply platform defaults.
      */
-    public Default(SSLSocketFactory sslContextFactory, HostnameVerifier hostnameVerifier) {
+    public Default(SSLSocketFactory sslContextFactory, HostnameVerifier hostnameVerifier) { // 初始化Default（Feign的默认Client）
       this.sslContextFactory = sslContextFactory;
       this.hostnameVerifier = hostnameVerifier;
     }
@@ -193,7 +193,7 @@ public interface Client {
   /**
    * Client that supports a {@link java.net.Proxy}.
    */
-  class Proxied extends Default {
+  class Proxied extends Default { // Feign中默认支持代理的Client实现
 
     public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
     private final Proxy proxy;

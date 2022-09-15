@@ -236,7 +236,7 @@ public final class Request {
       this.followRedirects = followRedirects;
     }
 
-    public Options(int connectTimeoutMillis, int readTimeoutMillis) { // 配置连接超时时间和读取超时时间，连接超时时间默认为10s、读取超时时间默认为60s，实际上默认会被覆盖
+    public Options(int connectTimeoutMillis, int readTimeoutMillis) { // 配置连接超时时间和读取超时时间，连接超时时间默认为10s、读取超时时间默认为60s，实际上默认在FeignLoadBalancer中会被覆盖
       this(connectTimeoutMillis, readTimeoutMillis, true);
     }
 

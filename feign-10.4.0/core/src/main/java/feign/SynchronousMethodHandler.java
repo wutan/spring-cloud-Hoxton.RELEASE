@@ -47,7 +47,7 @@ final class SynchronousMethodHandler implements MethodHandler {
   private final boolean closeAfterDecode;
   private final ExceptionPropagationPolicy propagationPolicy;
 
-  private SynchronousMethodHandler(Target<?> target, Client client, Retryer retryer,
+  private SynchronousMethodHandler(Target<?> target, Client client, Retryer retryer, // 创建SynchronousMethodHandler（在SynchronousMethodHandler.Factory#create中进行创建，入参属性的优先级：默认属性<上下文容器属性<全局配置属性<实例配置属性）
       List<RequestInterceptor> requestInterceptors, Logger logger,
       Logger.Level logLevel, MethodMetadata metadata,
       RequestTemplate.Factory buildTemplateFromArgs, Options options,
@@ -71,10 +71,10 @@ final class SynchronousMethodHandler implements MethodHandler {
   }
 
   @Override
-  public Object invoke(Object[] argv) throws Throwable {
+  public Object invoke(Object[] argv) throws Throwable { // 执行FeignClient具体的代理方法逻辑（在ReflectiveFeign.FeignInvocationHandler#invoke方法中进行调用）
     RequestTemplate template = buildTemplateFromArgs.create(argv); // 根据请求参数解析生成RequestTemplate用于请求，该对象是Feign的Http请求模版
-    Options options = findOptions(argv); // 根据参数生成Options对象
-    Retryer retryer = this.retryer.clone(); // 构建Retryer重试机制，Retryer不是线程安全的对象，所以每一次方法调用我们都需要借助于原型模式来生成一个新的对象
+    Options options = findOptions(argv); // 从请求参数获取Options超时设置（优先级：默认属性<上下文容器属性<全局配置属性<实例配置属性<方法属性）
+    Retryer retryer = this.retryer.clone(); // 构建Retryer重试机制，Retryer不是线程安全的对象，所以每一次方法调用我们都需要借助于原型模式来生成一个新的对象，默认对象为feign.Retryer.NEVER_RETRY
     while (true) {
       try {
         return executeAndDecode(template, options); // 先通过RequestTemplate生成Request请求对象，再调用Client对象发起请求获取response响应信息并进行解析
@@ -107,8 +107,8 @@ final class SynchronousMethodHandler implements MethodHandler {
     Response response;
     long start = System.nanoTime(); // 获取执行请求的开始时间
     try {
-      response = client.execute(request, options); // 调用Client对象发起请求，默认采用JDK的HttpURLConnection发起远程调用（Client可以是一个外部组件，如：okhttp3等）
-    } catch (IOException e) {
+      response = client.execute(request, options); // 调用Client对象发起请求，默认的负载均衡客户端为LoadBalancerFeignClient、默认的第三方客户端为feign.Client.Default
+    } catch (IOException e) { // 只抓IO异常
       if (logLevel != Logger.Level.NONE) {
         logger.logIOException(metadata.configKey(), logLevel, e, elapsedTime(start));
       }
@@ -183,8 +183,8 @@ final class SynchronousMethodHandler implements MethodHandler {
     }
   }
 
-  Options findOptions(Object[] argv) {
-    if (argv == null || argv.length == 0) {
+  Options findOptions(Object[] argv) { // 获取超时设置
+    if (argv == null || argv.length == 0) { // 当请求参数为空或不为Options类型时返回之前的超时设置（允许方法级别的覆盖超时设置）
       return this.options;
     }
     return (Options) Stream.of(argv)
@@ -204,7 +204,7 @@ final class SynchronousMethodHandler implements MethodHandler {
     private final boolean closeAfterDecode;
     private final ExceptionPropagationPolicy propagationPolicy;
 
-    Factory(Client client, Retryer retryer, List<RequestInterceptor> requestInterceptors,
+    Factory(Client client, Retryer retryer, List<RequestInterceptor> requestInterceptors, // 初始化SynchronousMethodHandler.Factory（在Builder#build中进行创建，入参属性的优先级：默认属性<上下文容器属性<全局配置属性<实例配置属性）
         Logger logger, Logger.Level logLevel, boolean decode404, boolean closeAfterDecode,
         ExceptionPropagationPolicy propagationPolicy) {
       this.client = checkNotNull(client, "client");
@@ -217,13 +217,13 @@ final class SynchronousMethodHandler implements MethodHandler {
       this.propagationPolicy = propagationPolicy;
     }
 
-    public MethodHandler create(Target<?> target,
+    public MethodHandler create(Target<?> target, // 创建MethodHandler实例（SynchronousMethodHandler）
                                 MethodMetadata md,
                                 RequestTemplate.Factory buildTemplateFromArgs,
                                 Options options,
                                 Decoder decoder,
                                 ErrorDecoder errorDecoder) {
-      return new SynchronousMethodHandler(target, client, retryer, requestInterceptors, logger,
+      return new SynchronousMethodHandler(target, client, retryer, requestInterceptors, logger, // 创建SynchronousMethodHandler
           logLevel, md, buildTemplateFromArgs, options, decoder,
           errorDecoder, decode404, closeAfterDecode, propagationPolicy);
     }

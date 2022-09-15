@@ -34,7 +34,7 @@ import static feign.ExceptionPropagationPolicy.NONE;
  */
 public abstract class Feign {
 
-  public static Builder builder() {
+  public static Builder builder() { // 创建Feign.Builder
     return new Builder();
   }
 
@@ -64,7 +64,7 @@ public abstract class Feign {
    * @param method invoked method, present on {@code type} or its super.
    * @see MethodMetadata#configKey()
    */
-  public static String configKey(Class targetType, Method method) {
+  public static String configKey(Class targetType, Method method) { // 获取configKey，格式为：简单类名#(入参简单类名, 入参简单类名)
     StringBuilder builder = new StringBuilder();
     builder.append(targetType.getSimpleName());
     builder.append('#').append(method.getName()).append('(');
@@ -90,24 +90,24 @@ public abstract class Feign {
    * Returns a new instance of an HTTP API, defined by annotations in the {@link Feign Contract},
    * for the specified {@code target}. You should cache this result.
    */
-  public abstract <T> T newInstance(Target<T> target);
+  public abstract <T> T newInstance(Target<T> target); // 生成代理对象，需要子类实现
 
   public static class Builder {
 
-    private final List<RequestInterceptor> requestInterceptors =
+    private final List<RequestInterceptor> requestInterceptors = // 拦截器（生成FeignClient的代理对象时会从子容器中获取并添加）
         new ArrayList<RequestInterceptor>();
     private Logger.Level logLevel = Logger.Level.NONE;
-    private Contract contract = new Contract.Default();
-    private Client client = new Client.Default(null, null);
-    private Retryer retryer = new Retryer.Default();
-    private Logger logger = new NoOpLogger();
-    private Encoder encoder = new Encoder.Default();
-    private Decoder decoder = new Decoder.Default();
+    private Contract contract = new Contract.Default(); // 锲约（生成FeignClient的代理对象时会从子容器中获取并赋值，默认为SpringMvcContract，当使用了服务降级且开启服务降级时为HystrixDelegatingContract）
+    private Client client = new Client.Default(null, null); // 负载均衡客户端或第三方客户端（生成FeignClient的代理对象时会从子容器中获取并赋值）
+    private Retryer retryer = new Retryer.Default(); // 重试机制（在Feign的默认配置类中默认会不重试）
+    private Logger logger = new NoOpLogger(); // 日志（生成FeignClient的代理对象时会从子容器中获取并赋值）
+    private Encoder encoder = new Encoder.Default(); // 编码器（生成FeignClient的代理对象时会从子容器中获取并赋值）
+    private Decoder decoder = new Decoder.Default(); // 解码器（生成FeignClient的代理对象时会从子容器中获取并赋值）
     private QueryMapEncoder queryMapEncoder = new QueryMapEncoder.Default();
     private ErrorDecoder errorDecoder = new ErrorDecoder.Default();
-    private Options options = new Options();
-    private InvocationHandlerFactory invocationHandlerFactory = // 初始化InvocationHandlerFactory，默认为InvocationHandlerFactory.Default，当使用了服务降级时为HystrixInvocationHandler
-        new InvocationHandlerFactory.Default();
+    private Options options = new Options(); // 超时设置（生成FeignClient的代理对象时会从子容器、全局属性配置、实例属性配置中获取并赋值）
+    private InvocationHandlerFactory invocationHandlerFactory =
+        new InvocationHandlerFactory.Default(); // 初始化InvocationHandlerFactory（默认为InvocationHandlerFactory.Default，当使用了服务降级且开启服务降级时为匿名内部类）
     private boolean decode404;
     private boolean closeAfterDecode = true;
     private ExceptionPropagationPolicy propagationPolicy = NONE;
@@ -247,16 +247,16 @@ public abstract class Feign {
       return target(new HardCodedTarget<T>(apiType, url));
     }
 
-    public <T> T target(Target<T> target) { // 不管@FeignCLient是否配置url，都会到这里统一生成代理对象
-      return build().newInstance(target); // 先生成Feign实例，再创建代理对象
+    public <T> T target(Target<T> target) { // 生成代理类（不管@FeignCLient是否配置url，都会到这里统一生成代理对象）
+      return build().newInstance(target); // 先构建出Feign对象实例--ReflectiveFeign，再创建代理对象
     }
 
-    public Feign build() { // 终会调用new ReflectiveFeign(...)来生成Feign实例
+    public Feign build() { // 构建Feign对象
       SynchronousMethodHandler.Factory synchronousMethodHandlerFactory =
-          new SynchronousMethodHandler.Factory(client, retryer, requestInterceptors, logger,
+          new SynchronousMethodHandler.Factory(client, retryer, requestInterceptors, logger, // 创建SynchronousMethodHandler.Factory
               logLevel, decode404, closeAfterDecode, propagationPolicy);
       ParseHandlersByName handlersByName =
-          new ParseHandlersByName(contract, options, encoder, decoder, queryMapEncoder,
+          new ParseHandlersByName(contract, options, encoder, decoder, queryMapEncoder, // 创建ParseHandlersByName
               errorDecoder, synchronousMethodHandlerFactory); // ParseHandlersByName将Target的所有接口方法转换为Map<String, MethodHandler>对象
       return new ReflectiveFeign(handlersByName, invocationHandlerFactory, queryMapEncoder); // 创建ReflectiveFeign
     }

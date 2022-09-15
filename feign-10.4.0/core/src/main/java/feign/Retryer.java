@@ -19,7 +19,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Cloned for each invocation to {@link Client#execute(Request, feign.Request.Options)}.
  * Implementations may keep state to determine if retry operations should continue or not.
  */
-public interface Retryer extends Cloneable {
+public interface Retryer extends Cloneable { // Feign的重试机制
 
   /**
    * if retry is permitted, return (possibly after sleeping). Otherwise propagate the exception.
@@ -28,11 +28,11 @@ public interface Retryer extends Cloneable {
 
   Retryer clone();
 
-  class Default implements Retryer {
+  class Default implements Retryer { // Feign的默认重试机制（默认最大重试5次，首次间隔100毫秒，最大间隔1秒）
 
-    private final int maxAttempts;
-    private final long period;
-    private final long maxPeriod;
+    private final int maxAttempts; // 最大重试次数（包含第一次）
+    private final long period; // 首次间隔时间
+    private final long maxPeriod; // 最大间隔时间
     int attempt;
     long sleptForMillis;
 
@@ -85,8 +85,8 @@ public interface Retryer extends Cloneable {
      *
      * @return time in nanoseconds from now until the next attempt.
      */
-    long nextMaxInterval() {
-      long interval = (long) (period * Math.pow(1.5, attempt - 1));
+    long nextMaxInterval() { // 重试间隔算法
+      long interval = (long) (period * Math.pow(1.5, attempt - 1)); // 第一次重试间隔period，第二次period*1.5，第三次period*1.5*1.5，…，最大值不超过maxPeriod
       return interval > maxPeriod ? maxPeriod : interval;
     }
 
@@ -99,7 +99,7 @@ public interface Retryer extends Cloneable {
   /**
    * Implementation that never retries request. It propagates the RetryableException.
    */
-  Retryer NEVER_RETRY = new Retryer() {
+  Retryer NEVER_RETRY = new Retryer() { // Feign的不重试机制
 
     @Override
     public void continueOrPropagate(RetryableException e) {

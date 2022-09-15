@@ -33,11 +33,11 @@ public interface InvocationHandlerFactory {
     Object invoke(Object[] argv) throws Throwable;
   }
 
-  static final class Default implements InvocationHandlerFactory {
+  static final class Default implements InvocationHandlerFactory { // Feign的默认InvocationHandler实现类
 
     @Override
-    public InvocationHandler create(Target target, Map<Method, MethodHandler> dispatch) {
-      return new ReflectiveFeign.FeignInvocationHandler(target, dispatch);
+    public InvocationHandler create(Target target, Map<Method, MethodHandler> dispatch) { // 创建FeignInvocationHandler
+      return new ReflectiveFeign.FeignInvocationHandler(target, dispatch); // 创建FeignInvocationHandler
     }
   }
 }

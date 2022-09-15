@@ -33,7 +33,7 @@ import rx.Observable;
 import rx.Single;
 import static feign.Util.checkNotNull;
 
-final class HystrixInvocationHandler implements InvocationHandler { // 当@FeignClient设置了fallback或fallbackFactory时的InvocationHandler实现类，当客户端发起请求时会进入到FeignInvocationHandler.invoke方法中
+final class HystrixInvocationHandler implements InvocationHandler { // 当@FeignClient设置了fallback或fallbackFactory且开启服务降级时的InvocationHandler实现类，当客户端发起请求时会进入到FeignInvocationHandler.invoke方法中
 
   private final Target<?> target;
   private final Map<Method, MethodHandler> dispatch;
