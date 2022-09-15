@@ -25,16 +25,16 @@ import org.springframework.cloud.context.named.NamedContextFactory;
  * @author Dave Syer
  * @author Gregor Zurowski
  */
-class FeignClientSpecification implements NamedContextFactory.Specification {
+class FeignClientSpecification implements NamedContextFactory.Specification { // OpenFiegn子容器私有规范/配置
 
-	private String name;
+	private String name; // 子容器名称
 
-	private Class<?>[] configuration;
+	private Class<?>[] configuration; // 子容器私有配置
 
 	FeignClientSpecification() {
 	}
 
-	FeignClientSpecification(String name, Class<?>[] configuration) {
+	FeignClientSpecification(String name, Class<?>[] configuration) { // 创建FeignClientSpecification（通过注册BeanDefinition来实现动态创建）
 		this.name = name;
 		this.configuration = configuration;
 	}

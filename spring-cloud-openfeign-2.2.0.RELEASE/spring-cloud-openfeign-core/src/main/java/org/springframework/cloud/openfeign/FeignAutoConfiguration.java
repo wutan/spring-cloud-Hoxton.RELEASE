@@ -73,7 +73,7 @@ public class FeignAutoConfiguration {
 
 	@Bean
 	public FeignContext feignContext() { // 初始化FeignContext
-		FeignContext context = new FeignContext();
+		FeignContext context = new FeignContext(); // 创建FeignContext并设置FeignClientSpecification
 		context.setConfigurations(this.configurations); // 将FeignClientSpecification集合设置到FeignContext中
 		return context;
 	}
@@ -85,7 +85,7 @@ public class FeignAutoConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		public Targeter feignTargeter() {
-			return new HystrixTargeter();
+			return new HystrixTargeter(); // 创建HystrixTargeter
 		}
 
 	}
@@ -97,7 +97,7 @@ public class FeignAutoConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		public Targeter feignTargeter() {
-			return new DefaultTargeter();
+			return new DefaultTargeter(); // 创建DefaultTargeter
 		}
 
 	}

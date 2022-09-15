@@ -29,13 +29,13 @@ import org.springframework.util.StringUtils;
  * @author Erik Kringen
  */
 @SuppressWarnings("unchecked")
-class HystrixTargeter implements Targeter {
+class HystrixTargeter implements Targeter { // HystrixTargeter，在FeignAutoConfiguration中默认符合条件会进行创建
 
 	@Override
 	public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, // 生成整合了Hystrix且有负载均衡功能的Feign客户端代理类
 			FeignContext context, Target.HardCodedTarget<T> target) {
-		if (!(feign instanceof feign.hystrix.HystrixFeign.Builder)) { // 判断是否为HystrixFeign.Builder类型
-			return feign.target(target);
+		if (!(feign instanceof feign.hystrix.HystrixFeign.Builder)) { // 判断是否为HystrixFeign.Builder类型（由于feign.hystrix.enabled属性默认为false，所以Feign.Builder类型默认为feign.Feign.Builder）
+			return feign.target(target); // 默认调用Feign.Builder#target(feign.Target<T>)方法，不走下面逻辑
 		}
 		feign.hystrix.HystrixFeign.Builder builder = (feign.hystrix.HystrixFeign.Builder) feign;
 		String name = StringUtils.isEmpty(factory.getContextId()) ? factory.getName()

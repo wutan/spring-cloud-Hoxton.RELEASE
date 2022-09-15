@@ -22,12 +22,12 @@ import feign.Target;
 /**
  * @author Spencer Gibb
  */
-class DefaultTargeter implements Targeter {
+class DefaultTargeter implements Targeter { // DefaultTargeter（默认不会创建该类）
 
 	@Override
-	public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign,
+	public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, // 生成代理类
 			FeignContext context, Target.HardCodedTarget<T> target) {
-		return feign.target(target);
+		return feign.target(target); // 生成代理类
 	}
 
 }

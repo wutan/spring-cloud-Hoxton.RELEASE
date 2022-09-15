@@ -56,12 +56,12 @@ class FeignClientFactoryBean
 	 * WARNING! Nothing in this class should be @Autowired. It causes NPEs because of some
 	 * lifecycle race condition.
 	 ***********************************/
-
+	// 下面的八个属性是在FeignClientsRegistrar类中通过封装BeanDefinition进行定义的
 	private Class<?> type;
 
-	private String name;
+	private String name; // 服务名称
 
-	private String url;
+	private String url; // 服务请求地址（不一定有值）
 
 	private String contextId;
 
@@ -69,59 +69,59 @@ class FeignClientFactoryBean
 
 	private boolean decode404;
 
-	private ApplicationContext applicationContext;
+	private ApplicationContext applicationContext; // 由ApplicationContextAware接口进行注入
 
 	private Class<?> fallback = void.class;
 
 	private Class<?> fallbackFactory = void.class;
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() throws Exception { // 检查contextId、name属性值是否为空，即检查@FeignClient相关注解是否定义合理
 		Assert.hasText(this.contextId, "Context id must be set");
 		Assert.hasText(this.name, "Name must be set");
 	}
 
-	protected Feign.Builder feign(FeignContext context) {
-		FeignLoggerFactory loggerFactory = get(context, FeignLoggerFactory.class);
+	protected Feign.Builder feign(FeignContext context) { // 根据Feign的子容器工厂构建Feign.Builder
+		FeignLoggerFactory loggerFactory = get(context, FeignLoggerFactory.class); // 从子容器中获取FeignLoggerFactory
 		Logger logger = loggerFactory.create(this.type);
 
 		// @formatter:off
-		Feign.Builder builder = get(context, Feign.Builder.class) // 构建Feign.Builder，构建时会向FeignContext获取配置的Encoder，Decoder等各种信息
+		Feign.Builder builder = get(context, Feign.Builder.class) // 从子容器中获取Feign.Builder对象（默认为Feign.Builder，默认的重试机制为不重试）
 				// required values
-				.logger(logger) // 日志级别
-				.encoder(get(context, Encoder.class)) // 编码器
-				.decoder(get(context, Decoder.class)) // 解码器
-				.contract(get(context, Contract.class)); // 连接
+				.logger(logger) // 设置日志
+				.encoder(get(context, Encoder.class)) // 从子容器中获取编码器并设置到Feign.Builder中
+				.decoder(get(context, Decoder.class)) // 从子容器中获取解码器并设置到Feign.Builder中
+				.contract(get(context, Contract.class)); // 从子容器中获取锲约并设置到Feign.Builder中
 		// @formatter:on
 
-		configureFeign(context, builder); // 从上下文、默认配置、自定义配置中设置FeignClient属性
+		configureFeign(context, builder); // 从上下文、默认/全局属性配置、实例属性配置中设置到Feign.Builder中
 
 		return builder;
 	}
 
-	protected void configureFeign(FeignContext context, Feign.Builder builder) { // 从上下文、默认配置、自定义配置中设置FeignClient属性
-		FeignClientProperties properties = this.applicationContext
+	protected void configureFeign(FeignContext context, Feign.Builder builder) { // 从上下文、默认配置、自定义配置中设置到Feign.Builder中（优先级：实例>全局，属性>代码）
+		FeignClientProperties properties = this.applicationContext // 获取Feign客户端的属性配置类
 				.getBean(FeignClientProperties.class);
 		if (properties != null) {
-			if (properties.isDefaultToProperties()) {
-				configureUsingConfiguration(context, builder); // 从上下文中设置FeignClient属性
-				configureUsingProperties( // 从默认配置中设置FeignClient属性
+			if (properties.isDefaultToProperties()) { // 默认为ture，属性优先（可设置feign.client.default-to-properties为false，使得代码配置优先）
+				configureUsingConfiguration(context, builder); // 从上下文中设置Feign.Builder属性
+				configureUsingProperties( // 从默认/全局属性配置中设置Feign.Builder属性
 						properties.getConfig().get(properties.getDefaultConfig()),
 						builder);
-				configureUsingProperties(properties.getConfig().get(this.contextId), // 从自定义配置中设置FeignClient属性
+				configureUsingProperties(properties.getConfig().get(this.contextId), // 从实例属性配置中设置Feign.Builder属性
 						builder);
 			}
 			else {
-				configureUsingProperties( // 从默认配置中设置FeignClient属性
+				configureUsingProperties( // 从默认/全局属性配置中设置Feign.Builder属性
 						properties.getConfig().get(properties.getDefaultConfig()),
 						builder);
-				configureUsingProperties(properties.getConfig().get(this.contextId), // 从自定义配置中设置FeignClient属性
+				configureUsingProperties(properties.getConfig().get(this.contextId), // 从实例属性配置中设置Feign.Builder属性
 						builder);
-				configureUsingConfiguration(context, builder); // 从上下文中设置FeignClient属性
+				configureUsingConfiguration(context, builder); // 从上下文中设置Feign.Builder属性
 			}
 		}
 		else {
-			configureUsingConfiguration(context, builder); // 从上下文中设置FeignClient属性
+			configureUsingConfiguration(context, builder); // 从上下文中设置Feign.Builder属性
 		}
 	}
 
@@ -129,24 +129,24 @@ class FeignClientFactoryBean
 			Feign.Builder builder) {
 		Logger.Level level = getOptional(context, Logger.Level.class);
 		if (level != null) {
-			builder.logLevel(level); // 设置日志
+			builder.logLevel(level); // 从上下文中设置日志
 		}
 		Retryer retryer = getOptional(context, Retryer.class);
 		if (retryer != null) {
-			builder.retryer(retryer); // 设置重试策略
+			builder.retryer(retryer); // 从上下文中设置重试策略
 		}
 		ErrorDecoder errorDecoder = getOptional(context, ErrorDecoder.class);
 		if (errorDecoder != null) {
-			builder.errorDecoder(errorDecoder); // 设置异常解码器
+			builder.errorDecoder(errorDecoder); // 从上下文中设置异常解码器
 		}
 		Request.Options options = getOptional(context, Request.Options.class);
 		if (options != null) {
-			builder.options(options); // 设置超时时间（连接超时和读取超时时间）
+			builder.options(options); // 从上下文中设置超时时间（连接超时和读取超时时间，默认会获取FeignRibbonClientAutoConfiguration#feignRequestOptions创建的全局Option）
 		}
 		Map<String, RequestInterceptor> requestInterceptors = context
 				.getInstances(this.contextId, RequestInterceptor.class); // 从上下文中获取拦截器Map集合
 		if (requestInterceptors != null) {
-			builder.requestInterceptors(requestInterceptors.values()); // 设置拦截器
+			builder.requestInterceptors(requestInterceptors.values()); // 添加拦截器
 		}
 		QueryMapEncoder queryMapEncoder = getOptional(context, QueryMapEncoder.class);
 		if (queryMapEncoder != null) {
@@ -157,7 +157,7 @@ class FeignClientFactoryBean
 		}
 	}
 
-	protected void configureUsingProperties( // 从配置中设置FeignClient属性
+	protected void configureUsingProperties( // 从属性配置中设置FeignClient属性
 			FeignClientProperties.FeignClientConfiguration config,
 			Feign.Builder builder) {
 		if (config == null) {
@@ -165,22 +165,22 @@ class FeignClientFactoryBean
 		}
 
 		if (config.getLoggerLevel() != null) {
-			builder.logLevel(config.getLoggerLevel());
+			builder.logLevel(config.getLoggerLevel()); // 从属性配置中设置日志
 		}
 
 		if (config.getConnectTimeout() != null && config.getReadTimeout() != null) {
-			builder.options(new Request.Options(config.getConnectTimeout(),
+			builder.options(new Request.Options(config.getConnectTimeout(), // 从属性配置中设置超时时间（连接超时和读取超时时间）
 					config.getReadTimeout()));
 		}
 
 		if (config.getRetryer() != null) {
 			Retryer retryer = getOrInstantiate(config.getRetryer());
-			builder.retryer(retryer);
+			builder.retryer(retryer); // 从属性配置中设置重试策略
 		}
 
 		if (config.getErrorDecoder() != null) {
 			ErrorDecoder errorDecoder = getOrInstantiate(config.getErrorDecoder());
-			builder.errorDecoder(errorDecoder);
+			builder.errorDecoder(errorDecoder); // 从属性配置中设置异常解码器
 		}
 
 		if (config.getRequestInterceptors() != null
@@ -188,7 +188,7 @@ class FeignClientFactoryBean
 			// this will add request interceptor to builder, not replace existing
 			for (Class<RequestInterceptor> bean : config.getRequestInterceptors()) {
 				RequestInterceptor interceptor = getOrInstantiate(bean);
-				builder.requestInterceptor(interceptor);
+				builder.requestInterceptor(interceptor); // 添加拦截器
 			}
 		}
 
@@ -247,8 +247,8 @@ class FeignClientFactoryBean
 	}
 
 	@Override
-	public Object getObject() throws Exception { // 生成代理对象
-		return getTarget();
+	public Object getObject() throws Exception { // 基于FactoryBean接口创建复杂Bean
+		return getTarget(); // 生成FeignCliet的代理对象
 	}
 
 	/**
@@ -256,11 +256,11 @@ class FeignClientFactoryBean
 	 * @return a {@link Feign} client created with the specified data and the context
 	 * information
 	 */
-	<T> T getTarget() {
-		FeignContext context = this.applicationContext.getBean(FeignContext.class); // 从ApplicationContext中获取Feign的上下文对象FeignContext（FeignContext在FeignAutoConfiguration完成的注入）
-		Feign.Builder builder = feign(context); // 构建Feign的Builder对象
+	<T> T getTarget() { // 生成FeignCliet的代理对象
+		FeignContext context = this.applicationContext.getBean(FeignContext.class); // 从ApplicationContext中获取Feign的上下文对象FeignContext，即Feign的子容器工厂（在FeignAutoConfiguration注入）
+		Feign.Builder builder = feign(context); // 从子容器中获取Feign.Builder对象（默认为Feign.Builder），并设置相关信息
 
-		if (!StringUtils.hasText(this.url)) { // 如果url为空，则走负载均衡，生成有负载均衡功能的代理类
+		if (!StringUtils.hasText(this.url)) { // 当url为空时，将Feign.Builder的client属性设置为具有负载均衡功能的客户端LoadBalancerFeignClient，反之则设置为第三方客户端
 			if (!this.name.startsWith("http")) {
 				this.url = "http://" + this.name; // 一般情况下是没有指定url的，会添加一个http://前缀
 			}
@@ -268,24 +268,24 @@ class FeignClientFactoryBean
 				this.url = this.name;
 			}
 			this.url += cleanPath();
-			return (T) loadBalance(builder, context, // 生成有负载均衡功能的Feign客户端代理类，最终也是调用Target.target()方法生成代理类
+			return (T) loadBalance(builder, context, // 先从子容器中获取具有负载均衡的客户端（默认为LoadBalancerFeignClient），并设置到Feign.Builder中，再调用Target.target()方法生成代理类
 					new HardCodedTarget<>(this.type, this.name, this.url));
 		}
-		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) { // 如果指定了url，则生成默认的代理类
+		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) { // 当为指定url时，则生成不具有负载均衡功能的客户端代理类，即Feign.Builder中client属性为第三方Client
 			this.url = "http://" + this.url;
 		}
 		String url = this.url + cleanPath();
-		Client client = getOptional(context, Client.class);
+		Client client = getOptional(context, Client.class); // 从子容器中获取Client实现类（默认为LoadBalancerFeignClient）
 		if (client != null) {
 			if (client instanceof LoadBalancerFeignClient) {
 				// not load balancing because we have a url,
 				// but ribbon is on the classpath, so unwrap
-				client = ((LoadBalancerFeignClient) client).getDelegate();
+				client = ((LoadBalancerFeignClient) client).getDelegate(); // 获取LoadBalancerFeignClient中维护的第三方客户端（默认为Client.Default）
 			}
-			builder.client(client);
+			builder.client(client); // 将子容器中的第三方客户端设置到Feign.Builder中
 		}
-		Targeter targeter = get(context, Targeter.class);
-		return (T) targeter.target(this, builder, context, // 当url不为空是，调用Target.target()方法生成代理类
+		Targeter targeter = get(context, Targeter.class); // 从子容器中获取Targeter实现类（默认为HystrixTargeter）
+		return (T) targeter.target(this, builder, context, // 调用Target.target()方法生成代理类
 				new HardCodedTarget<>(this.type, this.name, url));
 	}
 

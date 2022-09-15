@@ -60,7 +60,7 @@ public @interface FeignClient {
 	 * as a service id.
 	 * @return bean name instead of name if present
 	 */
-	String contextId() default "";
+	String contextId() default ""; // 隔离相同的服务提供者，使其为不同的子容器
 
 	/**
 	 * @return The service id with optional protocol prefix. Synonym for {@link #value()

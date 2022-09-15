@@ -56,7 +56,7 @@ import org.springframework.format.support.FormattingConversionService;
  * @author Venil Noronha
  */
 @Configuration(proxyBeanMethods = false)
-public class FeignClientsConfiguration { // OpenFeign的客户端配置类（在使用时才会加载，各服务提供者相互独立）
+public class FeignClientsConfiguration { // Feign的客户端默认配置类（在使用时才会加载，各服务提供者相互独立）
 
 	@Autowired
 	private ObjectFactory<HttpMessageConverters> messageConverters;
@@ -106,8 +106,8 @@ public class FeignClientsConfiguration { // OpenFeign的客户端配置类（在
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Contract feignContract(ConversionService feignConversionService) { // 创建连接
-		return new SpringMvcContract(this.parameterProcessors, feignConversionService);
+	public Contract feignContract(ConversionService feignConversionService) {
+		return new SpringMvcContract(this.parameterProcessors, feignConversionService); // 创建SpringMvcContract
 	}
 
 	@Bean
@@ -122,14 +122,14 @@ public class FeignClientsConfiguration { // OpenFeign的客户端配置类（在
 	@Bean
 	@ConditionalOnMissingBean
 	public Retryer feignRetryer() {
-		return Retryer.NEVER_RETRY;
+		return Retryer.NEVER_RETRY; // 创建重试机制（默认重试机制为不重试）
 	}
 
 	@Bean
-	@Scope("prototype")
+	@Scope("prototype") // 多例Bean（getBean时才进行初始化）
 	@ConditionalOnMissingBean
 	public Feign.Builder feignBuilder(Retryer retryer) {
-		return Feign.builder().retryer(retryer);
+		return Feign.builder().retryer(retryer); // 创建Feign.Builder（并设置重试机制，默认设置为不重试）
 	}
 
 	@Bean
@@ -151,7 +151,7 @@ public class FeignClientsConfiguration { // OpenFeign的客户端配置类（在
 		@Bean
 		@Scope("prototype")
 		@ConditionalOnMissingBean
-		@ConditionalOnProperty(name = "feign.hystrix.enabled")
+		@ConditionalOnProperty(name = "feign.hystrix.enabled") // 默认值为false
 		public Feign.Builder feignHystrixBuilder() {
 			return HystrixFeign.builder();
 		}

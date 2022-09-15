@@ -47,7 +47,7 @@ public @interface EnableFeignClients {
 	 * {@code @ComponentScan(basePackages="org.my.pkg")}.
 	 * @return the array of 'basePackages'.
 	 */
-	String[] value() default {};
+	String[] value() default {}; // 2.根据value属性来指定包路径
 
 	/**
 	 * Base packages to scan for annotated components.
@@ -58,7 +58,7 @@ public @interface EnableFeignClients {
 	 * package names.
 	 * @return the array of 'basePackages'.
 	 */
-	String[] basePackages() default {};
+	String[] basePackages() default {}; // 2.根据basePackages属性来指定包路径
 
 	/**
 	 * Type-safe alternative to {@link #basePackages()} for specifying the packages to
@@ -68,7 +68,7 @@ public @interface EnableFeignClients {
 	 * serves no purpose other than being referenced by this attribute.
 	 * @return the array of 'basePackageClasses'.
 	 */
-	Class<?>[] basePackageClasses() default {};
+	Class<?>[] basePackageClasses() default {}; // 2.根据basePackageClasses属性来指定包路径
 
 	/**
 	 * A custom <code>@Configuration</code> for all feign clients. Can contain override
@@ -78,13 +78,13 @@ public @interface EnableFeignClients {
 	 * @see FeignClientsConfiguration for the defaults
 	 * @return list of default configurations
 	 */
-	Class<?>[] defaultConfiguration() default {};
+	Class<?>[] defaultConfiguration() default {}; // OpenFeign的全局默认配置
 
 	/**
 	 * List of classes annotated with @FeignClient. If not empty, disables classpath
 	 * scanning.
 	 * @return list of FeignClient classes
 	 */
-	Class<?>[] clients() default {};
+	Class<?>[] clients() default {}; // 1.根据FeignClien的class来指定包路径
 
 }

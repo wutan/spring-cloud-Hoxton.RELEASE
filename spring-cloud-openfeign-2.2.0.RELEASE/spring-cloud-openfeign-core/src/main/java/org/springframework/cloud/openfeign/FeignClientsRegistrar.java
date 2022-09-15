@@ -144,7 +144,7 @@ class FeignClientsRegistrar
 		registerFeignClients(metadata, registry); // 从classpath中扫描获取所有@FeignClient修饰的类，并解析成BeanDefinition动态注册成FactoryBean到Spring容器中
 	}
 
-	private void registerDefaultConfiguration(AnnotationMetadata metadata,
+	private void registerDefaultConfiguration(AnnotationMetadata metadata, // 注册OpenFeign默认配置
 			BeanDefinitionRegistry registry) {
 		Map<String, Object> defaultAttrs = metadata
 				.getAnnotationAttributes(EnableFeignClients.class.getName(), true); // 从Spring Boot启动类上获取@EnableFeignClients注解的相关属性
@@ -157,12 +157,12 @@ class FeignClientsRegistrar
 			else {
 				name = "default." + metadata.getClassName(); // default. + 启动类全路径
 			}
-			registerClientConfiguration(registry, name,
-					defaultAttrs.get("defaultConfiguration")); // 将defaultConfiguration属性下的类包装成FeignCLientSpecification注册到Spring容器中
+			registerClientConfiguration(registry, name, // 将defaultConfiguration属性下的类包装成FeignCLientSpecification注册到Spring容器中
+					defaultAttrs.get("defaultConfiguration"));
 		}
 	}
 
-	public void registerFeignClients(AnnotationMetadata metadata,
+	public void registerFeignClients(AnnotationMetadata metadata, // 注册OpenFeign私有配置和FeignClient对应的FeignClientFactoryBean
 			BeanDefinitionRegistry registry) {
 		ClassPathScanningCandidateComponentProvider scanner = getScanner(); // 获取类扫描器
 		scanner.setResourceLoader(this.resourceLoader);
@@ -212,17 +212,17 @@ class FeignClientsRegistrar
 							.getAnnotationAttributes(
 									FeignClient.class.getCanonicalName()); // 获取@FeignClient注解的相关信息
 
-					String name = getClientName(attributes); // 获取客户端名称
-					registerClientConfiguration(registry, name,
-							attributes.get("configuration")); // 将configuration属性下的类包装成FeignCLientSpecification注册到Spring容器中
+					String name = getClientName(attributes); // 从@FeignClient注解属性中获取客户端名称（优先使用contextId）
+					registerClientConfiguration(registry, name, // 将configuration属性下的类包装成FeignCLientSpecification注册到Spring容器中
+							attributes.get("configuration"));
 
-					registerFeignClient(registry, annotationMetadata, attributes); // 循环去注册
+					registerFeignClient(registry, annotationMetadata, attributes); // 循环去注册FeignClient对应的FeignClientFactoryBean
 				}
 			}
 		}
 	}
 
-	private void registerFeignClient(BeanDefinitionRegistry registry,
+	private void registerFeignClient(BeanDefinitionRegistry registry, // 注册FeignClient对应的FeignClientFactoryBean
 			AnnotationMetadata annotationMetadata, Map<String, Object> attributes) {
 		String className = annotationMetadata.getClassName();
 		BeanDefinitionBuilder definition = BeanDefinitionBuilder // 包装成FeignClientFactoryBean，是一个工厂Bean，利用Spring的代理工厂来生成代理Bean（工厂Bean最后返回的实例不是工厂Bean本身， 而是执行工厂Bean的getObject逻辑返回的实例）
@@ -230,9 +230,9 @@ class FeignClientsRegistrar
 		validate(attributes);
 		definition.addPropertyValue("url", getUrl(attributes)); // 组装BeanDefinition
 		definition.addPropertyValue("path", getPath(attributes));
-		String name = getName(attributes);
+		String name = getName(attributes); // 获取服务名称
 		definition.addPropertyValue("name", name);
-		String contextId = getContextId(attributes);
+		String contextId = getContextId(attributes); // 获取contextId
 		definition.addPropertyValue("contextId", contextId);
 		definition.addPropertyValue("type", className);
 		definition.addPropertyValue("decode404", attributes.get("decode404"));
@@ -266,7 +266,7 @@ class FeignClientsRegistrar
 		validateFallbackFactory(annotation.getClass("fallbackFactory"));
 	}
 
-	/* for testing */ String getName(Map<String, Object> attributes) {
+	/* for testing */ String getName(Map<String, Object> attributes) { // 获取服务名称
 		String name = (String) attributes.get("serviceId");
 		if (!StringUtils.hasText(name)) {
 			name = (String) attributes.get("name");
@@ -278,10 +278,10 @@ class FeignClientsRegistrar
 		return getName(name);
 	}
 
-	private String getContextId(Map<String, Object> attributes) {
-		String contextId = (String) attributes.get("contextId");
+	private String getContextId(Map<String, Object> attributes) { // 获取contextId
+		String contextId = (String) attributes.get("contextId"); // 获取contextId属性
 		if (!StringUtils.hasText(contextId)) {
-			return getName(attributes);
+			return getName(attributes); // 当contextId属性为空时，使用客户端名称作为contextId
 		}
 
 		contextId = resolve(contextId);
@@ -321,7 +321,7 @@ class FeignClientsRegistrar
 		};
 	}
 
-	protected Set<String> getBasePackages(AnnotationMetadata importingClassMetadata) {
+	protected Set<String> getBasePackages(AnnotationMetadata importingClassMetadata) { // 根据@EnableFeignClients注解获取要扫描的包路径
 		Map<String, Object> attributes = importingClassMetadata
 				.getAnnotationAttributes(EnableFeignClients.class.getCanonicalName());
 
@@ -358,19 +358,19 @@ class FeignClientsRegistrar
 		return null;
 	}
 
-	private String getClientName(Map<String, Object> client) {
+	private String getClientName(Map<String, Object> client) { // 从@FeignClient注解属性中获取客户端名称
 		if (client == null) {
 			return null;
 		}
-		String value = (String) client.get("contextId");
+		String value = (String) client.get("contextId"); // 优先获取contextId属性作为客户端名称
 		if (!StringUtils.hasText(value)) {
-			value = (String) client.get("value");
+			value = (String) client.get("value"); // 其次获取value属性作为客户端名称
 		}
 		if (!StringUtils.hasText(value)) {
-			value = (String) client.get("name");
+			value = (String) client.get("name"); // 其次获取name属性作为客户端名称
 		}
 		if (!StringUtils.hasText(value)) {
-			value = (String) client.get("serviceId");
+			value = (String) client.get("serviceId"); // 最后获取serviceId属性作为客户端名称
 		}
 		if (StringUtils.hasText(value)) {
 			return value;
@@ -380,14 +380,14 @@ class FeignClientsRegistrar
 				+ FeignClient.class.getSimpleName());
 	}
 
-	private void registerClientConfiguration(BeanDefinitionRegistry registry, Object name,
+	private void registerClientConfiguration(BeanDefinitionRegistry registry, Object name, // 将配置类包装成FeignCLientSpecification注册到Spring容器中
 			Object configuration) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
-				.genericBeanDefinition(FeignClientSpecification.class);
-		builder.addConstructorArgValue(name);
-		builder.addConstructorArgValue(configuration);
+				.genericBeanDefinition(FeignClientSpecification.class); // 将配置类包装成FeignCLientSpecification
+		builder.addConstructorArgValue(name); // 设置构造函数的第一个参数值（客户端名称 或 default.+启动类全路径）
+		builder.addConstructorArgValue(configuration); // 设置构造函数的第二个参数值（配置类）
 		registry.registerBeanDefinition(
-				name + "." + FeignClientSpecification.class.getSimpleName(),
+				name + "." + FeignClientSpecification.class.getSimpleName(), // 将包装成的FeignCLientSpecification注册到Spring容器中
 				builder.getBeanDefinition());
 	}
 
