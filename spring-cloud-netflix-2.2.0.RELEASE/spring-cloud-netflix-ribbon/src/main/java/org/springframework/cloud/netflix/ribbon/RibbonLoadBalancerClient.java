@@ -49,7 +49,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient { // Ribbon�
 	}
 
 	@Override
-	public URI reconstructURI(ServiceInstance instance, URI original) {
+	public URI reconstructURI(ServiceInstance instance, URI original) { // 重构URI，获取真实的uri地址
 		Assert.notNull(instance, "instance can not be null");
 		String serviceId = instance.getServiceId();
 		RibbonLoadBalancerContext context = this.clientFactory
