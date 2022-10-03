@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Dave Syer
  */
-public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionRegistrar {
+public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionRegistrar { // 由@RibbonClients、@RibbonClient注解导入
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata,
@@ -38,7 +38,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 		if (attrs != null && attrs.containsKey("value")) { // 获取@RibbonClients注解中定义的value信息（RibbonClient类的数组信息）
 			AnnotationAttributes[] clients = (AnnotationAttributes[]) attrs.get("value");
 			for (AnnotationAttributes client : clients) { // 遍历RibbonClient
-				registerClientConfiguration(registry, getClientName(client), // 1.1注册RibbonClient配置信息
+				registerClientConfiguration(registry, getClientName(client), // 1.1注册RibbonClient配置信息到RibbonClientSpecification
 						client.get("configuration"));
 			}
 		}
@@ -50,14 +50,14 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			else {
 				name = "default." + metadata.getClassName();
 			}
-			registerClientConfiguration(registry, name, // 注册RibbonClient的默认配置信息（默认情况下会注册一个空集合的默认配置）
+			registerClientConfiguration(registry, name, // 注册RibbonClient的默认配置信息到RibbonClientSpecification（默认情况下会注册一个空集合的默认配置）
 					attrs.get("defaultConfiguration"));
 		}
 		Map<String, Object> client = metadata
 				.getAnnotationAttributes(RibbonClient.class.getName(), true); // 2.获取@RibbonClient注解中定义的相关信息
 		String name = getClientName(client);
 		if (name != null) {
-			registerClientConfiguration(registry, name, client.get("configuration")); // 注册RibbonClient配置信息
+			registerClientConfiguration(registry, name, client.get("configuration")); // 注册RibbonClient配置信息到RibbonClientSpecification
 		}
 	}
 

@@ -99,7 +99,7 @@ public class RibbonClientConfiguration { // Ribbon的客户端默认配置类（
 	@ConditionalOnMissingBean // Spring容器中不存在该Bean时
 	public IClientConfig ribbonClientConfig() { // 创建客户端负载均衡器配置接口IClientConfig实现类对象
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl(); // 初始化DefaultClientConfigImpl（Ribbon客户端默认配置实现类）
-		config.loadProperties(this.name); // 加载对应服务名的Ribbon客户端属性配置
+		config.loadProperties(this.name); // 加载对应服务名的Ribbon客户端属性配置（先从Environment环境中获取，如果获取不到使用默认值）
 		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT); // 重新设置连接超时时间（默认为1秒）
 		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT); // 重新设置读取超时时间（默认为1秒）
 		config.set(CommonClientConfigKey.GZipPayload, DEFAULT_GZIP_PAYLOAD);
@@ -177,8 +177,8 @@ public class RibbonClientConfiguration { // Ribbon的客户端默认配置类（
 
 	@Bean
 	@ConditionalOnMissingBean
-	public RetryHandler retryHandler(IClientConfig config) {
-		return new DefaultLoadBalancerRetryHandler(config);
+	public RetryHandler retryHandler(IClientConfig config) { // 重试策略
+		return new DefaultLoadBalancerRetryHandler(config); // 默认重试策略
 	}
 
 	@Bean
