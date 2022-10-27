@@ -43,7 +43,7 @@ class OkHttpFeignLoadBalancedConfiguration {
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
 			SpringClientFactory clientFactory, okhttp3.OkHttpClient okHttpClient) {
 		OkHttpClient delegate = new OkHttpClient(okHttpClient);
-		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
+		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory); // 创建LoadBalancerFeignClient，注入OkHttp的client作为第三方客户端
 	}
 
 }

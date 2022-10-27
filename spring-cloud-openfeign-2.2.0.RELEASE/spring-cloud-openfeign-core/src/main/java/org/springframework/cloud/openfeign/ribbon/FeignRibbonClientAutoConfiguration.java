@@ -54,30 +54,30 @@ import org.springframework.context.annotation.Primary;
 @Import({ HttpClientFeignLoadBalancedConfiguration.class, // 当存在ApacheHttpClient时创建Client
 		OkHttpFeignLoadBalancedConfiguration.class, // 当存在OkHttpClient时创建Client
 		DefaultFeignLoadBalancedConfiguration.class }) // 当容器中feign的Client实例不存在时创建Client实例（默认不存在）
-public class FeignRibbonClientAutoConfiguration {
+public class FeignRibbonClientAutoConfiguration { // OpenFeign整合Ribbon的自动装配类
 
 	@Bean
 	@Primary
 	@ConditionalOnMissingBean
-	@ConditionalOnMissingClass("org.springframework.retry.support.RetryTemplate")
+	@ConditionalOnMissingClass("org.springframework.retry.support.RetryTemplate") // 不引入spring-retry依赖包时条件成立
 	public CachingSpringLoadBalancerFactory cachingLBClientFactory(
 			SpringClientFactory factory) {
-		return new CachingSpringLoadBalancerFactory(factory);
+		return new CachingSpringLoadBalancerFactory(factory); // 创建不带重试机制的Feign的负载均衡工厂类
 	}
 
 	@Bean
 	@Primary
 	@ConditionalOnMissingBean
-	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
+	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate") // 引入spring-retry依赖包时条件成立
 	public CachingSpringLoadBalancerFactory retryabeCachingLBClientFactory(
 			SpringClientFactory factory, LoadBalancedRetryFactory retryFactory) {
-		return new CachingSpringLoadBalancerFactory(factory, retryFactory);
+		return new CachingSpringLoadBalancerFactory(factory, retryFactory); // 创建带重试机制的Feign的负载均衡工厂类
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Request.Options feignRequestOptions() {
-		return LoadBalancerFeignClient.DEFAULT_OPTIONS;
+	public Request.Options feignRequestOptions() { // 当应用中不存在指定Feign的超时设置时，注入Feign默认的超时设置
+		return LoadBalancerFeignClient.DEFAULT_OPTIONS; // 默认的超时设置
 	}
 
 }

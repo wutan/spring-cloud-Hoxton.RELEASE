@@ -33,7 +33,7 @@ class DefaultFeignLoadBalancedConfiguration {
 	@ConditionalOnMissingBean
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
 			SpringClientFactory clientFactory) {
-		return new LoadBalancerFeignClient(new Client.Default(null, null), cachingFactory,
+		return new LoadBalancerFeignClient(new Client.Default(null, null), cachingFactory, // 创建LoadBalancerFeignClient，注入Feign内部默认的client
 				clientFactory);
 	}
 

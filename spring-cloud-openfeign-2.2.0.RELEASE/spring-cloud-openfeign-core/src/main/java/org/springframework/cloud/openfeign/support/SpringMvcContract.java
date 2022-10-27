@@ -103,7 +103,7 @@ public class SpringMvcContract extends Contract.BaseContract
 		this(annotatedParameterProcessors, new DefaultConversionService());
 	}
 
-	public SpringMvcContract(
+	public SpringMvcContract( // 初始化SpringMvcContract
 			List<AnnotatedParameterProcessor> annotatedParameterProcessors,
 			ConversionService conversionService) {
 		Assert.notNull(annotatedParameterProcessors,

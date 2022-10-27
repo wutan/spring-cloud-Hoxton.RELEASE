@@ -53,60 +53,60 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
  * @author Tim Ysewyn
  * @author Olga Maciaszek-Sharma
  */
-public class FeignLoadBalancer extends
-		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> { // Feign整合Ribbon的负载均衡器
+public class FeignLoadBalancer extends // Feign整合Ribbon的负载均衡器（不带重试机制），继承自AbstractLoadBalancerAwareClient
+		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
 
-	private final RibbonProperties ribbon;
+	private final RibbonProperties ribbon; // RibbonProperties中维护了IClientConfig
 
-	protected int connectTimeout;
+	protected int connectTimeout; // 连接超时时间（优先级：Ribbon动态属性>Ribbon实例属性>Ribbon全局属性>Ribbon静态属性）
 
-	protected int readTimeout;
+	protected int readTimeout; // 读取超时时间（优先级：Ribbon动态属性>Ribbon实例属性>Ribbon全局属性>Ribbon静态属性）
 
-	protected IClientConfig clientConfig;
+	protected IClientConfig clientConfig; // 通过Ribbon子容器工厂获取的默认客户端配置
 
 	protected ServerIntrospector serverIntrospector;
 
-	public FeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
+	public FeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig, // 初始化Feign的负载均衡器（不带重试机制）
 			ServerIntrospector serverIntrospector) {
 		super(lb, clientConfig);
 		this.setRetryHandler(RetryHandler.DEFAULT);
-		this.clientConfig = clientConfig;
-		this.ribbon = RibbonProperties.from(clientConfig);
-		RibbonProperties ribbon = this.ribbon;
-		this.connectTimeout = ribbon.getConnectTimeout();
-		this.readTimeout = ribbon.getReadTimeout();
+		this.clientConfig = clientConfig; // Ribbon的默认IClientConfig实现类
+		this.ribbon = RibbonProperties.from(clientConfig); // 将Ribbon的IClientConfig封装到RibbonProperties中
+		RibbonProperties ribbon = this.ribbon; // RibbonProperties中维护了IClientConfig
+		this.connectTimeout = ribbon.getConnectTimeout(); // 从IClientConfig中获取连接超时时间（属性配置优先）
+		this.readTimeout = ribbon.getReadTimeout(); // 从IClientConfig中获取读取超时时间（属性配置优先）
 		this.serverIntrospector = serverIntrospector;
 	}
 
 	@Override
-	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride) // 最终发起请求
+	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride) // 获取真实的请求地址后最终发起请求
 			throws IOException {
 		Request.Options options;
 		if (configOverride != null) {
 			RibbonProperties override = RibbonProperties.from(configOverride);
-			options = new Request.Options(override.connectTimeout(this.connectTimeout),
+			options = new Request.Options(override.connectTimeout(this.connectTimeout), // 在发起请求前重新设置从IClientConfig中获取的超时时间
 					override.readTimeout(this.readTimeout));
 		}
 		else {
-			options = new Request.Options(this.connectTimeout, this.readTimeout);
+			options = new Request.Options(this.connectTimeout, this.readTimeout); // 在发起请求前重新设置从IClientConfig中获取的超时时间
 		}
 		Response response = request.client().execute(request.toRequest(), options); // 根据Client获取响应（默认Client为Client.Default）
 		return new RibbonResponse(request.getUri(), response); // 设置响应
 	}
 
 	@Override
-	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
+	public RequestSpecificRetryHandler getRequestSpecificRetryHandler( // 获取重试处理器
 			RibbonRequest request, IClientConfig requestConfig) {
 		if (this.ribbon.isOkToRetryOnAllOperations()) {
-			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(), // 创建重试处理器
 					requestConfig);
 		}
 		if (!request.toRequest().httpMethod().name().equals("GET")) {
-			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(),
+			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(), // 创建重试处理器
 					requestConfig);
 		}
 		else {
-			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(), // 创建重试处理器
 					requestConfig);
 		}
 	}
@@ -120,14 +120,14 @@ public class FeignLoadBalancer extends
 
 	protected static class RibbonRequest extends ClientRequest implements Cloneable {
 
-		private final Request request;
+		private final Request request; // Feign的请求
 
-		private final Client client;
+		private final Client client; // 第三方客户端
 
-		protected RibbonRequest(Client client, Request request, URI uri) {
-			this.client = client;
-			setUri(uri);
-			this.request = toRequest(request);
+		protected RibbonRequest(Client client, Request request, URI uri) { // 初始化RibbonRequest
+			this.client = client; // 注入第三方客户端（默认为Client.Default）
+			setUri(uri); // 注入请求地址
+			this.request = toRequest(request); // 注入Feign请求
 		}
 
 		private Request toRequest(Request request) {

@@ -51,12 +51,12 @@ import org.springframework.util.StreamUtils;
  * @author Ryan Baxter
  * @author Gang Li
  */
-public class RetryableFeignLoadBalancer extends FeignLoadBalancer
+public class RetryableFeignLoadBalancer extends FeignLoadBalancer // Feign整合Ribbon的负载均衡器（带重试机制）
 		implements ServiceInstanceChooser {
 
 	private final LoadBalancedRetryFactory loadBalancedRetryFactory;
 
-	public RetryableFeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
+	public RetryableFeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig, // 初始化Feign的负载均衡器（带重试机制）
 			ServerIntrospector serverIntrospector,
 			LoadBalancedRetryFactory loadBalancedRetryFactory) {
 		super(lb, clientConfig, serverIntrospector);
