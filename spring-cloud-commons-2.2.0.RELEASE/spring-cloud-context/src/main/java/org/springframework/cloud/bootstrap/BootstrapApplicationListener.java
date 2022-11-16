@@ -152,8 +152,8 @@ public class BootstrapApplicationListener
 		StandardEnvironment bootstrapEnvironment = new StandardEnvironment(); // 创建Bootstrap应用的Environment
 		MutablePropertySources bootstrapProperties = bootstrapEnvironment
 				.getPropertySources();
-		for (PropertySource<?> source : bootstrapProperties) {
-			bootstrapProperties.remove(source.getName()); // 删除Bootstrap应用的Environment属性源
+		for (PropertySource<?> source : bootstrapProperties) { // 清空Bootstrap应用的Environment属性源
+			bootstrapProperties.remove(source.getName());
 		}
 		String configLocation = environment
 				.resolvePlaceholders("${spring.cloud.bootstrap.location:}");
@@ -174,15 +174,15 @@ public class BootstrapApplicationListener
 			if (source instanceof StubPropertySource) {
 				continue;
 			}
-			bootstrapProperties.addLast(source); // 将应用上下文Environment的属性源添加到Bootstrap应用的Environment中
+			bootstrapProperties.addLast(source); // 将应用上下文Environment中非StubPropertySource的属性源添加到Bootstrap应用的Environment中
 		}
 		// TODO: is it possible or sensible to share a ResourceLoader?
 		SpringApplicationBuilder builder = new SpringApplicationBuilder() // 构建SpringApplicationBuilder
-				.profiles(environment.getActiveProfiles()).bannerMode(Mode.OFF) // 关闭打印banner
-				.environment(bootstrapEnvironment)
+				.profiles(environment.getActiveProfiles()).bannerMode(Mode.OFF) // 设置Profile、关闭打印banner
+				.environment(bootstrapEnvironment) // 设置Environment
 				// Don't use the default properties in this builder
 				.registerShutdownHook(false).logStartupInfo(false)
-				.web(WebApplicationType.NONE);
+				.web(WebApplicationType.NONE); // 设置非web类型
 		final SpringApplication builderApplication = builder.application();
 		if (builderApplication.getMainApplicationClass() == null) {
 			// gh_425:
@@ -307,7 +307,7 @@ public class BootstrapApplicationListener
 		@SuppressWarnings("rawtypes")
 		List<ApplicationContextInitializer> initializers = getOrderedBeansOfType(context,
 				ApplicationContextInitializer.class);
-		application.addInitializers(initializers
+		application.addInitializers(initializers // 添加应用上下文初始化器实例
 				.toArray(new ApplicationContextInitializer[initializers.size()]));
 		addBootstrapDecryptInitializer(application);
 	}
@@ -322,7 +322,7 @@ public class BootstrapApplicationListener
 			}
 		}
 		if (decrypter != null) {
-			application.addInitializers(decrypter);
+			application.addInitializers(decrypter); // 添加应用上下文初始化器DelegatingEnvironmentDecryptApplicationInitializer
 		}
 	}
 

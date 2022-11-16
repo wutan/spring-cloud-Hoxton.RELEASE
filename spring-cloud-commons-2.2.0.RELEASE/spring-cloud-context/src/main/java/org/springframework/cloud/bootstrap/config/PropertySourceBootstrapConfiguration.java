@@ -89,28 +89,28 @@ public class PropertySourceBootstrapConfiguration implements
 	@Override
 	public void initialize(ConfigurableApplicationContext applicationContext) {
 		CompositePropertySource composite = new OriginTrackedCompositePropertySource(
-				BOOTSTRAP_PROPERTY_SOURCE_NAME);
-		AnnotationAwareOrderComparator.sort(this.propertySourceLocators);
+				BOOTSTRAP_PROPERTY_SOURCE_NAME); // 属性源key: bootstrapProperties
+		AnnotationAwareOrderComparator.sort(this.propertySourceLocators); // 排序
 		boolean empty = true;
 		ConfigurableEnvironment environment = applicationContext.getEnvironment();
-		for (PropertySourceLocator locator : this.propertySourceLocators) {
+		for (PropertySourceLocator locator : this.propertySourceLocators) { // 遍历PropertySourceLocator
 			PropertySource<?> source = null;
-			source = locator.locate(environment);
+			source = locator.locate(environment); // 调用PropertySourceLocator#locate方法生成属性源
 			if (source == null) {
 				continue;
 			}
 			logger.info("Located property source: " + source);
-			composite.addPropertySource(source);
+			composite.addPropertySource(source); // 将属性源添加到OriginTrackedCompositePropertySource中
 			empty = false;
 		}
-		if (!empty) {
+		if (!empty) { // 属性源不为空
 			MutablePropertySources propertySources = environment.getPropertySources();
 			String logConfig = environment.resolvePlaceholders("${logging.config:}");
 			LogFile logFile = LogFile.get(environment);
-			if (propertySources.contains(BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+			if (propertySources.contains(BOOTSTRAP_PROPERTY_SOURCE_NAME)) { // 存在bootstrapProperties属性源时，先删除再添加
 				propertySources.remove(BOOTSTRAP_PROPERTY_SOURCE_NAME);
 			}
-			insertPropertySources(propertySources, composite);
+			insertPropertySources(propertySources, composite); // 添加bootstrapProperties属性源到Environment中
 			reinitializeLoggingSystem(environment, logConfig, logFile);
 			setLogLevels(applicationContext, environment);
 			handleIncludedProfiles(environment);
