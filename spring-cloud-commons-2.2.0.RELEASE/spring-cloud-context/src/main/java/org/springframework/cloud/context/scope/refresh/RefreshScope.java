@@ -71,7 +71,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
  *
  */
 @ManagedResource
-public class RefreshScope extends GenericScope implements ApplicationContextAware,
+public class RefreshScope extends GenericScope implements ApplicationContextAware, // 继承GenericScope，通过GenericScope注册Scope
 		ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	private ApplicationContext context;
@@ -85,8 +85,8 @@ public class RefreshScope extends GenericScope implements ApplicationContextAwar
 	/**
 	 * Creates a scope instance and gives it the default name: "refresh".
 	 */
-	public RefreshScope() {
-		super.setName("refresh");
+	public RefreshScope() { // 创建RefreshScope
+		super.setName("refresh"); // 设置Scope作用域
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class RefreshScope extends GenericScope implements ApplicationContextAwar
 	private void eagerlyInitialize() {
 		for (String name : this.context.getBeanDefinitionNames()) {
 			BeanDefinition definition = this.registry.getBeanDefinition(name);
-			if (this.getName().equals(definition.getScope())
+			if (this.getName().equals(definition.getScope()) // 如果为指定的作用域
 					&& !definition.isLazyInit()) {
 				Object bean = this.context.getBean(name);
 				if (bean != null) {
@@ -158,8 +158,8 @@ public class RefreshScope extends GenericScope implements ApplicationContextAwar
 	@ManagedOperation(description = "Dispose of the current instance of all beans "
 			+ "in this scope and force a refresh on next method execution.")
 	public void refreshAll() {
-		super.destroy();
-		this.context.publishEvent(new RefreshScopeRefreshedEvent());
+		super.destroy(); // 清除ScopeCache的存储容器
+		this.context.publishEvent(new RefreshScopeRefreshedEvent()); // 发布RefreshScopeRefreshedEvent事件
 	}
 
 	@Override

@@ -37,7 +37,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Scope("refresh")
+@Scope("refresh") // 引入@Scope注解，即Spring Cloud的@RefreshScope注解本质上是Spring的@Scope注解，作用域为refresh、代理模式为cglib代理
 @Documented
 public @interface RefreshScope {
 

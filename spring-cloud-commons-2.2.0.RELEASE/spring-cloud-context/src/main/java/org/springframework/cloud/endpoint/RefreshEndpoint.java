@@ -27,7 +27,7 @@ import org.springframework.cloud.context.refresh.ContextRefresher;
  * @author Dave Syer
  * @author Venil Noronha
  */
-@Endpoint(id = "refresh")
+@Endpoint(id = "refresh") // actuator的refresh端点
 public class RefreshEndpoint {
 
 	private ContextRefresher contextRefresher;
@@ -37,8 +37,8 @@ public class RefreshEndpoint {
 	}
 
 	@WriteOperation
-	public Collection<String> refresh() {
-		Set<String> keys = this.contextRefresher.refresh();
+	public Collection<String> refresh() { // refresh
+		Set<String> keys = this.contextRefresher.refresh(); // 手动调用/actuator/refresh接口时，会触发调用ContextRefresher#refresh方法
 		return keys;
 	}
 

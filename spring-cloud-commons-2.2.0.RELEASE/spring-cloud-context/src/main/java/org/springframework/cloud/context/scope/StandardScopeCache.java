@@ -27,9 +27,9 @@ import java.util.concurrent.ConcurrentMap;
  * @author Dave Syer
  *
  */
-public class StandardScopeCache implements ScopeCache {
+public class StandardScopeCache implements ScopeCache { // 默认的自定义作用域管理容器
 
-	private final ConcurrentMap<String, Object> cache = new ConcurrentHashMap<String, Object>();
+	private final ConcurrentMap<String, Object> cache = new ConcurrentHashMap<String, Object>(); // 使用ConcurrentHashMap存储自定义作用域实例的包装类BeanLifecycleWrapper
 
 	public Object remove(String name) {
 		return this.cache.remove(name);

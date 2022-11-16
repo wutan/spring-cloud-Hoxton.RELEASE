@@ -80,10 +80,10 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 
 	private static final Log logger = LogFactory.getLog(GenericScope.class);
 
-	private BeanLifecycleWrapperCache cache = new BeanLifecycleWrapperCache(
+	private BeanLifecycleWrapperCache cache = new BeanLifecycleWrapperCache( // 管理着自定义作用域的实例对象的生命周期，默认通过StandardScopeCache进行委托管理
 			new StandardScopeCache());
 
-	private String name = "generic";
+	private String name = "generic"; // scope的作用域默认为generic（可通过setName进行修改）
 
 	private ConfigurableListableBeanFactory beanFactory;
 
@@ -133,7 +133,7 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 	@Override
 	public void destroy() {
 		List<Throwable> errors = new ArrayList<Throwable>();
-		Collection<BeanLifecycleWrapper> wrappers = this.cache.clear();
+		Collection<BeanLifecycleWrapper> wrappers = this.cache.clear(); // 清除ScopeCache的存储容器
 		for (BeanLifecycleWrapper wrapper : wrappers) {
 			try {
 				Lock lock = this.locks.get(wrapper.getName()).writeLock();
@@ -178,12 +178,12 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 	}
 
 	@Override
-	public Object get(String name, ObjectFactory<?> objectFactory) {
-		BeanLifecycleWrapper value = this.cache.put(name,
-				new BeanLifecycleWrapper(name, objectFactory));
+	public Object get(String name, ObjectFactory<?> objectFactory) { // 获取自定义作用域实例
+		BeanLifecycleWrapper value = this.cache.put(name, // 每次获取时，都委托StandardScopeCache进行putIfAbsent设置
+				new BeanLifecycleWrapper(name, objectFactory)); // 将ObjectFactory封装到BeanLifecycleWrapper中
 		this.locks.putIfAbsent(name, new ReentrantReadWriteLock());
 		try {
-			return value.getBean();
+			return value.getBean(); // 获取自定义作用域实例，不存在时调用ObjectFactory#getObject方法进行创建，并设置到BeanLifecycleWrapper中的bean属性中
 		}
 		catch (RuntimeException e) {
 			this.errors.put(name, e);
@@ -207,14 +207,14 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 
 	@Override
 	public Object remove(String name) {
-		BeanLifecycleWrapper value = this.cache.remove(name);
+		BeanLifecycleWrapper value = this.cache.remove(name); // 委托StandardScopeCache进行删除
 		if (value == null) {
 			return null;
 		}
 		// Someone might have added another object with the same key, but we
 		// keep the method contract by removing the
 		// value we found anyway
-		return value.getBean();
+		return value.getBean(); // 删除自定义作用域实例时，返回是之前创建的实例对象
 	}
 
 	@Override
@@ -241,10 +241,10 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 	}
 
 	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) // 通过BeanFactoryPostProcessor接口注册Scope
 			throws BeansException {
 		this.beanFactory = beanFactory;
-		beanFactory.registerScope(this.name, this);
+		beanFactory.registerScope(this.name, this); // 注册Scope
 		setSerializationId(beanFactory);
 	}
 
@@ -312,7 +312,7 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 	 * The name of this scope. Default "generic".
 	 * @param name The name value to set.
 	 */
-	public void setName(String name) {
+	public void setName(String name) { // 设置作用域
 		this.name = name;
 	}
 
@@ -320,9 +320,9 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 		return this.locks.get(beanName);
 	}
 
-	private static class BeanLifecycleWrapperCache {
+	private static class BeanLifecycleWrapperCache { // 管理着自定义作用域的实例对象的生命周期，默认通过StandardScopeCache进行委托管理
 
-		private final ScopeCache cache;
+		private final ScopeCache cache; // 默认为StandardScopeCache，StandardScopeCache使用ConcurrentHashMap存储自定义作用域实例的包装类BeanLifecycleWrapper
 
 		BeanLifecycleWrapperCache(ScopeCache cache) {
 			this.cache = cache;
@@ -365,7 +365,7 @@ public class GenericScope implements Scope, BeanFactoryPostProcessor,
 
 		private final ObjectFactory<?> objectFactory;
 
-		private Object bean;
+		private Object bean; // 真实的Bean实例
 
 		private Runnable callback;
 
