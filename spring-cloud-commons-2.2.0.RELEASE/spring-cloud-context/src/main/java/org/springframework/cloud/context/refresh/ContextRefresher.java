@@ -81,28 +81,28 @@ public class ContextRefresher {
 		return this.scope;
 	}
 
-	public synchronized Set<String> refresh() {
-		Set<String> keys = refreshEnvironment();
-		this.scope.refreshAll();
+	public synchronized Set<String> refresh() { // 刷新Environment
+		Set<String> keys = refreshEnvironment(); // 刷新Environment
+		this.scope.refreshAll(); // 调用RefreshScope#refreshAll方法，清除ScopeCache的存储容器
 		return keys;
 	}
 
-	public synchronized Set<String> refreshEnvironment() {
+	public synchronized Set<String> refreshEnvironment() { // 刷新Environment
 		Map<String, Object> before = extract(
 				this.context.getEnvironment().getPropertySources());
-		addConfigFilesToEnvironment();
-		Set<String> keys = changes(before,
+		addConfigFilesToEnvironment(); // 将最新配置加入到环境变量中
+		Set<String> keys = changes(before, // 获取变化的属性集合
 				extract(this.context.getEnvironment().getPropertySources())).keySet();
-		this.context.publishEvent(new EnvironmentChangeEvent(this.context, keys));
+		this.context.publishEvent(new EnvironmentChangeEvent(this.context, keys)); // 发布EnvironmentChangeEvent事件
 		return keys;
 	}
 
-	/* For testing. */ ConfigurableApplicationContext addConfigFilesToEnvironment() {
-		ConfigurableApplicationContext capture = null;
+	/* For testing. */ ConfigurableApplicationContext addConfigFilesToEnvironment() { // 将最新配置加入到环境变量中
+		ConfigurableApplicationContext capture = null; // 生成ApplicationContext
 		try {
 			StandardEnvironment environment = copyEnvironment(
 					this.context.getEnvironment());
-			SpringApplicationBuilder builder = new SpringApplicationBuilder(Empty.class)
+			SpringApplicationBuilder builder = new SpringApplicationBuilder(Empty.class) // 构建SpringApplicationBuilder
 					.bannerMode(Mode.OFF).web(WebApplicationType.NONE)
 					.environment(environment);
 			// Just the listeners that affect the environment (e.g. excluding logging
@@ -110,23 +110,23 @@ public class ContextRefresher {
 			builder.application()
 					.setListeners(Arrays.asList(new BootstrapApplicationListener(),
 							new ConfigFileApplicationListener()));
-			capture = builder.run();
+			capture = builder.run(); // 运行SpringApplication
 			if (environment.getPropertySources().contains(REFRESH_ARGS_PROPERTY_SOURCE)) {
 				environment.getPropertySources().remove(REFRESH_ARGS_PROPERTY_SOURCE);
 			}
-			MutablePropertySources target = this.context.getEnvironment()
+			MutablePropertySources target = this.context.getEnvironment() // 老数据源
 					.getPropertySources();
 			String targetName = null;
-			for (PropertySource<?> source : environment.getPropertySources()) {
+			for (PropertySource<?> source : environment.getPropertySources()) { // 遍历最新的数据源
 				String name = source.getName();
 				if (target.contains(name)) {
 					targetName = name;
 				}
-				if (!this.standardSources.contains(name)) {
-					if (target.contains(name)) {
+				if (!this.standardSources.contains(name)) { // 如果为允许更新的数据源
+					if (target.contains(name)) { // 老数据源存在时，进行更新
 						target.replace(name, source);
 					}
-					else {
+					else { //  // 老数据源不存在时，进行添加
 						if (targetName != null) {
 							target.addAfter(targetName, source);
 						}
@@ -143,7 +143,7 @@ public class ContextRefresher {
 			ConfigurableApplicationContext closeable = capture;
 			while (closeable != null) {
 				try {
-					closeable.close();
+					closeable.close(); // 将生成的ApplicationContext关闭掉
 				}
 				catch (Exception e) {
 					// Ignore;
@@ -162,8 +162,8 @@ public class ContextRefresher {
 	// Don't use ConfigurableEnvironment.merge() in case there are clashes with property
 	// source names
 	private StandardEnvironment copyEnvironment(ConfigurableEnvironment input) {
-		StandardEnvironment environment = new StandardEnvironment();
-		MutablePropertySources capturedPropertySources = environment.getPropertySources();
+		StandardEnvironment environment = new StandardEnvironment(); // 创建新的StandardEnvironment
+		MutablePropertySources capturedPropertySources = environment.getPropertySources(); // 新的数据源
 		// Only copy the default property source(s) and the profiles over from the main
 		// environment (everything else should be pristine, just like it was on startup).
 		for (String name : DEFAULT_PROPERTY_SOURCES) {
