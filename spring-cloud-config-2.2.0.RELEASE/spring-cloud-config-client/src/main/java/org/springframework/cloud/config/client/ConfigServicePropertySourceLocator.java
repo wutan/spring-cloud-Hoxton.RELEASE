@@ -87,9 +87,9 @@ public class ConfigServicePropertySourceLocator implements PropertySourceLocator
 	public org.springframework.core.env.PropertySource<?> locate(
 			org.springframework.core.env.Environment environment) {
 		ConfigClientProperties properties = this.defaultProperties.override(environment);
-		CompositePropertySource composite = new OriginTrackedCompositePropertySource(
+		CompositePropertySource composite = new OriginTrackedCompositePropertySource( // 创建OriginTrackedCompositePropertySource属性源，用于添加属性源
 				"configService");
-		RestTemplate restTemplate = this.restTemplate == null
+		RestTemplate restTemplate = this.restTemplate == null // 获取RestTemplate，用于获取属性源信息
 				? getSecureRestTemplate(properties) : this.restTemplate;
 		Exception error = null;
 		String errorBody = null;
@@ -102,7 +102,7 @@ public class ConfigServicePropertySourceLocator implements PropertySourceLocator
 			String state = ConfigClientStateHolder.getState();
 			// Try all the labels until one works
 			for (String label : labels) {
-				Environment result = getRemoteEnvironment(restTemplate, properties,
+				Environment result = getRemoteEnvironment(restTemplate, properties, // 通过RestTemplate发起远程调用获取属性源信息
 						label.trim(), state);
 				if (result != null) {
 					log(result);
@@ -113,7 +113,7 @@ public class ConfigServicePropertySourceLocator implements PropertySourceLocator
 							@SuppressWarnings("unchecked")
 							Map<String, Object> map = translateOrigins(source.getName(),
 									(Map<String, Object>) source.getSource());
-							composite.addPropertySource(
+							composite.addPropertySource( // 添加属性源到OriginTrackedCompositePropertySource中
 									new OriginTrackedMapPropertySource(source.getName(),
 											map));
 						}
@@ -211,7 +211,7 @@ public class ConfigServicePropertySourceLocator implements PropertySourceLocator
 		}
 	}
 
-	private Environment getRemoteEnvironment(RestTemplate restTemplate,
+	private Environment getRemoteEnvironment(RestTemplate restTemplate, // 通过RestTemplate发起远程调用获取属性源信息
 			ConfigClientProperties properties, String label, String state) {
 		String path = "/{name}/{profile}";
 		String name = properties.getName();
@@ -223,7 +223,7 @@ public class ConfigServicePropertySourceLocator implements PropertySourceLocator
 		}
 
 		Object[] args = new String[] { name, profile };
-		if (StringUtils.hasText(label)) {
+		if (StringUtils.hasText(label)) { // 构建请求路径path
 			if (label.contains("/")) {
 				label = label.replace("/", "(_)");
 			}
@@ -253,7 +253,7 @@ public class ConfigServicePropertySourceLocator implements PropertySourceLocator
 				}
 
 				final HttpEntity<Void> entity = new HttpEntity<>((Void) null, headers);
-				response = restTemplate.exchange(uri + path, HttpMethod.GET, entity,
+				response = restTemplate.exchange(uri + path, HttpMethod.GET, entity,  // 通过RestTemplate想Config Server发起远程调用
 						Environment.class, args);
 			}
 			catch (HttpClientErrorException e) {
@@ -276,7 +276,7 @@ public class ConfigServicePropertySourceLocator implements PropertySourceLocator
 				return null;
 			}
 
-			Environment result = response.getBody();
+			Environment result = response.getBody(); // 获取远程调用结果
 			return result;
 		}
 
