@@ -22,7 +22,7 @@ import org.springframework.cloud.config.environment.Environment;
  * @author Dave Syer
  * @author Roy Clarkson
  */
-public interface EnvironmentRepository {
+public interface EnvironmentRepository { // 默认实现为MultipleJGitEnvironmentRepository，表示多个不同地址的git数据源
 
 	Environment findOne(String application, String profile, String label);
 

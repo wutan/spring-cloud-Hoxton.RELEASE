@@ -65,7 +65,7 @@ import static org.springframework.cloud.config.server.support.EnvironmentPropert
 @RestController
 @RequestMapping(method = RequestMethod.GET,
 		path = "${spring.cloud.config.server.prefix:}")
-public class EnvironmentController {
+public class EnvironmentController { // Config Server提供的接口，访问从git中获取的配置信息
 
 	private EnvironmentRepository repository;
 
@@ -79,9 +79,9 @@ public class EnvironmentController {
 		this(repository, new ObjectMapper());
 	}
 
-	public EnvironmentController(EnvironmentRepository repository,
+	public EnvironmentController(EnvironmentRepository repository, // 实例化EnvironmentController
 			ObjectMapper objectMapper) {
-		this.repository = repository;
+		this.repository = repository; // 赋值EnvironmentRepository（默认实现为MultipleJGitEnvironmentRepository，在DefaultRepositoryConfiguration中配置）
 		this.objectMapper = objectMapper;
 	}
 
@@ -105,7 +105,7 @@ public class EnvironmentController {
 	@RequestMapping("/{name}/{profiles:.*[^-].*}")
 	public Environment defaultLabel(@PathVariable String name,
 			@PathVariable String profiles) {
-		return getEnvironment(name, profiles, null, false);
+		return getEnvironment(name, profiles, null, false); // 最终都会调用getEnvironment方法
 	}
 
 	@RequestMapping(path = "/{name}/{profiles:.*[^-].*}",
@@ -140,7 +140,7 @@ public class EnvironmentController {
 			// by Spring MVC
 			label = label.replace("(_)", "/");
 		}
-		Environment environment = this.repository.findOne(name, profiles, label,
+		Environment environment = this.repository.findOne(name, profiles, label, // 调用某个repository存储组件来获得环境配置信息，并进行返回（默认实现为MultipleJGitEnvironmentRepository，在DefaultRepositoryConfiguration中配置）
 				includeOrigin);
 		if (!this.acceptEmpty
 				&& (environment == null || environment.getPropertySources().isEmpty())) {

@@ -238,12 +238,12 @@ public class JGitEnvironmentRepository extends AbstractScmEnvironmentRepository
 	}
 
 	@Override
-	public synchronized Locations getLocations(String application, String profile,
+	public synchronized Locations getLocations(String application, String profile, // 从git远程仓库同步到本地
 			String label) {
 		if (label == null) {
 			label = this.defaultLabel;
 		}
-		String version = refresh(label);
+		String version = refresh(label); // 从git远程仓库同步到本地
 		return new Locations(application, profile, label, version,
 				getSearchLocations(getWorkingDirectory(), application, profile, label));
 	}
@@ -262,10 +262,10 @@ public class JGitEnvironmentRepository extends AbstractScmEnvironmentRepository
 	 * @param label label to refresh
 	 * @return head id
 	 */
-	public String refresh(String label) {
+	public String refresh(String label) { // 从git远程仓库同步到本地
 		Git git = null;
 		try {
-			git = createGitClient();
+			git = createGitClient(); // 构建git客户端
 			if (shouldPull(git)) {
 				FetchResult fetchStatus = fetch(git, label);
 				if (this.deleteUntrackedBranches && fetchStatus != null) {
@@ -273,8 +273,8 @@ public class JGitEnvironmentRepository extends AbstractScmEnvironmentRepository
 							git);
 				}
 				// checkout after fetch so we can get any new branches, tags, ect.
-				checkout(git, label);
-				tryMerge(git, label);
+				checkout(git, label); // checkout
+				tryMerge(git, label); // merge
 			}
 			else {
 				// nothing to update so just checkout and merge.

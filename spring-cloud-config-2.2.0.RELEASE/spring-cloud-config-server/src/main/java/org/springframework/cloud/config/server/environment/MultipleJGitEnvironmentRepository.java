@@ -149,9 +149,9 @@ public class MultipleJGitEnvironmentRepository extends JGitEnvironmentRepository
 	}
 
 	@Override
-	public Environment findOne(String application, String profile, String label,
+	public Environment findOne(String application, String profile, String label, // 获取配置环境信息
 			boolean includeOrigin) {
-		for (PatternMatchingJGitEnvironmentRepository repository : this.repos.values()) {
+		for (PatternMatchingJGitEnvironmentRepository repository : this.repos.values()) { // 遍历JGitEnvironmentRepository，即遍历所有git数据源
 			if (repository.matches(application, profile, label)) {
 				for (JGitEnvironmentRepository candidate : getRepositories(repository,
 						application, profile, label)) {
@@ -159,7 +159,7 @@ public class MultipleJGitEnvironmentRepository extends JGitEnvironmentRepository
 						if (label == null) {
 							label = candidate.getDefaultLabel();
 						}
-						Environment source = candidate.findOne(application, profile,
+						Environment source = candidate.findOne(application, profile, // JGitEnvironmentRepository使用NativeEnvironmentRepository委托读取本地文件
 								label, includeOrigin);
 						if (source != null) {
 							return source;

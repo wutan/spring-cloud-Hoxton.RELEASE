@@ -67,7 +67,7 @@ public class ConfigServerMvcConfiguration implements WebMvcConfigurer {
 	@RefreshScope
 	public EnvironmentController environmentController(
 			EnvironmentRepository envRepository, ConfigServerProperties server) {
-		EnvironmentController controller = new EnvironmentController(
+		EnvironmentController controller = new EnvironmentController( // 创建EnvironmentController
 				encrypted(envRepository, server), this.objectMapper);
 		controller.setStripDocumentFromYaml(server.isStripDocumentFromYaml());
 		controller.setAcceptEmpty(server.isAcceptEmpty());
