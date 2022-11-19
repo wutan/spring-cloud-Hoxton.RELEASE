@@ -77,10 +77,10 @@ public final class HystrixPropertiesManager {
     /**
      * Thread pool properties.
      */
-    public static final String MAX_QUEUE_SIZE = "maxQueueSize";
-    public static final String CORE_SIZE = "coreSize";
-    public static final String KEEP_ALIVE_TIME_MINUTES = "keepAliveTimeMinutes";
-    public static final String QUEUE_SIZE_REJECTION_THRESHOLD = "queueSizeRejectionThreshold";
+    public static final String MAX_QUEUE_SIZE = "maxQueueSize"; // 阻塞队列大小
+    public static final String CORE_SIZE = "coreSize"; // 线程池核心线程数
+    public static final String KEEP_ALIVE_TIME_MINUTES = "keepAliveTimeMinutes"; // 线程空闲存活时间
+    public static final String QUEUE_SIZE_REJECTION_THRESHOLD = "queueSizeRejectionThreshold"; // 阻塞队列大小拒绝阈值
     public static final String METRICS_ROLLING_STATS_NUM_BUCKETS = "metrics.rollingStats.numBuckets";
     public static final String METRICS_ROLLING_STATS_TIME_IN_MILLISECONDS = "metrics.rollingStats.timeInMilliseconds";
 
