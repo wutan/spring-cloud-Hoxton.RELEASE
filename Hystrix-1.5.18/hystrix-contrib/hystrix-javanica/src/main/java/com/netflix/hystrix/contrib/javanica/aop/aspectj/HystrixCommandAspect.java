@@ -83,22 +83,22 @@ public class HystrixCommandAspect { // @HystrixCommand注解的切面实现
 
     @Around("hystrixCommandAnnotationPointcut() || hystrixCollapserAnnotationPointcut()")
     public Object methodsAnnotatedWithHystrixCommand(final ProceedingJoinPoint joinPoint) throws Throwable { // 切点的环绕处理方法
-        Method method = getMethodFromTarget(joinPoint); // 获取被修饰的方法
+        Method method = getMethodFromTarget(joinPoint); // 获取被修饰的目标方法
         Validate.notNull(method, "failed to get method from joinPoint: %s", joinPoint);
         if (method.isAnnotationPresent(HystrixCommand.class) && method.isAnnotationPresent(HystrixCollapser.class)) { // @HystrixCommand注解与@HystrixCollapser注解只能两者选其一
             throw new IllegalStateException("method cannot be annotated with HystrixCommand and HystrixCollapser " +
                     "annotations at the same time");
         }
         MetaHolderFactory metaHolderFactory = META_HOLDER_FACTORY_MAP.get(HystrixPointcutType.of(method)); // 根据方法上修饰的注解类型获取对应的工厂类，@HystrixCommand注解对应的是CommandMetaHolderFactory类
-        MetaHolder metaHolder = metaHolderFactory.create(joinPoint); // 通过工厂类创建MetaHolder对象（封装了注解中的所有信息）
-        HystrixInvokable invokable = HystrixCommandFactory.getInstance().create(metaHolder); // 默认返回GenericCommand对象，会初始化熔断器、线程池等对象
+        MetaHolder metaHolder = metaHolderFactory.create(joinPoint); // 通过工厂类创建MetaHolder元数据对象（封装了注解中的所有信息）
+        HystrixInvokable invokable = HystrixCommandFactory.getInstance().create(metaHolder); // 创建调用者，默认为GenericCommand对象，会初始化熔断器、线程池等对象
         ExecutionType executionType = metaHolder.isCollapserAnnotationPresent() ?
                 metaHolder.getCollapserExecutionType() : metaHolder.getExecutionType();
 
         Object result;
         try {
-            if (!metaHolder.isObservable()) { // 默认为false
-                result = CommandExecutor.execute(invokable, executionType, metaHolder); // 切面执行逻辑
+            if (!metaHolder.isObservable()) { // 是否为响应式，默认为false
+                result = CommandExecutor.execute(invokable, executionType, metaHolder); // 执行切面逻辑/命令
             } else {
                 result = executeObservable(invokable, executionType, metaHolder);
             }
@@ -254,7 +254,7 @@ public class HystrixCommandAspect { // @HystrixCommand注解的切面实现
         @Override
         public MetaHolder create(Object proxy, Method method, Object obj, Object[] args, final ProceedingJoinPoint joinPoint) {
             HystrixCommand hystrixCommand = method.getAnnotation(HystrixCommand.class);
-            ExecutionType executionType = ExecutionType.getExecutionType(method.getReturnType());
+            ExecutionType executionType = ExecutionType.getExecutionType(method.getReturnType()); // 通过返回值判断执行类型
             MetaHolder.Builder builder = metaHolderBuilder(proxy, method, obj, args, joinPoint);
             if (isCompileWeaving()) {
                 builder.ajcMethod(getAjcMethodFromTarget(joinPoint));

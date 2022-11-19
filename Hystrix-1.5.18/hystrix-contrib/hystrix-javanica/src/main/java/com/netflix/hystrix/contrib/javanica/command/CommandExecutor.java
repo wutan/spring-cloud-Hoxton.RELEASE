@@ -43,13 +43,13 @@ public class CommandExecutor {
      * @return the result of invocation of specific method.
      * @throws RuntimeException
      */
-    public static Object execute(HystrixInvokable invokable, ExecutionType executionType, MetaHolder metaHolder) throws RuntimeException {
+    public static Object execute(HystrixInvokable invokable, ExecutionType executionType, MetaHolder metaHolder) throws RuntimeException { // 执行命令
         Validate.notNull(invokable);
         Validate.notNull(metaHolder);
 
-        switch (executionType) {
+        switch (executionType) { // 判断执行类型
             case SYNCHRONOUS: { // 同步执行类型（默认类型）
-                return castToExecutable(invokable, executionType).execute(); // 默认调用HystrixCommand#execute
+                return castToExecutable(invokable, executionType).execute(); // 默认调用HystrixCommand#execute同步执行，返回结果对象，产生错误时抛出异常
             }
             case ASYNCHRONOUS: { // 异步执行类型
                 HystrixExecutable executable = castToExecutable(invokable, executionType);
@@ -57,9 +57,9 @@ public class CommandExecutor {
                         && ExecutionType.ASYNCHRONOUS == metaHolder.getFallbackExecutionType()) {
                     return new FutureDecorator(executable.queue());
                 }
-                return executable.queue();
+                return executable.queue(); // 异步执行，返回Future对象，包含执行结束后返回的结果
             }
-            case OBSERVABLE: {
+            case OBSERVABLE: { // 响应式类型
                 HystrixObservable observable = castToObservable(invokable);
                 return ObservableExecutionMode.EAGER == metaHolder.getObservableExecutionMode() ? observable.observe() : observable.toObservable();
             }

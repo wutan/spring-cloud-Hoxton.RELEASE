@@ -339,7 +339,7 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
      * @throws IllegalStateException
      *             if invoked more than once
      */
-    public R execute() {
+    public R execute() { // 同步执行命令
         try {
             return queue().get(); // 同步阻塞获取，调用其匿名实现的get方法
         } catch (Exception e) {
@@ -369,7 +369,7 @@ public abstract class HystrixCommand<R> extends AbstractCommand<R> implements Hy
      * @throws IllegalStateException
      *             if invoked more than once
      */
-    public Future<R> queue() {
+    public Future<R> queue() { // 该方法返回一个异步带返回值的Future对象，匿名实现
         /*
          * The Future returned by Observable.toBlocking().toFuture() does not implement the
          * interruption of the execution thread when the "mayInterrupt" flag of Future.cancel(boolean) is set to true;
