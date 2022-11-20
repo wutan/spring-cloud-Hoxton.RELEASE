@@ -34,7 +34,7 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 public class FilterDefinition { // 路由过滤器（路由前对请求信息进行操作）
 
 	@NotNull
-	private String name;
+	private String name; // StripPrefix=1
 
 	private Map<String, String> args = new LinkedHashMap<>();
 

@@ -37,7 +37,7 @@ import org.springframework.validation.annotation.Validated;
  */
 @ConfigurationProperties("spring.cloud.gateway")
 @Validated
-public class GatewayProperties {
+public class GatewayProperties { // gateway属性配置
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -46,7 +46,7 @@ public class GatewayProperties {
 	 */
 	@NotNull
 	@Valid
-	private List<RouteDefinition> routes = new ArrayList<>();
+	private List<RouteDefinition> routes = new ArrayList<>(); // routes路由规则列表
 
 	/**
 	 * List of filter definitions that are applied to every route.
