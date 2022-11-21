@@ -29,7 +29,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
  * @author Spencer Gibb
  */
 @FunctionalInterface
-public interface GatewayFilterFactory<C> extends ShortcutConfigurable, Configurable<C> {
+public interface GatewayFilterFactory<C> extends ShortcutConfigurable, Configurable<C> { // 路由过滤工厂类
 
 	/**
 	 * Name key.
@@ -73,9 +73,9 @@ public interface GatewayFilterFactory<C> extends ShortcutConfigurable, Configura
 		return apply(config);
 	}
 
-	default String name() {
+	default String name() { // 获取路由过滤工厂前缀名称（当前简单类名去除GatewayFilterFactory后的名称）
 		// TODO: deal with proxys
-		return NameUtils.normalizeFilterFactoryName(getClass());
+		return NameUtils.normalizeFilterFactoryName(getClass()); // 获取路由过滤工厂前缀名称（当前简单类名去除GatewayFilterFactory后的名称）
 	}
 
 	@Deprecated

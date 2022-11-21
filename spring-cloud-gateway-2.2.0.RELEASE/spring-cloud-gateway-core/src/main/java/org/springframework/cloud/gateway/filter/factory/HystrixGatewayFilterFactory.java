@@ -61,7 +61,7 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.c
  * @author Michele Mancioppi
  * @author Olga Maciaszek-Sharma
  */
-public class HystrixGatewayFilterFactory
+public class HystrixGatewayFilterFactory // Hystrix路由过滤工厂（Gateway整合了Hystrix，但为可选项）
 		extends AbstractGatewayFilterFactory<HystrixGatewayFilterFactory.Config> {
 
 	private final ObjectProvider<DispatcherHandler> dispatcherHandlerProvider;
@@ -181,13 +181,13 @@ public class HystrixGatewayFilterFactory
 		};
 	}
 
-	public static class Config {
+	public static class Config { // Hystrix配置（FilterDefinition的args参数）
 
-		private String name;
+		private String name; // name
 
 		private Setter setter;
 
-		private URI fallbackUri;
+		private URI fallbackUri; // fallbackUri
 
 		public String getName() {
 			return name;

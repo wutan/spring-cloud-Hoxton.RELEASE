@@ -31,7 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rossen Stoyanchev
  * @since 5.0
  */
-public interface GatewayFilter extends ShortcutConfigurable {
+public interface GatewayFilter extends ShortcutConfigurable { // 自定义路由过滤器（非全局）
 
 	/**
 	 * Name key.
