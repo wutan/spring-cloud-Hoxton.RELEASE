@@ -182,16 +182,16 @@ public class GatewayAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(RouteDefinitionRepository.class)
+	@ConditionalOnMissingBean(RouteDefinitionRepository.class) // 当容器中不存在自定义RouteDefinitionRepository时，使用InMemoryRouteDefinitionRepository
 	public InMemoryRouteDefinitionRepository inMemoryRouteDefinitionRepository() {
 		return new InMemoryRouteDefinitionRepository(); // 创建路由定义Dao层实现，默认将路由定义存储在应用缓存中
 	}
 
 	@Bean
 	@Primary
-	public RouteDefinitionLocator routeDefinitionLocator(
+	public RouteDefinitionLocator routeDefinitionLocator( // 默认的RouteDefinitionLocator
 			List<RouteDefinitionLocator> routeDefinitionLocators) {
-		return new CompositeRouteDefinitionLocator(
+		return new CompositeRouteDefinitionLocator( // 创建CompositeRouteDefinitionLocator路由定义读取组合器，封装路由定义实例列表
 				Flux.fromIterable(routeDefinitionLocators));
 	}
 
@@ -203,12 +203,12 @@ public class GatewayAutoConfiguration {
 	}
 
 	@Bean
-	public RouteLocator routeDefinitionRouteLocator(GatewayProperties properties,
-			List<GatewayFilterFactory> gatewayFilters,
-			List<RoutePredicateFactory> predicates,
-			RouteDefinitionLocator routeDefinitionLocator,
+	public RouteLocator routeDefinitionRouteLocator(GatewayProperties properties, // gateway属性配置
+			List<GatewayFilterFactory> gatewayFilters, // 路由过滤工厂实例列表
+			List<RoutePredicateFactory> predicates, // 路由断言工厂实例列表
+			RouteDefinitionLocator routeDefinitionLocator, // 路由定义读取组合器
 			ConfigurationService configurationService) {
-		return new RouteDefinitionRouteLocator(routeDefinitionLocator, predicates,
+		return new RouteDefinitionRouteLocator(routeDefinitionLocator, predicates, // 创建RouteDefinitionRouteLocator
 				gatewayFilters, properties, configurationService);
 	}
 
