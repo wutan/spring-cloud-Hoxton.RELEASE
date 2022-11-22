@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.PathVariable;
  * @author Spencer Gibb
  */
 @RestControllerEndpoint(id = "gateway")
-public class GatewayControllerEndpoint extends AbstractGatewayControllerEndpoint {
+public class GatewayControllerEndpoint extends AbstractGatewayControllerEndpoint { // Gateway的Actuator端点
 
 	public GatewayControllerEndpoint(List<GlobalFilter> globalFilters,
 			List<GatewayFilterFactory> gatewayFilters,
