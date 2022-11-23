@@ -87,8 +87,8 @@ public class AbstractGatewayControllerEndpoint implements ApplicationEventPublis
 	// TODO: Add uncommited or new but not active routes endpoint
 
 	@PostMapping("/refresh")
-	public Mono<Void> refresh() {
-		this.publisher.publishEvent(new RefreshRoutesEvent(this));
+	public Mono<Void> refresh() { // 刷新gateway配置
+		this.publisher.publishEvent(new RefreshRoutesEvent(this)); // 发布RefreshRoutesEvent事件
 		return Mono.empty();
 	}
 
