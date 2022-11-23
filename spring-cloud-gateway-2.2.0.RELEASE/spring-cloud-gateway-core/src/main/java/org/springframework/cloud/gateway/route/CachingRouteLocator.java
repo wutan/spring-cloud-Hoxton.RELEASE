@@ -61,8 +61,8 @@ public class CachingRouteLocator
 	}
 
 	@Override
-	public void onApplicationEvent(RefreshRoutesEvent event) {
-		refresh();
+	public void onApplicationEvent(RefreshRoutesEvent event) { // 监听RefreshRoutesEvent事件
+		refresh(); // 刷新gateway配置
 	}
 
 	@Deprecated

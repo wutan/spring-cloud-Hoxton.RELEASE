@@ -33,20 +33,20 @@ public final class NameUtils {
 	 */
 	public static final String GENERATED_NAME_PREFIX = "_genkey_";
 
-	public static String generateName(int i) {
+	public static String generateName(int i) { // 给断言工厂/路由工厂生成属性名
 		return GENERATED_NAME_PREFIX + i;
 	}
 
-	public static String normalizeRoutePredicateName(
+	public static String normalizeRoutePredicateName( // 获取路由断言工厂前缀名称（当前简单类名去除RoutePredicateFactory后的名称）
 			Class<? extends RoutePredicateFactory> clazz) {
 		return removeGarbage(clazz.getSimpleName()
-				.replace(RoutePredicateFactory.class.getSimpleName(), ""));
+				.replace(RoutePredicateFactory.class.getSimpleName(), "")); // 获取路由断言工厂前缀名称（当前简单类名去除RoutePredicateFactory后的名称）
 	}
 
-	public static String normalizeFilterFactoryName(
+	public static String normalizeFilterFactoryName( // 获取路由过滤工厂前缀名称（当前简单类名去除GatewayFilterFactory后的名称）
 			Class<? extends GatewayFilterFactory> clazz) {
 		return removeGarbage(clazz.getSimpleName()
-				.replace(GatewayFilterFactory.class.getSimpleName(), ""));
+				.replace(GatewayFilterFactory.class.getSimpleName(), "")); // 获取路由过滤工厂前缀名称（当前简单类名去除GatewayFilterFactory后的名称）
 	}
 
 	private static String removeGarbage(String s) {

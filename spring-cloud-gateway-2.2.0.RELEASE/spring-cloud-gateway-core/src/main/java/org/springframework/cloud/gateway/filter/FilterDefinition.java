@@ -34,25 +34,25 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 public class FilterDefinition { // 路由过滤器（路由前对请求信息进行操作）
 
 	@NotNull
-	private String name; // StripPrefix=1
+	private String name; // 过滤工厂名称（命令规则见NameUtils.normalizeFilterFactoryName）
 
-	private Map<String, String> args = new LinkedHashMap<>();
+	private Map<String, String> args = new LinkedHashMap<>(); // 过滤工厂属性容器
 
 	public FilterDefinition() {
 	}
 
-	public FilterDefinition(String text) {
+	public FilterDefinition(String text) { // 创建FilterDefinition（text值由ObjectToObjectConverter转换器传入，如：StripPrefix=1）
 		int eqIdx = text.indexOf('=');
 		if (eqIdx <= 0) {
 			setName(text);
 			return;
 		}
-		setName(text.substring(0, eqIdx));
+		setName(text.substring(0, eqIdx)); // 设置name属性值，属性值为=前面的部分
 
-		String[] args = tokenizeToStringArray(text.substring(eqIdx + 1), ",");
+		String[] args = tokenizeToStringArray(text.substring(eqIdx + 1), ","); // =后面的部分以逗号分隔的数组为属性值
 
 		for (int i = 0; i < args.length; i++) {
-			this.args.put(NameUtils.generateName(i), args[i]);
+			this.args.put(NameUtils.generateName(i), args[i]); // 给路由工厂生成属性名，并将属性值设置到args变量中
 		}
 	}
 

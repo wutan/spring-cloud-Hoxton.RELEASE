@@ -71,9 +71,9 @@ public class RouteDefinitionRouteLocator
 
 	private final Map<String, RoutePredicateFactory> predicates = new LinkedHashMap<>(); // 路由断言工厂的缓存容器
 
-	private final Map<String, GatewayFilterFactory> gatewayFilterFactories = new HashMap<>();
+	private final Map<String, GatewayFilterFactory> gatewayFilterFactories = new HashMap<>(); // 路由过滤工厂的缓存容器
 
-	private final GatewayProperties gatewayProperties;
+	private final GatewayProperties gatewayProperties; // gateway属性配置
 
 	@Deprecated
 	public RouteDefinitionRouteLocator(RouteDefinitionLocator routeDefinitionLocator,
@@ -85,11 +85,11 @@ public class RouteDefinitionRouteLocator
 		this.configurationService.setConversionService(conversionService);
 		initFactories(predicates); // 初始化路由断言工厂的缓存容器
 		gatewayFilterFactories.forEach(
-				factory -> this.gatewayFilterFactories.put(factory.name(), factory));
-		this.gatewayProperties = gatewayProperties;
+				factory -> this.gatewayFilterFactories.put(factory.name(), factory)); // 获取路由过滤工厂前缀名称并添加到路由过滤工厂的缓存容器
+		this.gatewayProperties = gatewayProperties; // gateway属性配置
 	}
 
-	public RouteDefinitionRouteLocator(RouteDefinitionLocator routeDefinitionLocator,
+	public RouteDefinitionRouteLocator(RouteDefinitionLocator routeDefinitionLocator, // 实例化RouteDefinitionRouteLocator
 			List<RoutePredicateFactory> predicates,
 			List<GatewayFilterFactory> gatewayFilterFactories,
 			GatewayProperties gatewayProperties,
@@ -98,8 +98,8 @@ public class RouteDefinitionRouteLocator
 		this.configurationService = configurationService;
 		initFactories(predicates); // 初始化路由断言工厂的缓存容器
 		gatewayFilterFactories.forEach(
-				factory -> this.gatewayFilterFactories.put(factory.name(), factory));
-		this.gatewayProperties = gatewayProperties;
+				factory -> this.gatewayFilterFactories.put(factory.name(), factory)); // 获取路由过滤工厂前缀名称并添加到路由过滤工厂的缓存容器
+		this.gatewayProperties = gatewayProperties; // gateway属性配置
 	}
 
 	@Override
