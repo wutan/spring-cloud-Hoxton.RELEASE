@@ -35,25 +35,25 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 public class PredicateDefinition { // 路由断言规则（判断路由是否成立）
 
 	@NotNull
-	private String name;
+	private String name; // 断言工厂名称（命令规则见NameUtils.normalizeRoutePredicateName）
 
-	private Map<String, String> args = new LinkedHashMap<>();
+	private Map<String, String> args = new LinkedHashMap<>(); // 断言工厂属性容器
 
 	public PredicateDefinition() {
 	}
 
-	public PredicateDefinition(String text) {
+	public PredicateDefinition(String text) { // 创建PredicateDefinition（text值由ObjectToObjectConverter转换器传入，如：Path=/xx/**）
 		int eqIdx = text.indexOf('=');
 		if (eqIdx <= 0) {
 			throw new ValidationException("Unable to parse PredicateDefinition text '"
 					+ text + "'" + ", must be of the form name=value");
 		}
-		setName(text.substring(0, eqIdx));
+		setName(text.substring(0, eqIdx)); // 设置name属性值，属性值为=前面的部分
 
-		String[] args = tokenizeToStringArray(text.substring(eqIdx + 1), ",");
+		String[] args = tokenizeToStringArray(text.substring(eqIdx + 1), ","); // =后面的部分以逗号分隔的数组为属性值
 
 		for (int i = 0; i < args.length; i++) {
-			this.args.put(NameUtils.generateName(i), args[i]);
+			this.args.put(NameUtils.generateName(i), args[i]); // 给断言工厂生成属性名，并将属性值设置到args变量中
 		}
 	}
 

@@ -96,14 +96,14 @@ public class PathRoutePredicateFactory  // 最常见的路由断言--根据请�
 				Optional<PathPattern> optionalPathPattern = pathPatterns.stream() // 获取第一个匹配请求路径的对象
 						.filter(pattern -> pattern.matches(path)).findFirst();
 
-				if (optionalPathPattern.isPresent()) {
+				if (optionalPathPattern.isPresent()) { // 匹配成功
 					PathPattern pathPattern = optionalPathPattern.get();
 					traceMatch("Pattern", pathPattern.getPatternString(), path, true);
 					PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(path);
 					putUriTemplateVariables(exchange, pathMatchInfo.getUriVariables());
 					return true;
 				}
-				else {
+				else { // 匹配失败
 					traceMatch("Pattern", config.getPatterns(), path, false);
 					return false;
 				}

@@ -72,7 +72,7 @@ public interface RoutePredicateFactory<C> extends ShortcutConfigurable, Configur
 	}
 
 	default String name() { // 获取路由断言工厂前缀名称（当前简单类名去除RoutePredicateFactory后的名称）
-		return NameUtils.normalizeRoutePredicateName(getClass());
+		return NameUtils.normalizeRoutePredicateName(getClass());  // 获取路由断言工厂前缀名称（当前简单类名去除RoutePredicateFactory后的名称）
 	}
 
 }
