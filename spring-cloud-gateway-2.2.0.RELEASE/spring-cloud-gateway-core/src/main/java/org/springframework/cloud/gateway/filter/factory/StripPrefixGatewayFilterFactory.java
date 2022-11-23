@@ -67,7 +67,7 @@ public class StripPrefixGatewayFilterFactory
 				String newPath = "/"
 						+ Arrays.stream(StringUtils.tokenizeToStringArray(path, "/"))
 								.skip(config.parts).collect(Collectors.joining("/"));
-				newPath += (newPath.length() > 1 && path.endsWith("/") ? "/" : "");
+				newPath += (newPath.length() > 1 && path.endsWith("/") ? "/" : ""); // 确定目标路径
 				ServerHttpRequest newRequest = request.mutate().path(newPath).build();
 
 				exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR,
