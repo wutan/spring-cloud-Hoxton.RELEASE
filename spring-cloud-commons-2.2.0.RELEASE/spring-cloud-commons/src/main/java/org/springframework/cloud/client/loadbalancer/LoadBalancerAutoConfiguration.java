@@ -44,7 +44,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(RestTemplate.class)
-@ConditionalOnBean(LoadBalancerClient.class)
+@ConditionalOnBean(LoadBalancerClient.class) // 默认在RibbonAutoConfiguration中创建RibbonLoadBalancerClient
 @EnableConfigurationProperties(LoadBalancerRetryProperties.class)
 public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在LoadBalancerAutoConfiguration之前加载（实例化LoadBalancerClient等）
 
