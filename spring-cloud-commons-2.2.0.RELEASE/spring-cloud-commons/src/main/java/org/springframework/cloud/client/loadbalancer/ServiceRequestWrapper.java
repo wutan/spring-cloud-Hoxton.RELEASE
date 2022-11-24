@@ -31,7 +31,7 @@ public class ServiceRequestWrapper extends HttpRequestWrapper {
 
 	private final LoadBalancerClient loadBalancer;
 
-	public ServiceRequestWrapper(HttpRequest request, ServiceInstance instance,
+	public ServiceRequestWrapper(HttpRequest request, ServiceInstance instance, // 实例化ServiceRequestWrapper
 			LoadBalancerClient loadBalancer) {
 		super(request);
 		this.instance = instance;
@@ -40,7 +40,7 @@ public class ServiceRequestWrapper extends HttpRequestWrapper {
 
 	@Override
 	public URI getURI() { // 重构url，获取真实的uri地址
-		URI uri = this.loadBalancer.reconstructURI(this.instance, getRequest().getURI()); // 重构URI
+		URI uri = this.loadBalancer.reconstructURI(this.instance, getRequest().getURI()); // 重构URI，获取真实的uri地址
 		return uri;
 	}
 
