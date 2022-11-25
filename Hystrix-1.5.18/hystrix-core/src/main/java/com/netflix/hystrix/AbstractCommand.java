@@ -848,7 +848,7 @@ import java.util.concurrent.atomic.AtomicReference;
                 Observable<R> fallbackExecutionChain;
 
                 // acquire a permit
-                if (fallbackSemaphore.tryAcquire()) {
+                if (fallbackSemaphore.tryAcquire()) { // 尝试获取降级的信号量
                     try {
                         if (isFallbackUserDefined()) {
                             executionHook.onFallbackStart(this);
