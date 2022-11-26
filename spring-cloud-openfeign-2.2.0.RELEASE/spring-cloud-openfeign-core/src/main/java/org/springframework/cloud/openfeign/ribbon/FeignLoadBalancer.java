@@ -97,15 +97,15 @@ public class FeignLoadBalancer extends // Feign整合Ribbon的负载均衡器（
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler( // 获取重试处理器
 			RibbonRequest request, IClientConfig requestConfig) {
-		if (this.ribbon.isOkToRetryOnAllOperations()) {
+		if (this.ribbon.isOkToRetryOnAllOperations()) { // 默认为false
 			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(), // 创建重试处理器
 					requestConfig);
 		}
-		if (!request.toRequest().httpMethod().name().equals("GET")) {
+		if (!request.toRequest().httpMethod().name().equals("GET")) { // 非GET请求，不进行重试
 			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(), // 创建重试处理器
 					requestConfig);
 		}
-		else {
+		else { // GET请求，进行重试
 			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(), // 创建重试处理器
 					requestConfig);
 		}
