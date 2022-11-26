@@ -26,7 +26,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
  * @since 1.0.12
  */
 @ConfigurationProperties("spring.sleuth.web")
-public class SleuthWebProperties {
+public class SleuthWebProperties { // Sleuth的Web配置
 
 	/**
 	 * Default set of skip patterns.

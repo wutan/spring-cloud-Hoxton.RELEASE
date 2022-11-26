@@ -26,14 +26,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 1.0.0
  */
 @ConfigurationProperties("spring.sleuth.sampler")
-public class SamplerProperties {
+public class SamplerProperties { // Sleuth采样配置
 
 	/**
 	 * Probability of requests that should be sampled. E.g. 1.0 - 100% requests should be
 	 * sampled. The precision is whole-numbers only (i.e. there's no support for 0.1% of
 	 * the traces).
 	 */
-	private Float probability;
+	private Float probability; // 采样比例
 
 	/**
 	 * A rate per second can be a nice choice for low-traffic endpoints as it allows you

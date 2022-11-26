@@ -25,12 +25,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 1.3.1
  */
 @ConfigurationProperties("spring.zipkin.sender")
-public class ZipkinSenderProperties {
+public class ZipkinSenderProperties {// Sleuth整合Zipkin上报的配置
 
 	/**
 	 * Means of sending spans to Zipkin.
 	 */
-	private SenderType type;
+	private SenderType type; // 上报类型
 
 	public SenderType getType() {
 		return this.type;

@@ -27,14 +27,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 1.0.0
  */
 @ConfigurationProperties("spring.zipkin")
-public class ZipkinProperties {
+public class ZipkinProperties { // Sleuth整合Zipkin的配置
 
 	/**
 	 * URL of the zipkin query server instance. You can also provide the service id of the
 	 * Zipkin server if Zipkin's registered in service discovery (e.g.
 	 * https://zipkinserver/).
 	 */
-	private String baseUrl = "http://localhost:9411/";
+	private String baseUrl = "http://localhost:9411/"; // Sleuth数据采集后通过HTTP上报到Zipkin的地址
 
 	/**
 	 * If set to {@code false}, will treat the {@link ZipkinProperties#baseUrl} as a URL
