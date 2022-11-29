@@ -114,7 +114,7 @@ public class RibbonAutoConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(HttpRequest.class)
-	@ConditionalOnRibbonRestClient
+	@ConditionalOnRibbonRestClient // 当含有ribbon.restclient.enabled或ribbon.http.client.enabled属性时成立
 	protected static class RibbonClientHttpRequestFactoryConfiguration {
 
 		@Autowired
@@ -124,7 +124,7 @@ public class RibbonAutoConfiguration {
 		public RestTemplateCustomizer restTemplateCustomizer(
 				final RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory) {
 			return restTemplate -> restTemplate
-					.setRequestFactory(ribbonClientHttpRequestFactory);
+					.setRequestFactory(ribbonClientHttpRequestFactory); // 设置请求工厂
 		}
 
 		@Bean
