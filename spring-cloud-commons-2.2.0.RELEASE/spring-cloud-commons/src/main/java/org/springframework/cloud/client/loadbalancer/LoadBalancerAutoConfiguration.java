@@ -60,8 +60,8 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 			final ObjectProvider<List<RestTemplateCustomizer>> restTemplateCustomizers) {
 		return () -> restTemplateCustomizers.ifAvailable(customizers -> { // 函数式接口，SmartInitializingSingleton类的afterSingletonsInstantiated方法在所有类都getBean完成后调用
 			for (RestTemplate restTemplate : LoadBalancerAutoConfiguration.this.restTemplates) {
-				for (RestTemplateCustomizer customizer : customizers) { // 对修饰了@LoadBalanced注解的RestTemplate实例添加LoadBalancerInterceptor拦截器
-					customizer.customize(restTemplate); // 真正开始调用RestTemplateCustomizer的函数式接口将拦截器设置到RestTemplate中
+				for (RestTemplateCustomizer customizer : customizers) { // 对修饰了@LoadBalanced注解的RestTemplate实例添加LoadBalancerInterceptor拦截器/请求工厂
+					customizer.customize(restTemplate); // 真正开始调用RestTemplateCustomizer的函数式接口将拦截器/请求工厂设置到RestTemplate中
 				}
 			}
 		});
@@ -87,7 +87,7 @@ public class LoadBalancerAutoConfiguration { // RibbonAutoConfiguration会在Loa
 
 		@Bean
 		@ConditionalOnMissingBean
-		public RestTemplateCustomizer restTemplateCustomizer( // 2.初始化RestTemplateCustomizer
+		public RestTemplateCustomizer restTemplateCustomizer( // 2.初始化RestTemplateCustomizer（当容器中不存在RestTemplateCustomizer时）
 				final LoadBalancerInterceptor loadBalancerInterceptor) {
 			return restTemplate -> { // 函数式接口
 				List<ClientHttpRequestInterceptor> list = new ArrayList<>(
