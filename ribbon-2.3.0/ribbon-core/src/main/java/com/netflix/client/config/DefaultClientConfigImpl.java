@@ -160,11 +160,11 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultClientConfigImpl.class);
 
-    private String clientName = null;
+    private String clientName = null; // 服务名称/客户端名称/Ribbon实例名称
 
     private VipAddressResolver resolver = null;
 
-    private boolean enableDynamicProperties = true;
+    private boolean enableDynamicProperties = true; // 是否开启动态属性（默认开启）
     /**
      * Defaults for the parameters for the thread pool used by batchParallel
      * calls
@@ -374,7 +374,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
 	 * Create instance with no properties in default name space {@link #DEFAULT_PROPERTY_NAME_SPACE}
 	 */
     public DefaultClientConfigImpl() { // 创建DefaultClientConfigImpl
-        this.dynamicProperties.clear();
+        this.dynamicProperties.clear(); // 清空动态属性缓存
         this.enableDynamicProperties = false;
     }
 
@@ -387,7 +387,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
     }
 
     public void loadDefaultValues() { // 加载属性值（先从Environment环境中获取，如果获取不到使用默认值）
-        putDefaultIntegerProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, getDefaultMaxHttpConnectionsPerHost()); // 设置属性值
+        putDefaultIntegerProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, getDefaultMaxHttpConnectionsPerHost()); // 设置全局Ribbon属性值
         putDefaultIntegerProperty(CommonClientConfigKey.MaxTotalHttpConnections, getDefaultMaxTotalHttpConnections());
         putDefaultBooleanProperty(CommonClientConfigKey.EnableConnectionPool, getDefaultEnableConnectionPool());
         putDefaultIntegerProperty(CommonClientConfigKey.MaxConnectionsPerHost, getDefaultMaxConnectionsPerHost());
@@ -455,11 +455,11 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
 
     protected void setPropertyInternal(final String propName, Object value) { // 设置属性值
         String stringValue = (value == null) ? "" : String.valueOf(value);
-        properties.put(propName, stringValue); // 将属性映射关系放入本地属性缓存
+        properties.put(propName, stringValue); // 将属性映射关系放入本地静态属性缓存
         if (!enableDynamicProperties) {
             return;
         }
-        String configKey = getConfigKey(propName);
+        String configKey = getConfigKey(propName); // 获取全局Ribbon属性key
         final DynamicStringProperty prop = DynamicPropertyFactory.getInstance().getStringProperty(configKey, null);
         Runnable callback = new Runnable() {
             @Override
@@ -499,7 +499,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
 
         };
         prop.addCallback(callback);
-        dynamicProperties.put(propName, prop);
+        dynamicProperties.put(propName, prop); // 设置动态属性
     }
 
 
@@ -507,7 +507,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
 	// property exists. If so, that value is used, else the default value
 	// passed as argument is used to put into the properties member variable
     protected void putDefaultIntegerProperty(IClientConfigKey propName, Integer defaultValue) { // 设置属性值，先从Environment环境中获取，如果获取不到使用默认值
-        Integer value = ConfigurationManager.getConfigInstance().getInteger( // 获取属性值（先从Environment环境中获取，如果获取不到使用默认值）
+        Integer value = ConfigurationManager.getConfigInstance().getInteger( // 获取全局Ribbon属性值（先从Environment环境中获取，如果获取不到使用默认值）
                 getDefaultPropName(propName), defaultValue);
         setPropertyInternal(propName, value); // 设置属性值
     }
@@ -534,11 +534,11 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
         setPropertyInternal(propName, value);
     }
 
-    String getDefaultPropName(String propName) {
+    String getDefaultPropName(String propName) { // 获取全局Ribbon属性key
         return getNameSpace() + "." + propName;
     }
 
-    public String getDefaultPropName(IClientConfigKey propName) {
+    public String getDefaultPropName(IClientConfigKey propName) { // 获取全局Ribbon属性key
         return getDefaultPropName(propName.key());
     }
 
@@ -555,7 +555,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
         setPropertyInternal(propName, value);
     }
 
-    public void setClientName(String clientName){
+    public void setClientName(String clientName){ // 设置服务名
         this.clientName  = clientName;
     }
 
@@ -706,7 +706,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
         return this;
     }
 
-    protected Object getProperty(String key) {
+    protected Object getProperty(String key) { // 获取属性
         if (enableDynamicProperties) { // 默认为true
             String dynamicValue = null;
             DynamicStringProperty dynamicProperty = dynamicProperties.get(key); // 1.先从动态属性缓存中获取
@@ -714,7 +714,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
                 dynamicValue = dynamicProperty.get();
             }
             if (dynamicValue == null) {
-                dynamicValue = DynamicProperty.getInstance(getConfigKey(key)).getString(); // 2.再从实例key中获取属性值
+                dynamicValue = DynamicProperty.getInstance(getConfigKey(key)).getString(); // 2.再从当前实例key中获取属性值
                 if (dynamicValue == null) {
                     dynamicValue = DynamicProperty.getInstance(getDefaultPropName(key)).getString(); // 3.再从全局key中获取属性值
                 }
@@ -808,7 +808,7 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
         return getInstancePropName(restClientName, configKey.key());
     }
 
-    public String getInstancePropName(String restClientName, String key) {
+    public String getInstancePropName(String restClientName, String key) { // 获取实例Ribbon属性key
         return restClientName + "." + getNameSpace() + "."
                 + key;
     }
@@ -877,8 +877,8 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T get(IClientConfigKey<T> key) {
-        Object obj = getProperty(key.key());
+    public <T> T get(IClientConfigKey<T> key) { // 获取属性
+        Object obj = getProperty(key.key()); // 获取属性
         if (obj == null) {
             return null;
         }
@@ -909,13 +909,13 @@ public class DefaultClientConfigImpl implements IClientConfig { // Ribbon的默�
     }
 
     @Override
-    public <T> DefaultClientConfigImpl set(IClientConfigKey<T> key, T value) {
-        properties.put(key.key(), value);
+    public <T> DefaultClientConfigImpl set(IClientConfigKey<T> key, T value) { // 将属性值设置到静态属性中
+        properties.put(key.key(), value); // 将属性值设置到静态属性中
         return this;
     }
 
     @Override
-    public <T> T get(IClientConfigKey<T> key, T defaultValue) {
+    public <T> T get(IClientConfigKey<T> key, T defaultValue) { // 获取属性
         T value = get(key);
         if (value == null) {
             value = defaultValue;
