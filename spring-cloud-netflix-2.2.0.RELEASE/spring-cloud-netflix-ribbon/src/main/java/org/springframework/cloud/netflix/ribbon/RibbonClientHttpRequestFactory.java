@@ -51,7 +51,7 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 		RestClient client = this.clientFactory.getClient(serviceId, RestClient.class);
 		HttpRequest.Verb verb = HttpRequest.Verb.valueOf(httpMethod.name());
 
-		return new RibbonHttpRequest(originalUri, verb, client, clientConfig);
+		return new RibbonHttpRequest(originalUri, verb, client, clientConfig); // 创建RibbonHttpRequest
 	}
 
 }

@@ -50,7 +50,7 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 
 	private ByteArrayOutputStream outputStream = null;
 
-	public RibbonHttpRequest(URI uri, HttpRequest.Verb verb, RestClient client,
+	public RibbonHttpRequest(URI uri, HttpRequest.Verb verb, RestClient client, // 实例化RibbonHttpRequest
 			IClientConfig config) {
 		this.uri = uri;
 		this.verb = verb;
