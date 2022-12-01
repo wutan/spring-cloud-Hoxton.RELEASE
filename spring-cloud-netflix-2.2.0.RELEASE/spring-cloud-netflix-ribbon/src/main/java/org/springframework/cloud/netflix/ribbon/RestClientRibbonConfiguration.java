@@ -54,7 +54,7 @@ class RestClientRibbonConfiguration {
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer,
 			ServerIntrospector serverIntrospector, RetryHandler retryHandler) {
-		RestClient client = new RibbonClientConfiguration.OverrideRestClient(config,
+		RestClient client = new RibbonClientConfiguration.OverrideRestClient(config, // 创建OverrideRestClient
 				serverIntrospector);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);

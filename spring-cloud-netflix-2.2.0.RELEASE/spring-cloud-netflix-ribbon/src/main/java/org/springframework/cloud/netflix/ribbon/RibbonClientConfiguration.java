@@ -86,8 +86,8 @@ public class RibbonClientConfiguration { // Ribbon的客户端默认配置类（
 	 */
 	public static final boolean DEFAULT_GZIP_PAYLOAD = true;
 
-	@RibbonClientName // 通过@Value("${ribbon.client.name}")从Environment环境中获取子容器服务名
-	private String name = "client";
+	@RibbonClientName // 通过@Value("${ribbon.client.name}")从Environment环境中获取子容器服务名（该属性源在子容器工厂中进行设置）
+	private String name = "client"; // Ribbon应用名/客户端名称
 
 	// TODO: maybe re-instate autowired load balancers: identified by name they could be
 	// associated with ribbon clients
@@ -100,8 +100,8 @@ public class RibbonClientConfiguration { // Ribbon的客户端默认配置类（
 	public IClientConfig ribbonClientConfig() { // 创建客户端负载均衡器配置接口IClientConfig实现类对象
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl(); // 初始化DefaultClientConfigImpl（Ribbon客户端默认配置实现类）
 		config.loadProperties(this.name); // 加载对应服务名的Ribbon客户端属性配置（先从Environment环境中获取，如果获取不到使用默认值）
-		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT); // 重新设置连接超时时间（默认为1秒）
-		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT); // 重新设置读取超时时间（默认为1秒）
+		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT); // 重新设置连接超时时间到静态属性中（默认为1秒）
+		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT); // 重新设置读取超时时间到静态属性中（默认为1秒）
 		config.set(CommonClientConfigKey.GZipPayload, DEFAULT_GZIP_PAYLOAD);
 		return config;
 	}
@@ -198,7 +198,7 @@ public class RibbonClientConfiguration { // Ribbon的客户端默认配置类（
 
 		private ServerIntrospector serverIntrospector;
 
-		protected OverrideRestClient(IClientConfig config,
+		protected OverrideRestClient(IClientConfig config, // 实例化OverrideRestClient
 				ServerIntrospector serverIntrospector) {
 			super();
 			this.config = config;
