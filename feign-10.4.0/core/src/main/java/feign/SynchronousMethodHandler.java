@@ -78,9 +78,9 @@ final class SynchronousMethodHandler implements MethodHandler {
     while (true) {
       try {
         return executeAndDecode(template, options); // 先通过RequestTemplate生成Request请求对象，再调用Client对象发起请求获取response响应信息并进行解析
-      } catch (RetryableException e) {
+      } catch (RetryableException e) { // 捕获封装了IOException异常的RetryableException异常
         try {
-          retryer.continueOrPropagate(e);
+          retryer.continueOrPropagate(e); // 判断能否重试
         } catch (RetryableException th) {
           Throwable cause = th.getCause();
           if (propagationPolicy == UNWRAP && cause != null) {
@@ -92,7 +92,7 @@ final class SynchronousMethodHandler implements MethodHandler {
         if (logLevel != Logger.Level.NONE) {
           logger.logRetry(metadata.configKey(), logLevel);
         }
-        continue;
+        continue; // 能重试则执行while循环，调用请求
       }
     }
   }
@@ -107,12 +107,12 @@ final class SynchronousMethodHandler implements MethodHandler {
     Response response;
     long start = System.nanoTime(); // 获取执行请求的开始时间
     try {
-      response = client.execute(request, options); // 调用Client对象发起请求，默认的负载均衡客户端为LoadBalancerFeignClient、默认的第三方客户端为feign.Client.Default
+      response = client.execute(request, options); // 调用Client对象发起请求，默认的负载均衡客户端为LoadBalancerFeignClient、默认的第三方客户端为feign.Client.Default（封装了HttpURLConnection）
     } catch (IOException e) { // 只抓IO异常
       if (logLevel != Logger.Level.NONE) {
         logger.logIOException(metadata.configKey(), logLevel, e, elapsedTime(start));
       }
-      throw errorExecuting(request, e);
+      throw errorExecuting(request, e); // 将IO异常封装到RetryableException异常中并抛出
     }
     long elapsedTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start); // 统计请求调用花费的时间
 
@@ -166,8 +166,8 @@ final class SynchronousMethodHandler implements MethodHandler {
     return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
   }
 
-  Request targetRequest(RequestTemplate template) {
-    for (RequestInterceptor interceptor : requestInterceptors) {
+  Request targetRequest(RequestTemplate template) { // 通过RequestTemplate生成Request请求对象，转化为Http请求报文
+    for (RequestInterceptor interceptor : requestInterceptors) { // 在生成Request请求对象前，会调用Feign的拦截器进行拦截处理
       interceptor.apply(template);
     }
     return target.apply(template);
@@ -188,7 +188,7 @@ final class SynchronousMethodHandler implements MethodHandler {
       return this.options;
     }
     return (Options) Stream.of(argv)
-        .filter(o -> o instanceof Options)
+        .filter(o -> o instanceof Options) // 从方法参数中过滤出Options对象
         .findFirst()
         .orElse(this.options);
   }

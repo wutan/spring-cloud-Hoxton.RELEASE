@@ -99,7 +99,7 @@ public abstract class Feign {
     private Logger.Level logLevel = Logger.Level.NONE;
     private Contract contract = new Contract.Default(); // 锲约（生成FeignClient的代理对象时会从子容器中获取并赋值，默认为SpringMvcContract，当使用了服务降级且开启服务降级时为HystrixDelegatingContract）
     private Client client = new Client.Default(null, null); // 负载均衡客户端或第三方客户端（生成FeignClient的代理对象时会从子容器中获取并赋值）
-    private Retryer retryer = new Retryer.Default(); // 重试机制（在Feign的默认配置类中默认会不重试）
+    private Retryer retryer = new Retryer.Default(); // 重试机制（生成FeignClient的代理对象时会从子容器、全局属性配置、实例属性配置中获取并赋值）
     private Logger logger = new NoOpLogger(); // 日志（生成FeignClient的代理对象时会从子容器中获取并赋值）
     private Encoder encoder = new Encoder.Default(); // 编码器（生成FeignClient的代理对象时会从子容器中获取并赋值）
     private Decoder decoder = new Decoder.Default(); // 解码器（生成FeignClient的代理对象时会从子容器中获取并赋值）
@@ -253,10 +253,10 @@ public abstract class Feign {
 
     public Feign build() { // 构建Feign对象
       SynchronousMethodHandler.Factory synchronousMethodHandlerFactory =
-          new SynchronousMethodHandler.Factory(client, retryer, requestInterceptors, logger, // 创建SynchronousMethodHandler.Factory
+          new SynchronousMethodHandler.Factory(client, retryer, requestInterceptors, logger, // 创建SynchronousMethodHandler.Factory（将Feign.Builder中的属性传递给SynchronousMethodHandler.Factory）
               logLevel, decode404, closeAfterDecode, propagationPolicy);
       ParseHandlersByName handlersByName =
-          new ParseHandlersByName(contract, options, encoder, decoder, queryMapEncoder, // 创建ParseHandlersByName
+          new ParseHandlersByName(contract, options, encoder, decoder, queryMapEncoder, // 创建ParseHandlersByName（将Feign.Builder中的属性传递给ParseHandlersByName）
               errorDecoder, synchronousMethodHandlerFactory); // ParseHandlersByName将Target的所有接口方法转换为Map<String, MethodHandler>对象
       return new ReflectiveFeign(handlersByName, invocationHandlerFactory, queryMapEncoder); // 创建ReflectiveFeign
     }

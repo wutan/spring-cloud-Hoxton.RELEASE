@@ -30,7 +30,7 @@ public class RetryableException extends FeignException {
   /**
    * @param retryAfter usually corresponds to the {@link feign.Util#RETRY_AFTER} header.
    */
-  public RetryableException(int status, String message, HttpMethod httpMethod, Throwable cause,
+  public RetryableException(int status, String message, HttpMethod httpMethod, Throwable cause, // 实例化RetryableException异常并注入IO异常
       Date retryAfter, Request request) {
     super(status, message, request, cause);
     this.httpMethod = httpMethod;

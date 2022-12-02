@@ -33,7 +33,7 @@ public interface Retryer extends Cloneable { // Feign的重试机制
     private final int maxAttempts; // 最大重试次数（包含第一次）
     private final long period; // 首次间隔时间
     private final long maxPeriod; // 最大间隔时间
-    int attempt;
+    int attempt; // 当前尝试次数，默认为1，即重试次数包含第一次（该属性不支持修改）
     long sleptForMillis;
 
     public Default() {
@@ -53,7 +53,7 @@ public interface Retryer extends Cloneable { // Feign的重试机制
     }
 
     public void continueOrPropagate(RetryableException e) {
-      if (attempt++ >= maxAttempts) {
+      if (attempt++ >= maxAttempts) { // 当前尝试次数>=最大重试次数时，原封不动抛出异常
         throw e;
       }
 

@@ -206,8 +206,8 @@ public class FeignException extends RuntimeException {
     }
   }
 
-  static FeignException errorExecuting(Request request, IOException cause) {
-    return new RetryableException(
+  static FeignException errorExecuting(Request request, IOException cause) { // 将IO异常封装到RetryableException异常中并抛出
+    return new RetryableException( // 创建RetryableException异常并注入IO异常
         -1,
         format("%s executing %s %s", cause.getMessage(), request.httpMethod(), request.url()),
         request.httpMethod(),
