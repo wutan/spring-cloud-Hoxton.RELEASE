@@ -130,7 +130,7 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
 				.withRetryHandler(handler) // 设置重试处理器
 				.withLoadBalancerURI(request.getUri());
 		customizeLoadBalancerCommandBuilder(request, config, builder);
-		return builder.build();
+		return builder.build(); // 构建LoadBalancerCommand
 	}
 
 	protected void customizeLoadBalancerCommandBuilder(final S request, final IClientConfig config,
