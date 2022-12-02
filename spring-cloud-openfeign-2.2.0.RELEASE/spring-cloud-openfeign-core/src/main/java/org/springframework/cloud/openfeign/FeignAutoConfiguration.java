@@ -72,7 +72,7 @@ public class FeignAutoConfiguration {
 	}
 
 	@Bean
-	public FeignContext feignContext() { // 初始化FeignContext
+	public FeignContext feignContext() { // 初始化FeignContext（作用同Ribbon的SpringClientFactory）
 		FeignContext context = new FeignContext(); // 创建FeignContext并设置FeignClientSpecification
 		context.setConfigurations(this.configurations); // 将FeignClientSpecification集合设置到FeignContext中
 		return context;
@@ -107,7 +107,7 @@ public class FeignAutoConfiguration {
 	// see corresponding configurations in FeignRibbonClientAutoConfiguration
 	// for load balanced ribbon clients.
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(ApacheHttpClient.class)
+	@ConditionalOnClass(ApacheHttpClient.class) // 当引入feign-httpclient依赖包时
 	@ConditionalOnMissingClass("com.netflix.loadbalancer.ILoadBalancer")
 	@ConditionalOnMissingBean(CloseableHttpClient.class)
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true) // 默认使用HttpClientConnection进行远程调用
