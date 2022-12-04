@@ -59,7 +59,7 @@ import org.springframework.format.support.FormattingConversionService;
 public class FeignClientsConfiguration { // Feign的客户端默认配置类（在使用时才会加载，各服务提供者相互独立）
 
 	@Autowired
-	private ObjectFactory<HttpMessageConverters> messageConverters;
+	private ObjectFactory<HttpMessageConverters> messageConverters; // 收集消息转换器
 
 	@Autowired(required = false)
 	private List<AnnotatedParameterProcessor> parameterProcessors = new ArrayList<>();
@@ -68,14 +68,14 @@ public class FeignClientsConfiguration { // Feign的客户端默认配置类（�
 	private List<FeignFormatterRegistrar> feignFormatterRegistrars = new ArrayList<>();
 
 	@Autowired(required = false)
-	private Logger logger;
+	private Logger logger; // 收集Feign的日志类
 
 	@Autowired(required = false)
 	private SpringDataWebProperties springDataWebProperties;
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Decoder feignDecoder() {
+	public Decoder feignDecoder() { // 解码器
 		return new OptionalDecoder(
 				new ResponseEntityDecoder(new SpringDecoder(this.messageConverters)));
 	}
@@ -135,7 +135,7 @@ public class FeignClientsConfiguration { // Feign的客户端默认配置类（�
 	@Bean
 	@ConditionalOnMissingBean(FeignLoggerFactory.class)
 	public FeignLoggerFactory feignLoggerFactory() {
-		return new DefaultFeignLoggerFactory(this.logger);
+		return new DefaultFeignLoggerFactory(this.logger); // 创建Feign的日志工厂
 	}
 
 	@Bean
