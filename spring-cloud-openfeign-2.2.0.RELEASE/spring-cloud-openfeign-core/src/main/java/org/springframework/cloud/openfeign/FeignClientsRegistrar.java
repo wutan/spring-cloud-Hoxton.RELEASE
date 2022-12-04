@@ -64,9 +64,9 @@ class FeignClientsRegistrar
 	// patterned after Spring Integration IntegrationComponentScanRegistrar
 	// and RibbonClientsConfigurationRegistgrar
 
-	private ResourceLoader resourceLoader;
+	private ResourceLoader resourceLoader; // 通过ResourceLoaderAware注入ResourceLoader
 
-	private Environment environment;
+	private Environment environment; // 通过EnvironmentAware注入Environment
 
 	FeignClientsRegistrar() {
 	}
@@ -138,8 +138,8 @@ class FeignClientsRegistrar
 	}
 
 	@Override
-	public void registerBeanDefinitions(AnnotationMetadata metadata,
-			BeanDefinitionRegistry registry) { // 动态装载Bean
+	public void registerBeanDefinitions(AnnotationMetadata metadata, // 动态装载Bean
+			BeanDefinitionRegistry registry) {
 		registerDefaultConfiguration(metadata, registry); // 从Spring Boot启动类上检查是否有@EnableFeignClients注解，并将defaultConfiguration属性下的类包装成FeignCLientSpecification注册到Spring容器中
 		registerFeignClients(metadata, registry); // 从classpath中扫描获取所有@FeignClient修饰的类，并解析成BeanDefinition动态注册成FactoryBean到Spring容器中
 	}
@@ -177,13 +177,13 @@ class FeignClientsRegistrar
 				: (Class<?>[]) attrs.get("clients"); // 获取@EnableFeignClients注解中的clients属性值
 		if (clients == null || clients.length == 0) { // clients为空时进行包扫描
 			scanner.addIncludeFilter(annotationTypeFilter); // 添加IncludeFilter注解@FeignClient
-			basePackages = getBasePackages(metadata); // 根据@EnableFeignClients注解获取要扫描的包路径
+			basePackages = getBasePackages(metadata); // 根据@EnableFeignClients注解获取要扫描的包路径（默认为被导入类所在的包路径）
 		}
 		else { // clients不为null时解析clients
 			final Set<String> clientClasses = new HashSet<>();
 			basePackages = new HashSet<>();
-			for (Class<?> clazz : clients) {
-				basePackages.add(ClassUtils.getPackageName(clazz));
+			for (Class<?> clazz : clients) { // 当clients不为空时
+				basePackages.add(ClassUtils.getPackageName(clazz)); // 添加每一个FeignClient所在的包路径
 				clientClasses.add(clazz.getCanonicalName());
 			}
 			AbstractClassTestingTypeFilter filter = new AbstractClassTestingTypeFilter() {
@@ -213,7 +213,7 @@ class FeignClientsRegistrar
 									FeignClient.class.getCanonicalName()); // 获取@FeignClient注解的相关信息
 
 					String name = getClientName(attributes); // 从@FeignClient注解属性中获取客户端名称（优先使用contextId）
-					registerClientConfiguration(registry, name, // 将configuration属性下的类包装成FeignCLientSpecification注册到Spring容器中
+					registerClientConfiguration(registry, name, // 将configuration属性下的类包装成FeignClientSpecification注册到Spring容器中
 							attributes.get("configuration"));
 
 					registerFeignClient(registry, annotationMetadata, attributes); // 循环去注册FeignClient对应的FeignClientFactoryBean
@@ -336,11 +336,11 @@ class FeignClientsRegistrar
 				basePackages.add(pkg);
 			}
 		}
-		for (Class<?> clazz : (Class[]) attributes.get("basePackageClasses")) {
+		for (Class<?> clazz : (Class[]) attributes.get("basePackageClasses")) { // 获取@EnableFeignClients注解中的basePackageClasses属性值
 			basePackages.add(ClassUtils.getPackageName(clazz));
 		}
 
-		if (basePackages.isEmpty()) {
+		if (basePackages.isEmpty()) { // 当basePackages为空时，basePackages为被导入类所在的包路径
 			basePackages.add(
 					ClassUtils.getPackageName(importingClassMetadata.getClassName()));
 		}
