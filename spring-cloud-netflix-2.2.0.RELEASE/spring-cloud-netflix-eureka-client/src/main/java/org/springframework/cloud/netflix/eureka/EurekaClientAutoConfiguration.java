@@ -94,13 +94,13 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 		CommonsClientAutoConfiguration.class, ServiceRegistryAutoConfiguration.class })
 @AutoConfigureAfter(name = {
 		"org.springframework.cloud.autoconfigure.RefreshAutoConfiguration",
-		"org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration",
+		"org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration", // 当前类在EurekaDiscoveryClientConfiguration后进行自动装配
 		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration" })
-public class EurekaClientAutoConfiguration {
+public class EurekaClientAutoConfiguration { // Eureka Client端的Spring Boot自动装配类
 
 	private ConfigurableEnvironment env;
 
-	public EurekaClientAutoConfiguration(ConfigurableEnvironment env) {
+	public EurekaClientAutoConfiguration(ConfigurableEnvironment env) { // 只有一个有参构造函数，参数会自动注入
 		this.env = env;
 	}
 
@@ -112,7 +112,7 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class,
 			search = SearchStrategy.CURRENT)
-	public EurekaClientConfigBean eurekaClientConfigBean(ConfigurableEnvironment env) {
+	public EurekaClientConfigBean eurekaClientConfigBean(ConfigurableEnvironment env) { // EurekaClient配置
 		EurekaClientConfigBean client = new EurekaClientConfigBean(); // 初始化EurekaClientConfig
 		if ("bootstrap".equals(this.env.getProperty("spring.config.name"))) {
 			// We don't register during bootstrap by default, but there will be another
@@ -135,9 +135,9 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class,
 			search = SearchStrategy.CURRENT)
-	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils,
+	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils, // EurekaInstance配置
 			ManagementMetadataProvider managementMetadataProvider) {
-		String hostname = getProperty("eureka.instance.hostname");
+		String hostname = getProperty("eureka.instance.hostname"); // 从Environment中获取相关属性
 		boolean preferIpAddress = Boolean
 				.parseBoolean(getProperty("eureka.instance.prefer-ip-address"));
 		String ipAddress = getProperty("eureka.instance.ip-address");
@@ -153,7 +153,7 @@ public class EurekaClientAutoConfiguration {
 				.getProperty("management.server.servlet.context-path");
 		Integer jmxPort = env.getProperty("com.sun.management.jmxremote.port",
 				Integer.class);
-		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
+		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils); // 创建EurekaInstanceConfigBean
 
 		instance.setNonSecurePort(serverPort);
 		instance.setInstanceId(getDefaultInstanceId(env));
@@ -240,15 +240,15 @@ public class EurekaClientAutoConfiguration {
 	@ConditionalOnProperty(
 			value = "spring.cloud.service-registry.auto-registration.enabled",
 			matchIfMissing = true)
-	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration( // 初始化EurekaAutoServiceRegistration
+	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(
 			ApplicationContext context, EurekaServiceRegistry registry,
 			EurekaRegistration registration) {
-		return new EurekaAutoServiceRegistration(context, registry, registration);
+		return new EurekaAutoServiceRegistration(context, registry, registration); // 实例化EurekaAutoServiceRegistration，通过SmartLifecycle进行服务注册
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnMissingRefreshScope
-	protected static class EurekaClientConfiguration { // eureka客户端的配置，包含EurekaClient、ApplicationInfoMangager、EurekaRegistration
+	@ConditionalOnMissingRefreshScope // 默认情况下不成立
+	protected static class EurekaClientConfiguration { // 不支持刷新的eureka客户端配置类
 
 		@Autowired
 		private ApplicationContext context;
@@ -261,7 +261,7 @@ public class EurekaClientAutoConfiguration {
 				search = SearchStrategy.CURRENT)
 		public EurekaClient eurekaClient(ApplicationInfoManager manager,
 				EurekaClientConfig config) {
-			return new CloudEurekaClient(manager, config, this.optionalArgs, // 初始化EurekaClient
+			return new CloudEurekaClient(manager, config, this.optionalArgs,
 					this.context);
 		}
 
@@ -291,7 +291,7 @@ public class EurekaClientAutoConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnRefreshScope
-	protected static class RefreshableEurekaClientConfiguration {
+	protected static class RefreshableEurekaClientConfiguration { // 支持刷新的eureka客户端配置类，包含EurekaClient、ApplicationInfoMangager、EurekaRegistration
 
 		@Autowired
 		private ApplicationContext context;
@@ -304,7 +304,7 @@ public class EurekaClientAutoConfiguration {
 				search = SearchStrategy.CURRENT)
 		@org.springframework.cloud.context.config.annotation.RefreshScope
 		@Lazy
-		public EurekaClient eurekaClient(ApplicationInfoManager manager,
+		public EurekaClient eurekaClient(ApplicationInfoManager manager, // 注入ApplicationInfoManager、EurekaClientConfig、EurekaInstanceConfig
 				EurekaClientConfig config, EurekaInstanceConfig instance,
 				@Autowired(required = false) HealthCheckHandler healthCheckHandler) {
 			// If we use the proxy of the ApplicationInfoManager we could run into a
@@ -321,7 +321,7 @@ public class EurekaClientAutoConfiguration {
 			else {
 				appManager = manager;
 			}
-			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager,
+			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager, // 创建EurekaClient
 					config, this.optionalArgs, this.context);
 			cloudEurekaClient.registerHealthCheck(healthCheckHandler);
 			return cloudEurekaClient;
@@ -334,8 +334,8 @@ public class EurekaClientAutoConfiguration {
 		@Lazy
 		public ApplicationInfoManager eurekaApplicationInfoManager(
 				EurekaInstanceConfig config) {
-			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
-			return new ApplicationInfoManager(config, instanceInfo);
+			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config); // 根据EurekaInstance配置构建InstanceInfo
+			return new ApplicationInfoManager(config, instanceInfo); // 创建ApplicationInfoManager
 		}
 
 		@Bean
