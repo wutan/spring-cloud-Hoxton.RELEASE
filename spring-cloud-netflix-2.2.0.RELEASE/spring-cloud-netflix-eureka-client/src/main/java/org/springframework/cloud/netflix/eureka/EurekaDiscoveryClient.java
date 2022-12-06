@@ -37,7 +37,7 @@ import org.springframework.core.Ordered;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
-public class EurekaDiscoveryClient implements DiscoveryClient { // Spring Cloud Eureka的服务发现类
+public class EurekaDiscoveryClient implements DiscoveryClient { // 基于Eureka实现的服务发现客户端
 
 	/**
 	 * Client description {@link String}.
@@ -53,7 +53,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient { // Spring Cloud 
 		this(eurekaClient, eurekaClient.getEurekaClientConfig());
 	}
 
-	public EurekaDiscoveryClient(EurekaClient eurekaClient,
+	public EurekaDiscoveryClient(EurekaClient eurekaClient, // 实例化EurekaDiscoveryClient
 			EurekaClientConfig clientConfig) {
 		this.clientConfig = clientConfig;
 		this.eurekaClient = eurekaClient;
