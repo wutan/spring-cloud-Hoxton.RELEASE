@@ -95,7 +95,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @AutoConfigureAfter(name = {
 		"org.springframework.cloud.autoconfigure.RefreshAutoConfiguration",
 		"org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration", // 当前类在EurekaDiscoveryClientConfiguration后进行自动装配
-		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration" })
+		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration" }) // 当前类在AutoServiceRegistrationAutoConfiguration后进行自动装配
 public class EurekaClientAutoConfiguration { // Eureka Client端的Spring Boot自动装配类
 
 	private ConfigurableEnvironment env;
@@ -217,8 +217,8 @@ public class EurekaClientAutoConfiguration { // Eureka Client端的Spring Boot�
 	}
 
 	@Bean
-	public EurekaServiceRegistry eurekaServiceRegistry() { // 初始化EurekaServiceRegistry（ServiceRegistry服务注册接口的实现类）
-		return new EurekaServiceRegistry();
+	public EurekaServiceRegistry eurekaServiceRegistry() { // 基于Eureka实现的服务注册类
+		return new EurekaServiceRegistry(); // 初始化EurekaServiceRegistry（ServiceRegistry服务注册接口的实现类）
 	}
 
 	// @Bean
@@ -240,10 +240,10 @@ public class EurekaClientAutoConfiguration { // Eureka Client端的Spring Boot�
 	@ConditionalOnProperty(
 			value = "spring.cloud.service-registry.auto-registration.enabled",
 			matchIfMissing = true)
-	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(
-			ApplicationContext context, EurekaServiceRegistry registry,
-			EurekaRegistration registration) {
-		return new EurekaAutoServiceRegistration(context, registry, registration); // 实例化EurekaAutoServiceRegistration，通过SmartLifecycle进行服务注册
+	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration( // 基于Eureka实现的服务自动注册类
+			ApplicationContext context, EurekaServiceRegistry registry, // 注入EurekaServiceRegistry服务注册类
+			EurekaRegistration registration) { // 注入EurekaRegistration
+		return new EurekaAutoServiceRegistration(context, registry, registration); // 实例化EurekaAutoServiceRegistration，通过SmartLifecycle在对象全部实例化/容器初始化后进行服务注册
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -304,7 +304,7 @@ public class EurekaClientAutoConfiguration { // Eureka Client端的Spring Boot�
 				search = SearchStrategy.CURRENT)
 		@org.springframework.cloud.context.config.annotation.RefreshScope
 		@Lazy
-		public EurekaClient eurekaClient(ApplicationInfoManager manager, // 注入ApplicationInfoManager、EurekaClientConfig、EurekaInstanceConfig
+		public EurekaClient eurekaClient(ApplicationInfoManager manager, // Eureka的服务发现客户端，注入ApplicationInfoManager、EurekaClientConfig、EurekaInstanceConfig
 				EurekaClientConfig config, EurekaInstanceConfig instance,
 				@Autowired(required = false) HealthCheckHandler healthCheckHandler) {
 			// If we use the proxy of the ApplicationInfoManager we could run into a
@@ -321,7 +321,7 @@ public class EurekaClientAutoConfiguration { // Eureka Client端的Spring Boot�
 			else {
 				appManager = manager;
 			}
-			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager, // 创建EurekaClient
+			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager, // 创建EurekaClient，通过Eureka自身的服务发现客户端发起注册和发现服务
 					config, this.optionalArgs, this.context);
 			cloudEurekaClient.registerHealthCheck(healthCheckHandler);
 			return cloudEurekaClient;
@@ -344,12 +344,12 @@ public class EurekaClientAutoConfiguration { // Eureka Client端的Spring Boot�
 		@ConditionalOnProperty(
 				value = "spring.cloud.service-registry.auto-registration.enabled",
 				matchIfMissing = true)
-		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient,
+		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, // 基于Eureka实现的服务注册类的标记扩展接口
 				CloudEurekaInstanceConfig instanceConfig,
 				ApplicationInfoManager applicationInfoManager, @Autowired(
 						required = false) ObjectProvider<HealthCheckHandler> healthCheckHandler) {
-			return EurekaRegistration.builder(instanceConfig).with(applicationInfoManager)
-					.with(eurekaClient).with(healthCheckHandler).build();
+			return EurekaRegistration.builder(instanceConfig).with(applicationInfoManager) // 构建EurekaRegistration
+					.with(eurekaClient).with(healthCheckHandler).build(); // 构建EurekaRegistration
 		}
 
 	}
