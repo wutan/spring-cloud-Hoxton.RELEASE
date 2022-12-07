@@ -28,7 +28,7 @@ import org.springframework.core.Ordered;
  * @author Spencer Gibb
  * @author Olga Maciaszek-Sharma
  */
-public interface DiscoveryClient extends Ordered {
+public interface DiscoveryClient extends Ordered { // 服务发现客户端（读操作）
 
 	/**
 	 * Default order of the discovery client.
