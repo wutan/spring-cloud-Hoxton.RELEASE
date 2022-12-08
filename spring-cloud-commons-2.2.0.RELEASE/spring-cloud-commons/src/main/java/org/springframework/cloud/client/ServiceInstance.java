@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
-public interface ServiceInstance {
+public interface ServiceInstance { // 服务实例接口定义类，实现类由各组件实现，如：EurekaServiceInstance、NacosServiceInstance
 
 	/**
 	 * @return The unique instance ID as registered.
