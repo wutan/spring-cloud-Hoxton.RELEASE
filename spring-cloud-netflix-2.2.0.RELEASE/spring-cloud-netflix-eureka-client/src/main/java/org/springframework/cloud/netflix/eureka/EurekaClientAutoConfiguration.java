@@ -87,7 +87,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
-@Import(DiscoveryClientOptionalArgsConfiguration.class)
+@Import(DiscoveryClientOptionalArgsConfiguration.class) // 导入DiscoveryClientOptionalArgsConfiguration类
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @ConditionalOnDiscoveryEnabled
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
