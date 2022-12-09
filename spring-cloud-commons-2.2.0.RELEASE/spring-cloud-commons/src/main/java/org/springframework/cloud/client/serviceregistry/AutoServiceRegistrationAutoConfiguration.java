@@ -33,14 +33,14 @@ import org.springframework.context.annotation.Import;
 public class AutoServiceRegistrationAutoConfiguration {
 
 	@Autowired(required = false)
-	private AutoServiceRegistration autoServiceRegistration;
+	private AutoServiceRegistration autoServiceRegistration; // 注入服务自动注册类
 
 	@Autowired
-	private AutoServiceRegistrationProperties properties;
+	private AutoServiceRegistrationProperties properties; // 注入服务自动注册属性类
 
 	@PostConstruct
 	protected void init() {
-		if (this.autoServiceRegistration == null && this.properties.isFailFast()) {
+		if (this.autoServiceRegistration == null && this.properties.isFailFast()) { // 检查没有服务自动注册类时，是否快速抛出异常
 			throw new IllegalStateException("Auto Service Registration has "
 					+ "been requested, but there is no AutoServiceRegistration bean");
 		}
