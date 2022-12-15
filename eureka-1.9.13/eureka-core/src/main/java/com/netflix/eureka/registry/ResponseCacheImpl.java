@@ -85,7 +85,7 @@ public class ResponseCacheImpl implements ResponseCache {
     private static final AtomicLong versionDeltaWithRegionsLegacy = new AtomicLong(0);
 
     private static final String EMPTY_PAYLOAD = "";
-    private final java.util.Timer timer = new java.util.Timer("Eureka-CacheFillTimer", true);
+    private final java.util.Timer timer = new java.util.Timer("Eureka-CacheFillTimer", true); // 二级缓存同步到三级缓存的定时任务
     private final AtomicLong versionDelta = new AtomicLong(0);
     private final AtomicLong versionDeltaWithRegions = new AtomicLong(0);
 
@@ -111,12 +111,12 @@ public class ResponseCacheImpl implements ResponseCache {
                     return new CopyOnWriteArrayList<Key>();
                 }
             });
-    // 多级缓存用来实现读写分析，避免大规模服务注册与更新时修改ConcurrentHashMap数据导致锁的竞争影响性能
+    // 多级缓存用来实现读写分离，避免大规模服务注册与更新时修改ConcurrentHashMap数据导致锁的竞争影响性能
     private final ConcurrentMap<Key, Value> readOnlyCacheMap = new ConcurrentHashMap<Key, Value>(); // 三级缓存，周期更新，默认每30秒从二级缓存同步服务注册信息（Eureka Client默认从三级缓存获取服务注册信息，可配为直接从二级缓存获取）
 
-    private final LoadingCache<Key, Value> readWriteCacheMap; // 二级缓存，实时更新，缓存时间180秒
-    private final boolean shouldUseReadOnlyResponseCache; // 是否开启三级缓存
-    private final AbstractInstanceRegistry registry;
+    private final LoadingCache<Key, Value> readWriteCacheMap; // 二级缓存，实时更新，缓存时间180秒（调用get方法时如果二级缓存获取不到会触发guava的load回调函数从一级缓存registry中获取数据）
+    private final boolean shouldUseReadOnlyResponseCache; // 是否开启三级缓存，默认开启
+    private final AbstractInstanceRegistry registry; // InstanceRegistry
     private final EurekaServerConfig serverConfig;
     private final ServerCodecs serverCodecs;
 
@@ -124,7 +124,7 @@ public class ResponseCacheImpl implements ResponseCache {
         this.serverConfig = serverConfig;
         this.serverCodecs = serverCodecs;
         this.shouldUseReadOnlyResponseCache = serverConfig.shouldUseReadOnlyResponseCache(); // 是否开启三级缓存，默认开启
-        this.registry = registry;
+        this.registry = registry; // 注入InstanceRegistry
 
         long responseCacheUpdateIntervalMs = serverConfig.getResponseCacheUpdateIntervalMs(); // 二级缓存往三级缓存同步的间隔时间，默认30秒
         this.readWriteCacheMap = // 初始化二级缓存
@@ -153,7 +153,7 @@ public class ResponseCacheImpl implements ResponseCache {
                         });
 
         if (shouldUseReadOnlyResponseCache) { // 当开启三级缓存时创建定时任务，创建定时任务将二级缓存同步到三级缓存中
-            timer.schedule(getCacheUpdateTask(),
+            timer.schedule(getCacheUpdateTask(), // 开启二级缓存同步到三级缓存的定时任务
                     new Date(((System.currentTimeMillis() / responseCacheUpdateIntervalMs) * responseCacheUpdateIntervalMs)
                             + responseCacheUpdateIntervalMs),
                     responseCacheUpdateIntervalMs); // 创建定时任务，每隔30秒将二级缓存的数据同步到三级缓存
@@ -166,7 +166,7 @@ public class ResponseCacheImpl implements ResponseCache {
         }
     }
 
-    private TimerTask getCacheUpdateTask() {
+    private TimerTask getCacheUpdateTask() { // 执行二级缓存同步到三级缓存的定时任务，默认每隔30秒
         return new TimerTask() {
             @Override
             public void run() {
@@ -178,10 +178,10 @@ public class ResponseCacheImpl implements ResponseCache {
                     }
                     try {
                         CurrentRequestVersion.set(key.getVersion());
-                        Value cacheValue = readWriteCacheMap.get(key);
+                        Value cacheValue = readWriteCacheMap.get(key); // 当二级缓存失效时，会触发从一级缓存中获取
                         Value currentCacheValue = readOnlyCacheMap.get(key);
                         if (cacheValue != currentCacheValue) {
-                            readOnlyCacheMap.put(key, cacheValue);
+                            readOnlyCacheMap.put(key, cacheValue); // 将二级缓存同步到三级缓存
                         }
                     } catch (Throwable th) {
                         logger.error("Error while updating the client cache from response cache for key {}", key.toStringCompact(), th);
@@ -204,7 +204,7 @@ public class ResponseCacheImpl implements ResponseCache {
      * @return payload which contains information about the applications.
      */
     public String get(final Key key) { // 获取缓存
-        return get(key, shouldUseReadOnlyResponseCache);
+        return get(key, shouldUseReadOnlyResponseCache); // 获取缓存，默认使用三级缓存
     }
 
     @VisibleForTesting
@@ -240,9 +240,9 @@ public class ResponseCacheImpl implements ResponseCache {
      * @param appName the application name of the application.
      */
     @Override
-    public void invalidate(String appName, @Nullable String vipAddress, @Nullable String secureVipAddress) {
-        for (Key.KeyType type : Key.KeyType.values()) {
-            for (Version v : Version.values()) {
+    public void invalidate(String appName, @Nullable String vipAddress, @Nullable String secureVipAddress) { // 让缓存失效
+        for (Key.KeyType type : Key.KeyType.values()) { // json或xml
+            for (Version v : Version.values()) { // v1或v2
                 invalidate( // 让缓存失效
                         new Key(Key.EntityType.Application, appName, type, v, EurekaAccept.full),
                         new Key(Key.EntityType.Application, appName, type, v, EurekaAccept.compact),
@@ -266,7 +266,7 @@ public class ResponseCacheImpl implements ResponseCache {
      *
      * @param keys the list of keys for which the cache information needs to be invalidated.
      */
-    public void invalidate(Key... keys) {
+    public void invalidate(Key... keys) { // 让二级缓存失效
         for (Key key : keys) {
             logger.debug("Invalidating the response cache key : {} {} {} {}, {}",
                     key.getEntityType(), key.getName(), key.getVersion(), key.getType(), key.getEurekaAccept());
@@ -341,7 +341,7 @@ public class ResponseCacheImpl implements ResponseCache {
      * Get the payload in both compressed and uncompressed form.
      */
     @VisibleForTesting
-    Value getValue(final Key key, boolean useReadOnlyCache) {
+    Value getValue(final Key key, boolean useReadOnlyCache) { // 获取缓存值
         Value payload = null;
         try {
             if (useReadOnlyCache) { // 开启三级缓存时，先从三级缓存中获取、三级缓存获取不到时从二级缓存中获取并把结果同步到三级缓存（二级缓存获取不到时会触发guava的回调函数从一级缓存registry中获取数据）

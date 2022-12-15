@@ -75,8 +75,8 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     private static final Logger logger = LoggerFactory.getLogger(AbstractInstanceRegistry.class);
 
     private static final String[] EMPTY_STR_ARRAY = new String[0];
-    private final ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry
-            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>(); // 服务端存储实例信息的一级缓存，又名注册表，存储所有客户端注册的实例信息，实时更新，UI界面从这里获取服务注册信息
+    private final ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry // 服务端存储实例信息的一级缓存，又名注册表，存储所有客户端注册的实例信息，实时更新，UI界面从这里获取服务注册信息
+            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>();
     protected Map<String, RemoteRegionRegistry> regionNameVSRemoteRegistry = new HashMap<String, RemoteRegionRegistry>();
     protected final ConcurrentMap<String, InstanceStatus> overriddenInstanceStatusMap = CacheBuilder
             .newBuilder().initialCapacity(500)
@@ -94,7 +94,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     protected final Object lock = new Object();
 
     private Timer deltaRetentionTimer = new Timer("Eureka-DeltaRetentionTimer", true);
-    private Timer evictionTimer = new Timer("Eureka-EvictionTimer", true);
+    private Timer evictionTimer = new Timer("Eureka-EvictionTimer", true); // 剔除任务定时器
     private final MeasuredRate renewsLastMin;
 
     private final AtomicReference<EvictionTask> evictionTaskRef = new AtomicReference<EvictionTask>();
@@ -128,7 +128,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     @Override
     public synchronized void initializedResponseCache() { // 初始化缓存类，并初始化二级、三级缓存
         if (responseCache == null) {
-            responseCache = new ResponseCacheImpl(serverConfig, serverCodecs, this);
+            responseCache = new ResponseCacheImpl(serverConfig, serverCodecs, this); // 初始化缓存类，并初始化二级、三级缓存
         }
     }
 
@@ -221,7 +221,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                     if (this.expectedNumberOfClientsSendingRenews > 0) {
                         // Since the client wants to register it, increase the number of clients sending renews
                         this.expectedNumberOfClientsSendingRenews = this.expectedNumberOfClientsSendingRenews + 1;
-                        updateRenewsPerMinThreshold();
+                        updateRenewsPerMinThreshold(); // 更新自我保护阈值
                     }
                 }
                 logger.debug("No previous lease information found; it is new registration");
@@ -576,12 +576,12 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         evict(0l);
     }
 
-    public void evict(long additionalLeaseMs) {
+    public void evict(long additionalLeaseMs) { // 服务剔除（每60s清理超过90s未续约的节点，实际是180s）
         logger.debug("Running the evict task");
 
         if (!isLeaseExpirationEnabled()) { // 会检查是否需要开启自我保护机制，如果需要则直接RETURE，不需要继续往下执行
             logger.debug("DS: lease expiration is currently disabled.");
-            return;
+            return; // 触发自我保护
         }
 
         // We collect first all expired items, to evict them in random order. For large eviction sets,
@@ -591,9 +591,9 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         for (Entry<String, Map<String, Lease<InstanceInfo>>> groupEntry : registry.entrySet()) {
             Map<String, Lease<InstanceInfo>> leaseMap = groupEntry.getValue();
             if (leaseMap != null) {
-                for (Entry<String, Lease<InstanceInfo>> leaseEntry : leaseMap.entrySet()) {
-                    Lease<InstanceInfo> lease = leaseEntry.getValue();
-                    if (lease.isExpired(additionalLeaseMs) && lease.getHolder() != null) {
+                for (Entry<String, Lease<InstanceInfo>> leaseEntry : leaseMap.entrySet()) { // 遍历每一个应用实例
+                    Lease<InstanceInfo> lease = leaseEntry.getValue(); // 应用实例
+                    if (lease.isExpired(additionalLeaseMs) && lease.getHolder() != null) { // 判断实例是否过期
                         expiredLeases.add(lease);
                     }
                 }
@@ -1184,11 +1184,11 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         return list;
     }
 
-    private void invalidateCache(String appName, @Nullable String vipAddress, @Nullable String secureVipAddress) {
+    private void invalidateCache(String appName, @Nullable String vipAddress, @Nullable String secureVipAddress) { // 让缓存失效
         // invalidate cache
-        responseCache.invalidate(appName, vipAddress, secureVipAddress);
+        responseCache.invalidate(appName, vipAddress, secureVipAddress); // 让缓存失效
     }
-    // 在register服务注册、cancel服务下线、EurekaServer的初始化(EurekaServerBootStrap)、timer定时器四个地方会进行调用更新
+    // 在EurekaServer的初始化(EurekaServerBootStrap)、register服务注册、cancel服务下线、timer定时器四个地方会进行调用更新
     protected void updateRenewsPerMinThreshold() { // 自我保护阀值/每分钟最小续约数量 = 服务总数 * 每分钟续约数(60S/客户端续约间隔默认30秒) * 自我保护续约百分比阀值因子(默认0.85)
         this.numberOfRenewsPerMinThreshold = (int) (this.expectedNumberOfClientsSendingRenews
                 * (60.0 / serverConfig.getExpectedClientRenewalIntervalSeconds())
@@ -1213,12 +1213,12 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         }
     }
 
-    protected void postInit() {
+    protected void postInit() { // 默认每隔60秒执行剔除定时任务
         renewsLastMin.start();
         if (evictionTaskRef.get() != null) {
             evictionTaskRef.get().cancel();
         }
-        evictionTaskRef.set(new EvictionTask());
+        evictionTaskRef.set(new EvictionTask()); // 创建剔除任务（每60s清理超过90s未续约的节点，实际是180s）
         evictionTimer.schedule(evictionTaskRef.get(), // 开启剔除定时任务
                 serverConfig.getEvictionIntervalTimerInMs(), // 默认延迟60秒
                 serverConfig.getEvictionIntervalTimerInMs()); // 默认间隔60秒
@@ -1239,7 +1239,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         return overriddenInstanceStatusMap.size();
     }
 
-    /* visible for testing */ class EvictionTask extends TimerTask {
+    /* visible for testing */ class EvictionTask extends TimerTask { // 剔除任务
 
         private final AtomicLong lastExecutionNanosRef = new AtomicLong(0l);
 

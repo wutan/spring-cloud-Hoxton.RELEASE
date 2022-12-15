@@ -35,7 +35,7 @@ public interface PeerAwareInstanceRegistry extends InstanceRegistry {
      * operation fails over to other nodes until the list is exhausted if the
      * communication fails.
      */
-    int syncUp();
+    int syncUp(); // 服务同步
 
     /**
      * Checks to see if the registry access is allowed or the server is in a
