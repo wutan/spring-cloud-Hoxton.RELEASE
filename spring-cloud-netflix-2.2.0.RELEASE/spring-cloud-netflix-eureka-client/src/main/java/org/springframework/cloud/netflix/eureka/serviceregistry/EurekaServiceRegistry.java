@@ -29,12 +29,12 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 /**
  * @author Spencer Gibb
  */
-public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration> {
+public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration> { // 基于Eureka实现的服务注册类
 
 	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
 
 	@Override
-	public void register(EurekaRegistration reg) {
+	public void register(EurekaRegistration reg) { // 发起服务注册，传入基于Eureka实现的服务注册类的标记扩展类
 		maybeInitializeClient(reg);
 
 		if (log.isInfoEnabled()) {
@@ -45,7 +45,7 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		}
 
 		reg.getApplicationInfoManager()
-				.setInstanceStatus(reg.getInstanceConfig().getInitialStatus()); // 设置当前实例的状态，一旦这个实例的状态发生变化（只要状态不是DOWN），就会被监听器监听并执行服务注册
+				.setInstanceStatus(reg.getInstanceConfig().getInitialStatus()); // 设置当前实例状态，一旦这个实例的状态发生变化（只要状态不是DOWN），就会被监听器监听并执行服务注册
 
 		reg.getHealthCheckHandler().ifAvailable(healthCheckHandler -> reg
 				.getEurekaClient().registerHealthCheck(healthCheckHandler)); // 设置健康检查的处理

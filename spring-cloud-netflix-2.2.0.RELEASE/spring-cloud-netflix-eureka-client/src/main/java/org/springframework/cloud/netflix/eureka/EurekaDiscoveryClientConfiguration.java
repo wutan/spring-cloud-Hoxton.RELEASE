@@ -49,7 +49,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @ConditionalOnDiscoveryEnabled
 @ConditionalOnBlockingDiscoveryEnabled
-public class EurekaDiscoveryClientConfiguration {
+public class EurekaDiscoveryClientConfiguration { // 基于Eureka实现的服务发现客户端配置类
 
 	/**
 	 * Deprecated in favor of auto configuration order.
@@ -64,9 +64,9 @@ public class EurekaDiscoveryClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public EurekaDiscoveryClient discoveryClient(EurekaClient client,
+	public EurekaDiscoveryClient discoveryClient(EurekaClient client, // 注入EurekaClient、EurekaClientConfig
 			EurekaClientConfig clientConfig) {
-		return new EurekaDiscoveryClient(client, clientConfig);
+		return new EurekaDiscoveryClient(client, clientConfig); // 创建EurekaDiscoveryClient
 	}
 
 	@Configuration(proxyBeanMethods = false)

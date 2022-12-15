@@ -42,7 +42,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnClass(name = "com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnClass(name = "com.sun.jersey.api.client.filter.ClientFilter") // 默认引入了jersey-client依赖
 	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
 			search = SearchStrategy.CURRENT)
 	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {

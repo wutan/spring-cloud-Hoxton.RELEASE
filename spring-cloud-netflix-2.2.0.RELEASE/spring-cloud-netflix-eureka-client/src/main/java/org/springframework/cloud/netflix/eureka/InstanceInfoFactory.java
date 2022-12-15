@@ -29,18 +29,18 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Spencer Gibb
  */
-public class InstanceInfoFactory {
+public class InstanceInfoFactory { // InstanceInfo工厂，通过EurekaInstance配置构建InstanceInfo
 
 	private static final Log log = LogFactory.getLog(InstanceInfoFactory.class);
 
-	public InstanceInfo create(EurekaInstanceConfig config) {
-		LeaseInfo.Builder leaseInfoBuilder = LeaseInfo.Builder.newBuilder()
-				.setRenewalIntervalInSecs(config.getLeaseRenewalIntervalInSeconds())
-				.setDurationInSecs(config.getLeaseExpirationDurationInSeconds());
+	public InstanceInfo create(EurekaInstanceConfig config) { // 根据EurekaInstance配置构建InstanceInfo
+		LeaseInfo.Builder leaseInfoBuilder = LeaseInfo.Builder.newBuilder() // 准备构建LeaseInfo
+				.setRenewalIntervalInSecs(config.getLeaseRenewalIntervalInSeconds()) // 默认30s
+				.setDurationInSecs(config.getLeaseExpirationDurationInSeconds()); // 默认90s
 
 		// Builder the instance information to be registered with eureka
 		// server
-		InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder();
+		InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder(); // 准备构建InstanceInfo
 
 		String namespace = config.getNamespace();
 		if (!namespace.endsWith(".")) {
@@ -66,12 +66,12 @@ public class InstanceInfoFactory {
 				.setASGName(config.getASGName());
 
 		// Start off with the STARTING state to avoid traffic
-		if (!config.isInstanceEnabledOnit()) {
+		if (!config.isInstanceEnabledOnit()) { // 默认条件成立
 			InstanceInfo.InstanceStatus initialStatus = InstanceInfo.InstanceStatus.STARTING;
 			if (log.isInfoEnabled()) {
 				log.info("Setting initial instance status as: " + initialStatus);
 			}
-			builder.setStatus(initialStatus);
+			builder.setStatus(initialStatus); // 设置服务实例初始状态为STARTING
 		}
 		else {
 			if (log.isInfoEnabled()) {
@@ -83,7 +83,7 @@ public class InstanceInfoFactory {
 		}
 
 		// Add any user-specific metadata information
-		for (Map.Entry<String, String> mapEntry : config.getMetadataMap().entrySet()) {
+		for (Map.Entry<String, String> mapEntry : config.getMetadataMap().entrySet()) { // 遍历元数据信息
 			String key = mapEntry.getKey();
 			String value = mapEntry.getValue();
 			// only add the metadata if the value is present
@@ -92,8 +92,8 @@ public class InstanceInfoFactory {
 			}
 		}
 
-		InstanceInfo instanceInfo = builder.build();
-		instanceInfo.setLeaseInfo(leaseInfoBuilder.build());
+		InstanceInfo instanceInfo = builder.build(); // 构建InstanceInfo
+		instanceInfo.setLeaseInfo(leaseInfoBuilder.build()); // 构建LeaseInfo
 		return instanceInfo;
 	}
 

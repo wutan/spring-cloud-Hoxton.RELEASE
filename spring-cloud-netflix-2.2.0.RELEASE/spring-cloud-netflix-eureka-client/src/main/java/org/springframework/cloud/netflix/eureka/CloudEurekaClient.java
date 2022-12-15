@@ -42,7 +42,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Spencer Gibb
  */
-public class CloudEurekaClient extends DiscoveryClient {
+public class CloudEurekaClient extends DiscoveryClient { // SpringCloud对Eureka的整合，核心功能还是在Eureka自身的DiscoveryClient中
 
 	private static final Log log = LogFactory.getLog(CloudEurekaClient.class);
 
@@ -61,9 +61,9 @@ public class CloudEurekaClient extends DiscoveryClient {
 		this(applicationInfoManager, config, null, publisher);
 	}
 
-	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
+	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager, // 实例化CloudEurekaClient
 			EurekaClientConfig config, AbstractDiscoveryClientOptionalArgs<?> args,
-			ApplicationEventPublisher publisher) { // 初始化CloudEurekaClient
+			ApplicationEventPublisher publisher) {
 		super(applicationInfoManager, config, args); // 调用父类DiscoveryClient构造方法
 		this.applicationInfoManager = applicationInfoManager;
 		this.publisher = publisher;

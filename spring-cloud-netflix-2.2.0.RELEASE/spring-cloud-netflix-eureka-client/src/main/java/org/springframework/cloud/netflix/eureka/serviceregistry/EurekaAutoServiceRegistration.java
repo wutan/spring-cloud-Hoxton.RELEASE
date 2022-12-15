@@ -39,22 +39,22 @@ import org.springframework.core.Ordered;
  * @author Jakub Narloch
  * @author Raiyan Raiyan
  */
-public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
+public class EurekaAutoServiceRegistration implements AutoServiceRegistration, // 基于Eureka实现的服务自动注册类（Eureka采用Lifecycle进行服务注册、Nacos采用cloud类AbstractAutoServiceRegistration基于WebServerInitializedEvent事件进行服务注册）
 		SmartLifecycle, Ordered, SmartApplicationListener { // 在EurekaClientAutoConfiguration进行初始化，实现Lifecycle接口并基于lifecycle进行处理执行
 
 	private static final Log log = LogFactory.getLog(EurekaAutoServiceRegistration.class);
 
 	private AtomicBoolean running = new AtomicBoolean(false);
 
-	private int order = 0;
+	private int order = 0; // EurekaServerInitializerConfiguration的order为1（客户端先注册，服务端后启动）
 
 	private AtomicInteger port = new AtomicInteger(0);
 
 	private ApplicationContext context;
 
-	private EurekaServiceRegistry serviceRegistry;
+	private EurekaServiceRegistry serviceRegistry; // 注入基于Eureka实现的服务注册类
 
-	private EurekaRegistration registration;
+	private EurekaRegistration registration; // 注入基于Eureka实现的服务注册类的标记扩展类
 
 	public EurekaAutoServiceRegistration(ApplicationContext context, // 在EurekaClientAutoConfiguration进行初始化
 			EurekaServiceRegistry serviceRegistry, EurekaRegistration registration) {
@@ -64,7 +64,7 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 	}
 
 	@Override
-	public void start() { // Lifecycle接口的start方法，Spring容器初始化完成后调用
+	public void start() { // Lifecycle接口的start方法，Spring容器初始化完成后调用，是Eureka服务注册的入口
 		// only set the port if the nonSecurePort or securePort is 0 and this.port != 0
 		if (this.port.get() != 0) {
 			if (this.registration.getNonSecurePort() == 0) {
@@ -80,9 +80,9 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.registration.getNonSecurePort() > 0) {
 
-			this.serviceRegistry.register(this.registration); // 发起服务注册机制
+			this.serviceRegistry.register(this.registration); // 委托给ServiceRegistry发起服务注册
 
-			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
+			this.context.publishEvent(new InstanceRegisteredEvent<>(this, // 发布服务实例注册事件InstanceRegisteredEvent
 					this.registration.getInstanceConfig()));
 			this.running.set(true);
 		}

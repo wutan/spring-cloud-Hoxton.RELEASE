@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
-public class EurekaRegistration implements Registration {
+public class EurekaRegistration implements Registration { // 基于Eureka实现的服务注册类的标记扩展类
 
 	private static final Log log = LogFactory.getLog(EurekaRegistration.class);
 
@@ -53,13 +53,13 @@ public class EurekaRegistration implements Registration {
 
 	private final AtomicReference<CloudEurekaClient> cloudEurekaClient = new AtomicReference<>();
 
-	private final CloudEurekaInstanceConfig instanceConfig;
+	private final CloudEurekaInstanceConfig instanceConfig; // Eureka服务实例配置类
 
 	private final ApplicationInfoManager applicationInfoManager;
 
 	private ObjectProvider<HealthCheckHandler> healthCheckHandler;
 
-	private EurekaRegistration(CloudEurekaInstanceConfig instanceConfig,
+	private EurekaRegistration(CloudEurekaInstanceConfig instanceConfig, // 实例化EurekaRegistration（私有方法，外部类通过构造器模式创建）
 			EurekaClient eurekaClient, ApplicationInfoManager applicationInfoManager,
 			ObjectProvider<HealthCheckHandler> healthCheckHandler) {
 		this.eurekaClient = eurekaClient;
@@ -68,7 +68,7 @@ public class EurekaRegistration implements Registration {
 		this.healthCheckHandler = healthCheckHandler;
 	}
 
-	public static Builder builder(CloudEurekaInstanceConfig instanceConfig) {
+	public static Builder builder(CloudEurekaInstanceConfig instanceConfig) { // 构造器模式
 		return new Builder(instanceConfig);
 	}
 
@@ -170,7 +170,7 @@ public class EurekaRegistration implements Registration {
 	/**
 	 * A builder for {@link EurekaRegistration} objects.
 	 */
-	public static class Builder {
+	public static class Builder { // EurekaRegistration构造器
 
 		private final CloudEurekaInstanceConfig instanceConfig;
 
@@ -210,7 +210,7 @@ public class EurekaRegistration implements Registration {
 			return this;
 		}
 
-		public EurekaRegistration build() {
+		public EurekaRegistration build() { // 构建EurekaRegistration
 			Assert.notNull(instanceConfig, "instanceConfig may not be null");
 
 			if (this.applicationInfoManager == null) {
@@ -228,7 +228,7 @@ public class EurekaRegistration implements Registration {
 				this.eurekaClient = new CloudEurekaClient(this.applicationInfoManager,
 						this.clientConfig, this.publisher);
 			}
-			return new EurekaRegistration(instanceConfig, eurekaClient,
+			return new EurekaRegistration(instanceConfig, eurekaClient, // 创建EurekaRegistration
 					applicationInfoManager, healthCheckHandler);
 		}
 

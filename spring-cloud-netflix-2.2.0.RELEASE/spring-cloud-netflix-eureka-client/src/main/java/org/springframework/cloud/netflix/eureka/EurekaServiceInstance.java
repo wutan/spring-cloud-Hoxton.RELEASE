@@ -35,7 +35,7 @@ import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
  * @author Olga Maciaszek-Sharma
  * @author Tim Ysewyn
  */
-public class EurekaServiceInstance implements ServiceInstance {
+public class EurekaServiceInstance implements ServiceInstance { // 基于Eureka实现的服务实例接口定义类，通过注入的InstanceInfo来获取服务实例相关信息
 
 	private InstanceInfo instance;
 

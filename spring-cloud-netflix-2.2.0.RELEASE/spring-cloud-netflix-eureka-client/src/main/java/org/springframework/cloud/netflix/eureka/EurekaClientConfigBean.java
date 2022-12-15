@@ -246,10 +246,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	 * The changes are effective at runtime at the next service url refresh cycle as
 	 * specified by eurekaServiceUrlPollIntervalSeconds.
 	 */
-	private Map<String, String> serviceUrl = new HashMap<>();
+	private Map<String, String> serviceUrl = new HashMap<>(); // eureka client的serviceUrl map配置属性
 
 	{
-		this.serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
+		this.serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL); // 默认map为("defaultZone", "http://localhost:8761/eureka/")
 	}
 
 	/**
@@ -468,14 +468,14 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	}
 
 	@Override
-	public List<String> getEurekaServerServiceUrls(String myZone) {
-		String serviceUrls = this.serviceUrl.get(myZone);
+	public List<String> getEurekaServerServiceUrls(String myZone) { // 获取Eureka Server集群服务地址列表
+		String serviceUrls = this.serviceUrl.get(myZone); // 默认获取eureka.client.service-url.defaultZone的属性值
 		if (serviceUrls == null || serviceUrls.isEmpty()) {
 			serviceUrls = this.serviceUrl.get(DEFAULT_ZONE);
 		}
 		if (!StringUtils.isEmpty(serviceUrls)) {
 			final String[] serviceUrlsSplit = StringUtils
-					.commaDelimitedListToStringArray(serviceUrls);
+					.commaDelimitedListToStringArray(serviceUrls); // 逗号分割
 			List<String> eurekaServiceUrls = new ArrayList<>(serviceUrlsSplit.length);
 			for (String eurekaServiceUrl : serviceUrlsSplit) {
 				if (!endsWithSlash(eurekaServiceUrl)) {
