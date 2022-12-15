@@ -41,8 +41,8 @@ import org.springframework.context.ApplicationEvent;
 /**
  * @author Spencer Gibb
  */
-public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
-		implements ApplicationContextAware { // 在EurekaServerAutoConfiguration中进行初始化
+public class InstanceRegistry extends PeerAwareInstanceRegistryImpl // 在EurekaServerAutoConfiguration中进行初始化
+		implements ApplicationContextAware {
 
 	private static final Log log = LogFactory.getLog(InstanceRegistry.class);
 
@@ -50,7 +50,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 
 	private int defaultOpenForTrafficCount;
 
-	public InstanceRegistry(EurekaServerConfig serverConfig,
+	public InstanceRegistry(EurekaServerConfig serverConfig, // 实例化InstanceRegistry
 			EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
 			EurekaClient eurekaClient, int expectedNumberOfClientsSendingRenews,
 			int defaultOpenForTrafficCount) {

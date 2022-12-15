@@ -89,16 +89,16 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 			"com.netflix.discovery", "com.netflix.eureka" };
 
 	@Autowired
-	private ApplicationInfoManager applicationInfoManager;
+	private ApplicationInfoManager applicationInfoManager; // 注入ApplicationInfoManager
 
 	@Autowired
 	private EurekaServerConfig eurekaServerConfig;
 
 	@Autowired
-	private EurekaClientConfig eurekaClientConfig;
+	private EurekaClientConfig eurekaClientConfig; // 注入EurekaClientConfig
 
 	@Autowired
-	private EurekaClient eurekaClient;
+	private EurekaClient eurekaClient; // 注入EurekaClient
 
 	@Autowired
 	private InstanceRegistryProperties instanceRegistryProperties;
@@ -152,7 +152,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 	public PeerAwareInstanceRegistry peerAwareInstanceRegistry( // 初始化PeerAwareInstanceRegistry，但真实的对象实例是InstanceRegistry，只不过指向了PeerAwareInstanceRegistry
 			ServerCodecs serverCodecs) {
 		this.eurekaClient.getApplications(); // force initialization
-		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig,
+		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig, // 创建InstanceRegistry
 				serverCodecs, this.eurekaClient,
 				this.instanceRegistryProperties.getExpectedNumberOfClientsSendingRenews(),
 				this.instanceRegistryProperties.getDefaultOpenForTrafficCount());
@@ -162,23 +162,23 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 	@ConditionalOnMissingBean
 	public PeerEurekaNodes peerEurekaNodes(PeerAwareInstanceRegistry registry,
 			ServerCodecs serverCodecs,
-			ReplicationClientAdditionalFilters replicationClientAdditionalFilters) { // 初始化PeerEurekaNodes服务节点信息，当有节点注册上来时，通知集群中的其它服务节点
-		return new RefreshablePeerEurekaNodes(registry, this.eurekaServerConfig,
+			ReplicationClientAdditionalFilters replicationClientAdditionalFilters) {
+		return new RefreshablePeerEurekaNodes(registry, this.eurekaServerConfig, // 创建PeerEurekaNodes服务节点信息，当有节点注册上来时，通知集群中的其它服务节点
 				this.eurekaClientConfig, serverCodecs, this.applicationInfoManager,
 				replicationClientAdditionalFilters);
 	}
 
 	@Bean
 	public EurekaServerContext eurekaServerContext(ServerCodecs serverCodecs,
-			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) { // 初始化Eureka Server的上下文，其@PostConstruct注解方法中调用PeerEurekaNodes.start()方法和PeerAwareInstanceRegistry.inist()方法
-		return new DefaultEurekaServerContext(this.eurekaServerConfig, serverCodecs,
+			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) {
+		return new DefaultEurekaServerContext(this.eurekaServerConfig, serverCodecs, // 初始化Eureka Server的上下文，其@PostConstruct注解方法中调用PeerEurekaNodes.start()方法和PeerAwareInstanceRegistry.inist()方法
 				registry, peerEurekaNodes, this.applicationInfoManager);
 	}
 
 	@Bean
 	public EurekaServerBootstrap eurekaServerBootstrap(PeerAwareInstanceRegistry registry,
-			EurekaServerContext serverContext) { // 初始化EurekaServerBootstrap，等待EurekaServerInitializerConfiguration的start方法调用contextInitialized方法启动Eureka Server
-		return new EurekaServerBootstrap(this.applicationInfoManager,
+			EurekaServerContext serverContext) {
+		return new EurekaServerBootstrap(this.applicationInfoManager, // 初始化EurekaServerBootstrap，等待EurekaServerInitializerConfiguration的start方法调用contextInitialized方法启动Eureka Server
 				this.eurekaClientConfig, this.eurekaServerConfig, registry,
 				serverContext);
 	}
@@ -208,8 +208,8 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 	 * @return created {@link Application} object
 	 */
 	@Bean
-	public javax.ws.rs.core.Application jerseyApplication(Environment environment,
-			ResourceLoader resourceLoader) { // 初始化jersey的Application
+	public javax.ws.rs.core.Application jerseyApplication(Environment environment, // 初始化jersey的Application
+			ResourceLoader resourceLoader) {
 
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
 				false, environment);
@@ -255,15 +255,15 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	protected static class EurekaServerConfigBeanConfiguration {
+	protected static class EurekaServerConfigBeanConfiguration { // EurekaServerConfig配置类
 
 		@Bean
 		@ConditionalOnMissingBean
-		public EurekaServerConfig eurekaServerConfig(EurekaClientConfig clientConfig) {
+		public EurekaServerConfig eurekaServerConfig(EurekaClientConfig clientConfig) { // 先注入EurekaClientConfig
 			EurekaServerConfigBean server = new EurekaServerConfigBean(); // 初始化EurekaServerConfig
-			if (clientConfig.shouldRegisterWithEureka()) {
+			if (clientConfig.shouldRegisterWithEureka()) { // 允许注册到Eureka时
 				// Set a sensible default if we are supposed to replicate
-				server.setRegistrySyncRetries(5);
+				server.setRegistrySyncRetries(5); // 设置服务同步最大重试次数，默认5次
 			}
 			return server;
 		}
@@ -287,20 +287,20 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer { // Eure
 
 		private ReplicationClientAdditionalFilters replicationClientAdditionalFilters;
 
-		RefreshablePeerEurekaNodes(final PeerAwareInstanceRegistry registry,
+		RefreshablePeerEurekaNodes(final PeerAwareInstanceRegistry registry, // 实例化RefreshablePeerEurekaNodes
 				final EurekaServerConfig serverConfig,
 				final EurekaClientConfig clientConfig, final ServerCodecs serverCodecs,
 				final ApplicationInfoManager applicationInfoManager,
 				final ReplicationClientAdditionalFilters replicationClientAdditionalFilters) {
-			super(registry, serverConfig, clientConfig, serverCodecs,
-					applicationInfoManager); // 调用父类PeerEurekaNodes构造函数
+			super(registry, serverConfig, clientConfig, serverCodecs, // 调用父类PeerEurekaNodes构造函数
+					applicationInfoManager);
 			this.replicationClientAdditionalFilters = replicationClientAdditionalFilters;
 		}
 
 		@Override
 		protected PeerEurekaNode createPeerEurekaNode(String peerEurekaNodeUrl) {
 			JerseyReplicationClient replicationClient = JerseyReplicationClient
-					.createReplicationClient(serverConfig, serverCodecs,
+					.createReplicationClient(serverConfig, serverCodecs, // 创建JerseyReplicationClient
 							peerEurekaNodeUrl);
 
 			this.replicationClientAdditionalFilters.getFilters()

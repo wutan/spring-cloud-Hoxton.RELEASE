@@ -48,14 +48,14 @@ public class EurekaServerInitializerConfiguration
 	private ServletContext servletContext;
 
 	@Autowired
-	private ApplicationContext applicationContext;
+	private ApplicationContext applicationContext; // 注入ApplicationContext，用于发布事件
 
 	@Autowired
-	private EurekaServerBootstrap eurekaServerBootstrap;
+	private EurekaServerBootstrap eurekaServerBootstrap; // 注入eurekaServerBootstrap
 
 	private boolean running;
 
-	private int order = 1;
+	private int order = 1; // EurekaAutoServiceRegistration的order为0（客户端先注册，服务端后启动）
 
 	@Override
 	public void setServletContext(ServletContext servletContext) { // 实现ServletContextAware接口用于注入ServletContext，用于添加Eureka Server上下文属性
@@ -67,8 +67,8 @@ public class EurekaServerInitializerConfiguration
 		new Thread(() -> { // 异步执行
 			try {
 				// TODO: is this class even needed now?
-				eurekaServerBootstrap.contextInitialized(
-						EurekaServerInitializerConfiguration.this.servletContext); // 初始化Eureka Server并启动
+				eurekaServerBootstrap.contextInitialized( // 初始化Eureka Server并启动
+						EurekaServerInitializerConfiguration.this.servletContext);
 				log.info("Started Eureka Server");
 
 				publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig())); // 发布Eureka Server的register注册事件

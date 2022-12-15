@@ -114,7 +114,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean syncWhenTimestampDiffers = true;
 
-	private int registrySyncRetries = 0;
+	private int registrySyncRetries = 0; // 服务同步重试次数（默认情况下允许注册到Eureka，会被设置成5）
 
 	private long registrySyncRetryWaitMs = 30 * 1000;
 
@@ -616,11 +616,11 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	}
 
 	@Override
-	public int getRegistrySyncRetries() {
+	public int getRegistrySyncRetries() { // 获取服务同步重试次数
 		return registrySyncRetries;
 	}
 
-	public void setRegistrySyncRetries(int registrySyncRetries) {
+	public void setRegistrySyncRetries(int registrySyncRetries) { // 设置服务同步重试次数（默认情况下允许注册到Eureka，会被设置成5）
 		this.registrySyncRetries = registrySyncRetries;
 	}
 

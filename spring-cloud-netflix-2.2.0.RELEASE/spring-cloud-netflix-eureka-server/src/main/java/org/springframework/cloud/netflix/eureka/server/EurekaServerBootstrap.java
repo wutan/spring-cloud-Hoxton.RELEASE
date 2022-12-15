@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author Spencer Gibb
  */
-public class EurekaServerBootstrap { // EurekaServerBootstrap几乎完全复制了原生EurekaBootstrap的代码，因为原生的Eureka是在servlet应用，但是Spring Cloud的应用是运行在内嵌的Tomcat等WEB服务器里面的，这里就是使用EurekaServerBootstrap来做替换，最终是Eureka能够在Spring Boot中使用
+public class EurekaServerBootstrap { // EurekaServerBootstrap几乎完全复制了原生EurekaBootstrap的代码，因为原生的Eureka是在servlet应用，但是Spring Cloud的应用是运行在内嵌的Tomcat等WEB服务器里面的，这里就是使用EurekaServerBootstrap来做替换，最终使Eureka能够在Spring Boot中使用
 
 	private static final Log log = LogFactory.getLog(EurekaServerBootstrap.class);
 
@@ -68,7 +68,7 @@ public class EurekaServerBootstrap { // EurekaServerBootstrap几乎完全复制�
 
 	protected volatile AwsBinder awsBinder;
 
-	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager,
+	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager, // 实例化EurekaServerBootstrap
 			EurekaClientConfig eurekaClientConfig, EurekaServerConfig eurekaServerConfig,
 			PeerAwareInstanceRegistry registry, EurekaServerContext serverContext) {
 		this.applicationInfoManager = applicationInfoManager;
@@ -78,7 +78,7 @@ public class EurekaServerBootstrap { // EurekaServerBootstrap几乎完全复制�
 		this.serverContext = serverContext;
 	}
 
-	public void contextInitialized(ServletContext context) {
+	public void contextInitialized(ServletContext context) { // 初始化Eureka Server并启动（由EurekaServerInitializerConfiguration基于SmartLifecycle接口进行触发）
 		try {
 			initEurekaEnvironment(); // 初始化Eureka的环境变量
 			initEurekaServerContext(); // 初始化Eureka的上下文
@@ -153,7 +153,7 @@ public class EurekaServerBootstrap { // EurekaServerBootstrap几乎完全复制�
 		log.info("Initialized server context");
 
 		// Copy registry from neighboring eureka node
-		int registryCount = this.registry.syncUp(); // 从相邻的Eureka Server节点复制注册表
+		int registryCount = this.registry.syncUp(); // 先服务同步，获取相邻Eureka Server节点的注册表并注册到当前节点，返回实例数量
 		this.registry.openForTraffic(this.applicationInfoManager, registryCount); // 修改Eureka的状态为up，并开启服务剔除定时任务，默认每隔60秒执行剔除定时任务
 
 		// Register all monitoring statistics.
