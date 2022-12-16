@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class ApplicationInfoManager {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationInfoManager.class);
 
-    private static final InstanceStatusMapper NO_OP_MAPPER = new InstanceStatusMapper() {
+    private static final InstanceStatusMapper NO_OP_MAPPER = new InstanceStatusMapper() { // 默认的InstanceStatusMapper实现，返回传入值
         @Override
         public InstanceStatus map(InstanceStatus prev) {
             return prev;
@@ -57,8 +57,8 @@ public class ApplicationInfoManager {
 
     private static ApplicationInfoManager instance = new ApplicationInfoManager(null, null, null); // instance = this;
 
-    protected final Map<String, StatusChangeListener> listeners;
-    private final InstanceStatusMapper instanceStatusMapper;
+    protected final Map<String, StatusChangeListener> listeners; // 实例状态改变监听器
+    private final InstanceStatusMapper instanceStatusMapper; // 实例状态映射器，默认传入什么返回什么
 
     private InstanceInfo instanceInfo;
     private EurekaInstanceConfig config;
@@ -84,11 +84,11 @@ public class ApplicationInfoManager {
     public ApplicationInfoManager(EurekaInstanceConfig config, InstanceInfo instanceInfo, OptionalArgs optionalArgs) {
         this.config = config;
         this.instanceInfo = instanceInfo;
-        this.listeners = new ConcurrentHashMap<String, StatusChangeListener>();
-        if (optionalArgs != null) {
+        this.listeners = new ConcurrentHashMap<String, StatusChangeListener>(); // 初始化
+        if (optionalArgs != null) { // 默认情况下optionalArgs为null
             this.instanceStatusMapper = optionalArgs.getInstanceStatusMapper();
         } else {
-            this.instanceStatusMapper = NO_OP_MAPPER;
+            this.instanceStatusMapper = NO_OP_MAPPER; // 默认的InstanceStatusMapper实现，返回传入值
         }
 
         // Hack to allow for getInstance() to use the DI'd ApplicationInfoManager
@@ -99,7 +99,7 @@ public class ApplicationInfoManager {
         this(config, new EurekaConfigBasedInstanceInfoProvider(config).get(), optionalArgs);
     }
 
-    public ApplicationInfoManager(EurekaInstanceConfig config, InstanceInfo instanceInfo) {
+    public ApplicationInfoManager(EurekaInstanceConfig config, InstanceInfo instanceInfo) { // 实例化ApplicationInfoManager
         this(config, instanceInfo, null);
     }
 
@@ -164,17 +164,17 @@ public class ApplicationInfoManager {
      *
      * @param status Status of the instance
      */
-    public synchronized void setInstanceStatus(InstanceStatus status) { // 启动发布事件
-        InstanceStatus next = instanceStatusMapper.map(status);
+    public synchronized void setInstanceStatus(InstanceStatus status) { // 设置当前实例状态
+        InstanceStatus next = instanceStatusMapper.map(status); // 默认情况下返回传入值
         if (next == null) {
             return;
         }
 
-        InstanceStatus prev = instanceInfo.setStatus(next); // 设置实例状态，当前后状态不同时返回上一次的状态
+        InstanceStatus prev = instanceInfo.setStatus(next); // 设置实例状态，当前后状态不同时返回上一次的状态，并设置脏标记
         if (prev != null) { // 状态变更
-            for (StatusChangeListener listener : listeners.values()) { // listener的实例是StatusChangeListener，通过registerStatusChangeListener方法让外部注入
+            for (StatusChangeListener listener : listeners.values()) { // 遍历注册的StatusChangeListener（通过registerStatusChangeListener方法让外部注入）
                 try {
-                    listener.notify(new StatusChangeEvent(prev, next)); // 调用StatusChangeListener的notify方法触发服务状态变事件
+                    listener.notify(new StatusChangeEvent(prev, next)); // 调用StatusChangeListener的notify方法通知服务状态发生变更（发布订阅模式的体现）
                 } catch (Exception e) {
                     logger.warn("failed to notify listener: {}", listener.getId(), e);
                 }
@@ -230,7 +230,7 @@ public class ApplicationInfoManager {
         }        
     }
 
-    private void updateInstanceInfo(String newAddress, String newIp) {
+    private void updateInstanceInfo(String newAddress, String newIp) { // 更新实例信息地址
         // :( in the legacy code here the builder is acting as a mutator.
         // This is hard to fix as this same instanceInfo instance is referenced elsewhere.
         // We will most likely re-write the client at sometime so not fixing for now.
@@ -242,7 +242,7 @@ public class ApplicationInfoManager {
             builder.setIPAddr(newIp);
         }
         builder.setDataCenterInfo(config.getDataCenterInfo());
-        instanceInfo.setIsDirty();
+        instanceInfo.setIsDirty(); // 设置脏标记
     }
 
     public void refreshLeaseInfoIfRequired() {
@@ -253,22 +253,22 @@ public class ApplicationInfoManager {
         int currentLeaseDuration = config.getLeaseExpirationDurationInSeconds();
         int currentLeaseRenewal = config.getLeaseRenewalIntervalInSeconds();
         if (leaseInfo.getDurationInSecs() != currentLeaseDuration || leaseInfo.getRenewalIntervalInSecs() != currentLeaseRenewal) {
-            LeaseInfo newLeaseInfo = LeaseInfo.Builder.newBuilder()
+            LeaseInfo newLeaseInfo = LeaseInfo.Builder.newBuilder() // 构建LeaseInfo
                     .setRenewalIntervalInSecs(currentLeaseRenewal)
                     .setDurationInSecs(currentLeaseDuration)
                     .build();
-            instanceInfo.setLeaseInfo(newLeaseInfo);
-            instanceInfo.setIsDirty();
+            instanceInfo.setLeaseInfo(newLeaseInfo); // 设置LeaseInfo
+            instanceInfo.setIsDirty(); // 设置脏标记
         }
     }
 
-    public static interface StatusChangeListener {
+    public static interface StatusChangeListener { // 实例状态改变监听器
         String getId();
 
-        void notify(StatusChangeEvent statusChangeEvent);
+        void notify(StatusChangeEvent statusChangeEvent); // 通知服务状态发生变更
     }
 
-    public static interface InstanceStatusMapper {
+    public static interface InstanceStatusMapper { // 实例状态映射器
 
         /**
          * given a starting {@link com.netflix.appinfo.InstanceInfo.InstanceStatus}, apply a mapping to return

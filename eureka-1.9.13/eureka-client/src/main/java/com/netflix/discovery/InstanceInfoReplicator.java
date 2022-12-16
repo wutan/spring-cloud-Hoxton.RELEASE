@@ -36,14 +36,14 @@ class InstanceInfoReplicator implements Runnable { // 实例信息复制器，�
     private final AtomicReference<Future> scheduledPeriodicRef;
 
     private final AtomicBoolean started;
-    private final RateLimiter rateLimiter;
+    private final RateLimiter rateLimiter; // 限流器
     private final int burstSize;
     private final int allowedRatePerMinute;
 
     InstanceInfoReplicator(DiscoveryClient discoveryClient, InstanceInfo instanceInfo, int replicationIntervalSeconds, int burstSize) { // 准备好线程池和频率限制工具，计算好每分钟允许的任务数
         this.discoveryClient = discoveryClient;
         this.instanceInfo = instanceInfo;
-        this.scheduler = Executors.newScheduledThreadPool(1,
+        this.scheduler = Executors.newScheduledThreadPool(1, // 初始化定时任务线程池
                 new ThreadFactoryBuilder()
                         .setNameFormat("DiscoveryClient-InstanceInfoReplicator-%d")
                         .setDaemon(true)
@@ -62,7 +62,7 @@ class InstanceInfoReplicator implements Runnable { // 实例信息复制器，�
 
     public void start(int initialDelayMs) { // 启动周期性任务
         if (started.compareAndSet(false, true)) {
-            instanceInfo.setIsDirty();  // for initial register
+            instanceInfo.setIsDirty();  // for initial register // 设置脏标记
             Future next = scheduler.schedule(this, initialDelayMs, TimeUnit.SECONDS); // 延时指定时间(默认延时40秒)后执行一次run方法
             scheduledPeriodicRef.set(next); // 提交更新任务，该任务是当前对象实例
         }
@@ -114,12 +114,12 @@ class InstanceInfoReplicator implements Runnable { // 实例信息复制器，�
 
     public void run() {
         try {
-            discoveryClient.refreshInstanceInfo(); // 更新信息，用于服务注册
+            discoveryClient.refreshInstanceInfo(); // 更新实例信息，如果实例地址或实例续约信息发生了变更，则设置脏标记用于服务注册
 
-            Long dirtyTimestamp = instanceInfo.isDirtyWithTime();
-            if (dirtyTimestamp != null) {
+            Long dirtyTimestamp = instanceInfo.isDirtyWithTime(); // 获取脏标记的时间
+            if (dirtyTimestamp != null) { // 只有脏标记才会发起注册
                 discoveryClient.register(); // 调用register方法进行服务注册
-                instanceInfo.unsetIsDirty(dirtyTimestamp);
+                instanceInfo.unsetIsDirty(dirtyTimestamp); // 清除脏标记
             }
         } catch (Throwable t) {
             logger.warn("There was a problem with the instance info replicator", t);

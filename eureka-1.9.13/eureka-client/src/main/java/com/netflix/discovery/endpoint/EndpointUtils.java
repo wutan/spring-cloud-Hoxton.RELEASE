@@ -71,12 +71,12 @@ public class EndpointUtils {
      *
      * @return The list of all eureka service urls for the eureka client to talk to.
      */
-    public static List<String> getDiscoveryServiceUrls(EurekaClientConfig clientConfig, String zone, ServiceUrlRandomizer randomizer) {
+    public static List<String> getDiscoveryServiceUrls(EurekaClientConfig clientConfig, String zone, ServiceUrlRandomizer randomizer) { // 获取Eureka Server集群服务地址列表
         boolean shouldUseDns = clientConfig.shouldUseDnsForFetchingServiceUrls();
         if (shouldUseDns) {
             return getServiceUrlsFromDNS(clientConfig, zone, clientConfig.shouldPreferSameZoneEureka(), randomizer);
         }
-        return getServiceUrlsFromConfig(clientConfig, zone, clientConfig.shouldPreferSameZoneEureka());
+        return getServiceUrlsFromConfig(clientConfig, zone, clientConfig.shouldPreferSameZoneEureka()); // 获取Eureka Server集群服务地址列表
     }
 
     /**
@@ -187,10 +187,10 @@ public class EndpointUtils {
      * @param preferSameZone true if we have to prefer the same zone as the client, false otherwise
      * @return The list of all eureka service urls for the eureka client to talk to
      */
-    public static List<String> getServiceUrlsFromConfig(EurekaClientConfig clientConfig, String instanceZone, boolean preferSameZone) {
+    public static List<String> getServiceUrlsFromConfig(EurekaClientConfig clientConfig, String instanceZone, boolean preferSameZone) { // 获取Eureka Server集群服务地址列表
         List<String> orderedUrls = new ArrayList<String>();
-        String region = getRegion(clientConfig);
-        String[] availZones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
+        String region = getRegion(clientConfig); // 默认为"us-east-1"
+        String[] availZones = clientConfig.getAvailabilityZones(clientConfig.getRegion()); // 默认为["defaultZone"]
         if (availZones == null || availZones.length == 0) {
             availZones = new String[1];
             availZones[0] = DEFAULT_ZONE;
@@ -198,7 +198,7 @@ public class EndpointUtils {
         logger.debug("The availability zone for the given region {} are {}", region, availZones);
         int myZoneOffset = getZoneOffset(instanceZone, preferSameZone, availZones);
 
-        List<String> serviceUrls = clientConfig.getEurekaServerServiceUrls(availZones[myZoneOffset]);
+        List<String> serviceUrls = clientConfig.getEurekaServerServiceUrls(availZones[myZoneOffset]); // 获取Eureka Server集群服务地址列表
         if (serviceUrls != null) {
             orderedUrls.addAll(serviceUrls);
         }

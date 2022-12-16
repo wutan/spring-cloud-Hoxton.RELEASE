@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
 @Serializer("com.netflix.discovery.converters.EntityBodyConverter")
 @XStreamAlias("instance")
 @JsonRootName("instance")
-public class InstanceInfo {
+public class InstanceInfo { // 应用实例信息
 
     private static final String VERSION_UNKNOWN = "unknown";
 
@@ -89,7 +89,7 @@ public class InstanceInfo {
     public static final int DEFAULT_COUNTRY_ID = 1; // US
 
     // The (fixed) instanceId for this instanceInfo. This should be unique within the scope of the appName.
-    private volatile String instanceId;
+    private volatile String instanceId; // 实例Id
 
     private volatile String appName;
     @Auto
@@ -136,15 +136,15 @@ public class InstanceInfo {
     private volatile boolean isUnsecurePortEnabled = true;
     private volatile DataCenterInfo dataCenterInfo;
     private volatile String hostName;
-    private volatile InstanceStatus status = InstanceStatus.UP;
+    private volatile InstanceStatus status = InstanceStatus.UP; // 实例状态（初始状态默认会被替换成STARTING）
     private volatile InstanceStatus overriddenStatus = InstanceStatus.UNKNOWN;
     @XStreamOmitField
     private volatile boolean isInstanceInfoDirty = false;
-    private volatile LeaseInfo leaseInfo;
+    private volatile LeaseInfo leaseInfo; // 续约信息
     @Auto
     private volatile Boolean isCoordinatingDiscoveryServer = Boolean.FALSE;
     @XStreamAlias("metadata")
-    private volatile Map<String, String> metadata;
+    private volatile Map<String, String> metadata; // 元数据信息
     @Auto
     private volatile Long lastUpdatedTimestamp;
     @Auto
@@ -1013,7 +1013,7 @@ public class InstanceInfo {
      *
      * @param info the lease information of this instance.
      */
-    public void setLeaseInfo(LeaseInfo info) {
+    public void setLeaseInfo(LeaseInfo info) { // 设置LeaseInfo
         leaseInfo = info;
     }
 
@@ -1165,11 +1165,11 @@ public class InstanceInfo {
      * @param status status for this instance.
      * @return the prev status if a different status from the current was set, null otherwise
      */
-    public synchronized InstanceStatus setStatus(InstanceStatus status) {
-        if (this.status != status) {
+    public synchronized InstanceStatus setStatus(InstanceStatus status) { // 设置实例状态，当前后状态不同时返回上一次的状态，并设置脏标记
+        if (this.status != status) { // 当前后状态不同时返回上一次的状态
             InstanceStatus prev = this.status;
             this.status = status;
-            setIsDirty();
+            setIsDirty(); // 设置脏标记
             return prev;
         }
         return null;
@@ -1212,8 +1212,8 @@ public class InstanceInfo {
     /**
      * @return the lastDirtyTimestamp if is dirty, null otherwise.
      */
-    public synchronized Long isDirtyWithTime() {
-        if (isInstanceInfoDirty) {
+    public synchronized Long isDirtyWithTime() { // 脏标记的时间
+        if (isInstanceInfoDirty) { // 脏标记
             return lastDirtyTimestamp;
         } else {
             return null;
@@ -1241,8 +1241,8 @@ public class InstanceInfo {
      * Sets the dirty flag so that the instance information can be carried to
      * the discovery server on the next heartbeat.
      */
-    public synchronized void setIsDirty() {
-        isInstanceInfoDirty = true;
+    public synchronized void setIsDirty() { // 设置脏标记
+        isInstanceInfoDirty = true; // 脏标记
         lastDirtyTimestamp = System.currentTimeMillis();
     }
 
@@ -1263,7 +1263,7 @@ public class InstanceInfo {
      *
      * @param unsetDirtyTimestamp the expected lastDirtyTimestamp to unset.
      */
-    public synchronized void unsetIsDirty(long unsetDirtyTimestamp) {
+    public synchronized void unsetIsDirty(long unsetDirtyTimestamp) { // 清除脏标记
         if (lastDirtyTimestamp <= unsetDirtyTimestamp) {
             isInstanceInfoDirty = false;
         } else {

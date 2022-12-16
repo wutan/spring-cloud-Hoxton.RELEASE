@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Tomasz Bak
  */
-public class RateLimiter {
+public class RateLimiter { // 限流器，基于令牌桶实现
 
     private final long rateToMsConversion;
 

@@ -64,13 +64,13 @@ public class Application { // Eureka的服务/应用对象，维护了服务/应
                 + shuffledInstances + ", instancesMap=" + instancesMap + "]";
     }
 
-    private String name;
+    private String name; // 应用名
 
     @XStreamOmitField
     private volatile boolean isDirty = false;
 
     @XStreamImplicit
-    private final Set<InstanceInfo> instances;
+    private final Set<InstanceInfo> instances; // 应用实例信息列表
 
     private final AtomicReference<List<InstanceInfo>> shuffledInstances;
 
