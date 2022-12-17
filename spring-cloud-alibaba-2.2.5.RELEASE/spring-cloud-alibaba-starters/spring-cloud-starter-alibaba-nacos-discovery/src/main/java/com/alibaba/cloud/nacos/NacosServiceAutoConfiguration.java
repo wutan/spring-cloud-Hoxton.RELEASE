@@ -30,7 +30,7 @@ public class NacosServiceAutoConfiguration {
 
 	@Bean
 	public NacosServiceManager nacosServiceManager() {
-		return new NacosServiceManager();
+		return new NacosServiceManager(); // 创建NacosServiceManager
 	}
 
 }

@@ -32,7 +32,7 @@ import org.springframework.util.StringUtils;
  * @author xiaojing
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  */
-public class NacosAutoServiceRegistration
+public class NacosAutoServiceRegistration // 基于nacos的自动注册类，继承自AbstractAutoServiceRegistration
 		extends AbstractAutoServiceRegistration<Registration> {
 
 	private static final Logger log = LoggerFactory
@@ -40,10 +40,10 @@ public class NacosAutoServiceRegistration
 
 	private NacosRegistration registration;
 
-	public NacosAutoServiceRegistration(ServiceRegistry<Registration> serviceRegistry,
+	public NacosAutoServiceRegistration(ServiceRegistry<Registration> serviceRegistry, // 实例化NacosAutoServiceRegistration
 			AutoServiceRegistrationProperties autoServiceRegistrationProperties,
 			NacosRegistration registration) {
-		super(serviceRegistry, autoServiceRegistrationProperties);
+		super(serviceRegistry, autoServiceRegistrationProperties); // 调用父类构造方法
 		this.registration = registration;
 	}
 
@@ -67,7 +67,7 @@ public class NacosAutoServiceRegistration
 	}
 
 	@Override
-	protected void register() {
+	protected void register() { // 注册
 		if (!this.registration.getNacosDiscoveryProperties().isRegisterEnabled()) {
 			log.debug("Registration disabled.");
 			return;
@@ -75,7 +75,7 @@ public class NacosAutoServiceRegistration
 		if (this.registration.getPort() < 0) {
 			this.registration.setPort(getPort().get());
 		}
-		super.register();
+		super.register(); // 注册
 	}
 
 	@Override

@@ -51,7 +51,7 @@ public class NacosServiceRegistryAutoConfiguration {
 	@Bean
 	public NacosServiceRegistry nacosServiceRegistry(
 			NacosDiscoveryProperties nacosDiscoveryProperties) {
-		return new NacosServiceRegistry(nacosDiscoveryProperties);
+		return new NacosServiceRegistry(nacosDiscoveryProperties); // 创建NacosServiceRegistry
 	}
 
 	@Bean
@@ -60,7 +60,7 @@ public class NacosServiceRegistryAutoConfiguration {
 			ObjectProvider<List<NacosRegistrationCustomizer>> registrationCustomizers,
 			NacosDiscoveryProperties nacosDiscoveryProperties,
 			ApplicationContext context) {
-		return new NacosRegistration(registrationCustomizers.getIfAvailable(),
+		return new NacosRegistration(registrationCustomizers.getIfAvailable(), // 创建NacosRegistration
 				nacosDiscoveryProperties, context);
 	}
 
@@ -70,7 +70,7 @@ public class NacosServiceRegistryAutoConfiguration {
 			NacosServiceRegistry registry,
 			AutoServiceRegistrationProperties autoServiceRegistrationProperties,
 			NacosRegistration registration) {
-		return new NacosAutoServiceRegistration(registry,
+		return new NacosAutoServiceRegistration(registry, // 创建NacosAutoServiceRegistration
 				autoServiceRegistrationProperties, registration);
 	}
 

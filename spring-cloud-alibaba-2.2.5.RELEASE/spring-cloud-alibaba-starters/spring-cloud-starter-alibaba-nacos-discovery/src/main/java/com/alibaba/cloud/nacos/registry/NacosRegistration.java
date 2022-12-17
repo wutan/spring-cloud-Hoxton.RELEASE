@@ -36,7 +36,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author xiaojing
  */
-public class NacosRegistration implements Registration, ServiceInstance {
+public class NacosRegistration implements Registration, ServiceInstance { // 基于nacos的Registration
 
 	/**
 	 * The metadata key of management port.
@@ -64,7 +64,7 @@ public class NacosRegistration implements Registration, ServiceInstance {
 
 	private ApplicationContext context;
 
-	public NacosRegistration(List<NacosRegistrationCustomizer> registrationCustomizers,
+	public NacosRegistration(List<NacosRegistrationCustomizer> registrationCustomizers, // 实例化NacosRegistration
 			NacosDiscoveryProperties nacosDiscoveryProperties,
 			ApplicationContext context) {
 		this.registrationCustomizers = registrationCustomizers;

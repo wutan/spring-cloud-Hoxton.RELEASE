@@ -39,7 +39,7 @@ import static org.springframework.util.ReflectionUtils.rethrowRuntimeException;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @author <a href="mailto:78552423@qq.com">eshun</a>
  */
-public class NacosServiceRegistry implements ServiceRegistry<Registration> {
+public class NacosServiceRegistry implements ServiceRegistry<Registration> { // 基于nacos的ServiceRegistry
 
 	private static final String STATUS_UP = "UP";
 
@@ -50,28 +50,28 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 	private final NacosDiscoveryProperties nacosDiscoveryProperties;
 
 	@Autowired
-	private NacosServiceManager nacosServiceManager;
+	private NacosServiceManager nacosServiceManager; // 注入NacosServiceManager
 
-	public NacosServiceRegistry(NacosDiscoveryProperties nacosDiscoveryProperties) {
+	public NacosServiceRegistry(NacosDiscoveryProperties nacosDiscoveryProperties) { // 实例化NacosServiceRegistry
 		this.nacosDiscoveryProperties = nacosDiscoveryProperties;
 	}
 
 	@Override
-	public void register(Registration registration) {
+	public void register(Registration registration) { // 注册
 
 		if (StringUtils.isEmpty(registration.getServiceId())) {
 			log.warn("No service to register for nacos client...");
 			return;
 		}
 
-		NamingService namingService = namingService();
+		NamingService namingService = namingService(); // 获取NamingService
 		String serviceId = registration.getServiceId();
-		String group = nacosDiscoveryProperties.getGroup();
+		String group = nacosDiscoveryProperties.getGroup(); // 获取group
 
-		Instance instance = getNacosInstanceFromRegistration(registration);
+		Instance instance = getNacosInstanceFromRegistration(registration); // 构建Instance
 
 		try {
-			namingService.registerInstance(serviceId, group, instance);
+			namingService.registerInstance(serviceId, group, instance); // 注册实例
 			log.info("nacos registry, {} {} {}:{} register finished", group, serviceId,
 					instance.getIp(), instance.getPort());
 		}
@@ -182,9 +182,9 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 		return instance;
 	}
 
-	private NamingService namingService() {
+	private NamingService namingService() { // 获取NamingService
 		return nacosServiceManager
-				.getNamingService(nacosDiscoveryProperties.getNacosProperties());
+				.getNamingService(nacosDiscoveryProperties.getNacosProperties()); // 获取NamingService
 	}
 
 }
