@@ -44,14 +44,14 @@ import org.springframework.core.env.Environment;
  * @param <R> Registration type passed to the {@link ServiceRegistry}.
  * @author Spencer Gibb
  */
-public abstract class AbstractAutoServiceRegistration<R extends Registration>
+public abstract class AbstractAutoServiceRegistration<R extends Registration> // 抽象的自动服务注册类（eureka并未遵循）
 		implements AutoServiceRegistration, ApplicationContextAware,
 		ApplicationListener<WebServerInitializedEvent> {
 
 	private static final Log logger = LogFactory
 			.getLog(AbstractAutoServiceRegistration.class);
 
-	private final ServiceRegistry<R> serviceRegistry;
+	private final ServiceRegistry<R> serviceRegistry; // 服务注册实现类
 
 	private boolean autoStartup = true;
 
@@ -72,7 +72,7 @@ public abstract class AbstractAutoServiceRegistration<R extends Registration>
 		this.serviceRegistry = serviceRegistry;
 	}
 
-	protected AbstractAutoServiceRegistration(ServiceRegistry<R> serviceRegistry,
+	protected AbstractAutoServiceRegistration(ServiceRegistry<R> serviceRegistry, // 实例化AbstractAutoServiceRegistration
 			AutoServiceRegistrationProperties properties) {
 		this.serviceRegistry = serviceRegistry;
 		this.properties = properties;
@@ -84,12 +84,12 @@ public abstract class AbstractAutoServiceRegistration<R extends Registration>
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onApplicationEvent(WebServerInitializedEvent event) {
-		bind(event);
+	public void onApplicationEvent(WebServerInitializedEvent event) { // 监听WebServerInitializedEvent事件（finishRefresh发布事件时调用）
+		bind(event); // 处理WebServerInitializedEvent事件
 	}
 
 	@Deprecated
-	public void bind(WebServerInitializedEvent event) {
+	public void bind(WebServerInitializedEvent event) { // 处理WebServerInitializedEvent事件
 		ApplicationContext context = event.getApplicationContext();
 		if (context instanceof ConfigurableWebServerApplicationContext) {
 			if ("management".equals(((ConfigurableWebServerApplicationContext) context)
@@ -97,8 +97,8 @@ public abstract class AbstractAutoServiceRegistration<R extends Registration>
 				return;
 			}
 		}
-		this.port.compareAndSet(0, event.getWebServer().getPort());
-		this.start();
+		this.port.compareAndSet(0, event.getWebServer().getPort()); // 获取端口号并进行设置
+		this.start(); // 开始自动注册
 	}
 
 	@Override
@@ -122,8 +122,8 @@ public abstract class AbstractAutoServiceRegistration<R extends Registration>
 		return this.autoStartup;
 	}
 
-	public void start() {
-		if (!isEnabled()) {
+	public void start() { // 开始自动注册
+		if (!isEnabled()) { // 如果设置为不自动注册，则直接结束
 			if (logger.isDebugEnabled()) {
 				logger.debug("Discovery Lifecycle disabled. Not starting");
 			}
@@ -134,13 +134,13 @@ public abstract class AbstractAutoServiceRegistration<R extends Registration>
 		// because of containerPortInitializer below
 		if (!this.running.get()) {
 			this.context.publishEvent(
-					new InstancePreRegisteredEvent(this, getRegistration()));
-			register();
+					new InstancePreRegisteredEvent(this, getRegistration())); // 发布InstancePreRegisteredEvent事件
+			register(); // 注册（子类重写）
 			if (shouldRegisterManagement()) {
 				registerManagement();
 			}
 			this.context.publishEvent(
-					new InstanceRegisteredEvent<>(this, getConfiguration()));
+					new InstanceRegisteredEvent<>(this, getConfiguration())); // 发布InstanceRegisteredEvent事件
 			this.running.compareAndSet(false, true);
 		}
 
@@ -235,8 +235,8 @@ public abstract class AbstractAutoServiceRegistration<R extends Registration>
 	/**
 	 * Register the local service with the {@link ServiceRegistry}.
 	 */
-	protected void register() {
-		this.serviceRegistry.register(getRegistration());
+	protected void register() { // 注册
+		this.serviceRegistry.register(getRegistration()); // 委托给ServiceRegistry进行服务注册
 	}
 
 	/**
