@@ -278,8 +278,8 @@ public class NacosDiscoveryProperties {
 	 * @return NamingService
 	 */
 	@Deprecated
-	public NamingService namingServiceInstance() {
-		return nacosServiceManager.getNamingService(this.getNacosProperties());
+	public NamingService namingServiceInstance() { // 获取NamingService
+		return nacosServiceManager.getNamingService(this.getNacosProperties()); // 获取NamingService
 	}
 
 	public String getEndpoint() {
@@ -629,3 +629,4 @@ public class NacosDiscoveryProperties {
 	}
 
 }
+                                                   
