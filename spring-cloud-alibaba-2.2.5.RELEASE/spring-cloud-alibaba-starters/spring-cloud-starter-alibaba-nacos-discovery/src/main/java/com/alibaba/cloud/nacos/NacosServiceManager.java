@@ -47,9 +47,9 @@ public class NacosServiceManager {
 
 	private NamingMaintainService namingMaintainService;
 
-	public NamingService getNamingService(Properties properties) {
-		if (Objects.isNull(this.namingService)) {
-			buildNamingService(properties);
+	public NamingService getNamingService(Properties properties) { // 获取NamingService
+		if (Objects.isNull(this.namingService)) { // NamingService为空时进行初始化
+			buildNamingService(properties); // 初始化NamingService
 		}
 		return namingService;
 	}
@@ -82,20 +82,20 @@ public class NacosServiceManager {
 		return namingMaintainService;
 	}
 
-	private NamingService buildNamingService(Properties properties) {
+	private NamingService buildNamingService(Properties properties) { // 初始化NamingService
 		if (Objects.isNull(namingService)) {
-			synchronized (NacosServiceManager.class) {
+			synchronized (NacosServiceManager.class) { // 双重检查锁
 				if (Objects.isNull(namingService)) {
-					namingService = createNewNamingService(properties);
+					namingService = createNewNamingService(properties); // 初始化NamingService（通过反射创建NacosNamingService）
 				}
 			}
 		}
 		return namingService;
 	}
 
-	private NamingService createNewNamingService(Properties properties) {
+	private NamingService createNewNamingService(Properties properties) { // 创建NamingService（通过反射创建NacosNamingService）
 		try {
-			return createNamingService(properties);
+			return createNamingService(properties); // 创建NamingService（通过反射创建NacosNamingService）
 		}
 		catch (NacosException e) {
 			throw new RuntimeException(e);
