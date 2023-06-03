@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/spring-cloud-Hoxton.RELEASE.iml" filepath="$PROJECT_DIR$/.idea/spring-cloud-Hoxton.RELEASE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-commons/spring-cloud-commons.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-commons/spring-cloud-commons.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-commons-dependencies/spring-cloud-commons-dependencies.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-commons-dependencies/spring-cloud-commons-dependencies.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/docs/spring-cloud-commons-docs.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/docs/spring-cloud-commons-docs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-commons-parent.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-commons-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-context/spring-cloud-context.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-context/spring-cloud-context.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-context-integration-tests/spring-cloud-context-integration-tests.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-context-integration-tests/spring-cloud-context-integration-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-loadbalancer/spring-cloud-loadbalancer.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-loadbalancer/spring-cloud-loadbalancer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-starter/spring-cloud-starter.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-starter/spring-cloud-starter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-starter-loadbalancer/spring-cloud-starter-loadbalancer.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-starter-loadbalancer/spring-cloud-starter-loadbalancer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-test-support/spring-cloud-test-support.iml" filepath="$PROJECT_DIR$/spring-cloud-commons-2.2.0.RELEASE/spring-cloud-test-support/spring-cloud-test-support.iml" />
+    </modules>
+  </component>
+</project>
